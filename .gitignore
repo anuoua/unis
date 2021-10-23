@@ -74,6 +74,7 @@ typings/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
+.parcel-cache
 
 # Next.js build output
 .next
@@ -81,6 +82,7 @@ typings/
 # Nuxt.js build / generate output
 .nuxt
 dist
+build
 
 # Gatsby files
 .cache/

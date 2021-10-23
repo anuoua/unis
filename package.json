@@ -1,0 +1,58 @@
+{
+  "name": "@unis/unis",
+  "version": "0.0.0",
+  "description": "a simple frontend web framwork",
+  "main": "build/umd/unis.js",
+  "module": "build/esm/unis.js",
+  "types": "build/esm/unis.d.ts",
+  "exports": {
+    ".": {
+      "require": "./build/umd/unis.js",
+      "import": "./build/esm/unis.js"
+    }
+  },
+  "dependencies": {
+    "@types/react": "17.0.34"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-typescript": "^8.3.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "@types/jest": "^27.0.2",
+    "@vue/reactivity": "~3.2.20",
+    "jest": "^27.3.1",
+    "parcel": "^2.0.0",
+    "patch-package": "^6.4.7",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.58.3",
+    "ts-jest": "^27.0.7",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.4"
+  },
+  "scripts": {
+    "dev": "parcel example/index.html",
+    "build": "rimraf build && rollup --config",
+    "test": "jest --coverage",
+    "postinstall": "patch-package"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anuoua/unis.git"
+  },
+  "keywords": [
+    "frontend",
+    "web",
+    "framwork"
+  ],
+  "files": [
+    "build",
+    "jsx-runtime.d.ts",
+    "jsx-runtime.js"
+  ],
+  "author": "anuoua",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/anuoua/unis/issues"
+  },
+  "homepage": "https://github.com/anuoua/unis#readme"
+}
