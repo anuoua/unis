@@ -1,0 +1,6 @@
+.background_img {
+  background: url("https://images.unsplash.com/photo-1634564427080-1fdb67c80dc9?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=1080&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTYzNzI0NjM4MQ&ixlib=rb-1.2.1&q=80&w=1920");
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+}

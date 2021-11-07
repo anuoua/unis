@@ -1,0 +1,59 @@
+{
+  "name": "@unis/unis",
+  "version": "0.0.0",
+  "description": "a simple frontend web framwork",
+  "main": "build/umd/unis.js",
+  "module": "build/esm/unis.js",
+  "types": "build/esm/unis.d.ts",
+  "typings": "build/esm/unis.d.ts",
+  "exports": {
+    ".": {
+      "require": "./build/umd/unis.js",
+      "import": "./build/esm/unis.js"
+    },
+    "./jsx-runtime": "./jsx-runtime.js"
+  },
+  "scripts": {
+    "build": "rimraf build && rimraf dist && rollup --config && pnpm run dts && concat -o ./build/umd/unis.d.ts ./build/esm/unis.d.ts",
+    "test": "jest --coverage",
+    "dts": "tsc -p tsconfig.build.json && api-extractor run --local --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anuoua/unis.git"
+  },
+  "keywords": [
+    "frontend",
+    "web",
+    "framwork"
+  ],
+  "files": [
+    "build",
+    "jsx-runtime.d.ts",
+    "jsx-runtime.js"
+  ],
+  "author": "anuoua",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anuoua/unis/issues"
+  },
+  "homepage": "https://github.com/anuoua/unis#readme",
+  "dependencies": {
+    "@unis/unis-types": "workspace:^"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.18.19",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@types/jest": "^27.0.2",
+    "@vue/reactivity": "~3.2.20",
+    "concat": "^1.0.3",
+    "esbuild": "^0.13.13",
+    "jest": "^27.3.1",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.58.3",
+    "rollup-plugin-esbuild": "^4.6.0",
+    "ts-jest": "^27.0.7",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.4"
+  }
+}
