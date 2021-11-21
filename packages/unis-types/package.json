@@ -1,6 +1,6 @@
 {
   "name": "@unis/unis-types",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "unis types",
   "main": "jsx.cjs.js",
   "module": "jsx.esm.js",
@@ -12,9 +12,9 @@
     }
   },
   "files": [
-    "./jsx.cjs.js",
-    "./jsx.esm.js",
-    "./jsx.d.ts"
+    "jsx.cjs.js",
+    "jsx.esm.js",
+    "jsx.d.ts"
   ],
   "scripts": {},
   "repository": {
