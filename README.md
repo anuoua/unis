@@ -10,7 +10,7 @@ Unis looks like React but drive by `@vue/reactivity`. if you like React (hate ho
 npm i @unis/unis
 ```
 
-## Example
+## Demo
 
 ```javascript
 import { render, ref } from '@unis/unis'
@@ -63,8 +63,8 @@ Updator
 
 ## Others
 
-Teleport supported
-Fragment supported
+Teleport is supported
+Fragment is supported
 
 ## Todos
 
