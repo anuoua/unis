@@ -4,7 +4,7 @@ export interface SchedulerJob extends Function {
 }
 
 export function nextTick(cb: SchedulerJob) {
-  return queueMicrotask(cb as VoidFunction);
+  return Promise.resolve().then(() => cb());
 }
 
 let updateQueue: SchedulerJob[] = [];

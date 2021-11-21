@@ -28,15 +28,19 @@ render(<App />, document.body)
 
 ## API
 
-Unis's basic API is almost the same as vue's composition API. See [Composition API](https://v3.vuejs.org/guide/composition-api-introduction.html#why-composition-api)
+Unis's API is like vue's composition API.
+
+[Reactivity](https://v3.vuejs.org/api/reactivity-api.html)
 
 - ref
 - reactive
 - ...
-- watch
-- watchEffect
+- watch*
+- watchEffect*
 
-life circle
+> \* is partial support
+
+Lifecircle
 
 - onBeforeMount
 - onMounted
@@ -44,20 +48,27 @@ life circle
 - onUpdated
 - onBeforeUnmount
 - onUnmounted
+- ~~*onErrorCaptured*~~
+- ~~*onRenderTracked*~~
+- ~~*onRenderTriggered*~~
 
-schedual
+Schedule
 
 - nextTick
+
+Updator
+
 - forceUpdator
 - nextTickUpdator
 
 ## Others
 
-Teleport Support
+Teleport supported
+Fragment supported
 
 ## Todos
 
 - [ ] Context API
 - [ ] Suspense support
 - [ ] Transition support
-- [ ] Unis router
+- [ ] Unis Router
