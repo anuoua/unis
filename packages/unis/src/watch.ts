@@ -5,7 +5,7 @@ import {
   Ref,
   resetTracking,
 } from "@vue/reactivity";
-import { nextTickUpdator } from "./apiUpdate";
+import { nextTickUpdator } from "./updator";
 import { onBeforeUpdate, onUpdated } from "./life";
 
 interface Options {

@@ -1,5 +1,4 @@
-import { addToQueue, nextTick } from "../src/schedule";
-import { SchedulerJob } from "../src/schedule";
+import { addToQueue, nextTick, SchedulerJob } from "../src/unis";
 
 type MockJob = SchedulerJob & jest.Mock;
 
