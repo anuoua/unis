@@ -1,6 +1,6 @@
 {
   "name": "@unis/unis-types",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "unis types",
   "main": "jsx.cjs.js",
   "module": "jsx.esm.js",
