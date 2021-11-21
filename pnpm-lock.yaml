@@ -40,7 +40,6 @@ importers:
 
   packages/unis-example:
     specifiers:
-      '@rollup/plugin-typescript': ^8.3.0
       '@unis/unis': workspace:*
       autoprefixer: ^10.4.0
       postcss: ^8.3.11
@@ -49,7 +48,6 @@ importers:
     dependencies:
       '@unis/unis': link:../unis
     devDependencies:
-      '@rollup/plugin-typescript': 8.3.0
       autoprefixer: 10.4.0_postcss@8.3.11
       postcss: 8.3.11
       tailwindcss: 2.2.19_0c54bdadaf9d9c9c6c134cb2c6c061a3
@@ -688,29 +686,6 @@ packages:
       is-module: 1.0.0
       resolve: 1.20.0
       rollup: 2.59.0
-    dev: true
-
-  /@rollup/plugin-typescript/8.3.0:
-    resolution: {integrity: sha512-I5FpSvLbtAdwJ+naznv+B4sjXZUcIvLLceYpITAn7wAP8W0wqc5noLdGIp9HGVntNhRWXctwPYrSSFQxtl0FPA==}
-    engines: {node: '>=8.0.0'}
-    peerDependencies:
-      rollup: ^2.14.0
-      tslib: '*'
-      typescript: '>=3.7.0'
-    dependencies:
-      '@rollup/pluginutils': 3.1.0
-      resolve: 1.20.0
-    dev: true
-
-  /@rollup/pluginutils/3.1.0:
-    resolution: {integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==}
-    engines: {node: '>= 8.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0
-    dependencies:
-      '@types/estree': 0.0.39
-      estree-walker: 1.0.1
-      picomatch: 2.3.0
     dev: true
 
   /@rollup/pluginutils/3.1.0_rollup@2.59.0:

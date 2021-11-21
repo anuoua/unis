@@ -1,4 +1,5 @@
 import {
+  h,
   Fragment,
   render,
   ref,

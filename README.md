@@ -10,60 +10,63 @@ Unis looks like React but drive by `@vue/reactivity`. if you like React (hate ho
 npm i @unis/unis
 ```
 
-## Demo
+## Vite try
+
+```shell
+npm i @unis/unis vite
+```
+
+vite.config.json
 
 ```javascript
-import { render, ref } from '@unis/unis'
+import { defineConfig } from "vite";
 
-function App() {
-  const hello = ref('hello world')
-
-  return () => ( // return a function!
-    <div>{hello.value}</div>
-  )
-}
-
-render(<App />, document.body)
+export default defineConfig({
+  root: ".",
+  esbuild: {
+    jsxFactory: 'h',
+    jsxFragment: 'Fragment'
+  }
+});
 ```
+
+See [todo example](packages/unis-example)
 
 ## API
 
 Unis's API is like vue's composition API.
 
-[Reactivity](https://v3.vuejs.org/api/reactivity-api.html)
-
-- ref
-- reactive
-- ...
-- watch*
-- watchEffect*
+- [Reactivity](https://v3.vuejs.org/api/reactivity-api.html)
+  - ref
+  - reactive
+  - ...
+  - watch*
+  - watchEffect*
 
 > \* is partial support
 
-Lifecircle
+- Lifecircle
+  - onBeforeMount
+  - onMounted
+  - onBeforeUpdate
+  - onUpdated
+  - onBeforeUnmount
+  - onUnmounted
+  - ~~*onErrorCaptured*~~
+  - ~~*onRenderTracked*~~
+  - ~~*onRenderTriggered*~~
 
-- onBeforeMount
-- onMounted
-- onBeforeUpdate
-- onUpdated
-- onBeforeUnmount
-- onUnmounted
-- ~~*onErrorCaptured*~~
-- ~~*onRenderTracked*~~
-- ~~*onRenderTriggered*~~
+- Schedule
+  - nextTick
 
-Schedule
-
-- nextTick
-
-Updator
-
-- forceUpdator
-- nextTickUpdator
+- Updator
+  - forceUpdator
+  - nextTickUpdator
 
 ## Others
 
 Teleport is supported
+
 Fragment is supported
 
 ## Todos

@@ -1,10 +1,11 @@
-import typescript from "@rollup/plugin-typescript";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   root: "./src",
-  esbuild: false,
-  plugins: [typescript()],
+  esbuild: {
+    jsxFactory: 'h',
+    jsxFragment: 'Fragment'
+  },
   build: {
     outDir: '../dist'
   }
