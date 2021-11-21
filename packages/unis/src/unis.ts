@@ -1,14 +1,7 @@
-export { render } from "./render";
-export { h, Fragment, Teleport } from "./h";
-export { nextTick } from "./schedule";
-export {
-  onBeforeMount,
-  onMounted,
-  onBeforeUpdate,
-  onUpdated,
-  onBeforeUnmount,
-  onUnmounted,
-} from "./life";
+export * from "./render";
+export * from "./h";
+export * from "./schedule";
+export * from "./life";
 export * from "./apiWatch";
 export * from "./apiUpdate";
 export * from "./vode";
