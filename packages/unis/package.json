@@ -1,6 +1,6 @@
 {
   "name": "@unis/unis",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a simple frontend web framwork",
   "main": "build/umd/unis.js",
   "module": "build/esm/unis.js",
