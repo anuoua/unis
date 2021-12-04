@@ -16,6 +16,8 @@ import {
 import {
   onBeforeMount,
   onBeforeUpdate,
+  onRenderTracked,
+  onRenderTriggered,
   onUnmounted,
   onUpdated,
   setCurrentComponentVode,
@@ -314,6 +316,9 @@ export class ComponentVode implements VodeInterface {
         },
         () => this.nextTickUpdate(job)
       ));
+      effect.onTrack = (event) => this.callLife(onRenderTracked.name, event);
+      effect.onTrigger = (event) =>
+        this.callLife(onRenderTriggered.name, event);
       job = effect.run = effect.run.bind(effect);
       job.id = this.depth;
       job();

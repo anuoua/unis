@@ -3,6 +3,8 @@
  */
 
 import {
+  onRenderTracked,
+  onRenderTriggered,
   onBeforeMount,
   onBeforeUnmount,
   onBeforeUpdate,
@@ -43,6 +45,12 @@ describe("life", () => {
       });
       onBeforeUnmount(() => {
         result.push("Main onBeforeUnmount");
+      });
+      onRenderTracked((e) => {
+        result.push("Main onRenderTracked");
+      });
+      onRenderTriggered((e) => {
+        result.push("Main onRenderTriggered");
       });
 
       return () => <div>Main Top Display: {props.name}</div>;
@@ -90,9 +98,11 @@ describe("life", () => {
     expect(result).toMatchObject([
       "App onBeforeMount",
       "Main onBeforeMount",
+      "Main onRenderTracked",
       "Main onMounted",
       "App onMounted",
       "App onBeforeUpdate",
+      "Main onRenderTriggered",
       "Main onBeforeUpdate",
       "Main onUpdated",
       "App onUpdated",

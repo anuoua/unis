@@ -1,3 +1,4 @@
+import { DebuggerEvent } from "@vue/reactivity";
 import { ComponentVode } from "./vode";
 
 let currentComponentVode: ComponentVode | null = null;
@@ -44,6 +45,18 @@ export function onBeforeUnmount(callback: Function) {
 
 export function onUnmounted(callback: Function) {
   regist(onUnmounted.name, callback);
+}
+
+export function onRenderTracked(callback: (e: DebuggerEvent) => void) {
+  regist(onRenderTracked.name, callback);
+}
+
+export function onRenderTriggered(callback: (e: DebuggerEvent) => void) {
+  regist(onRenderTriggered.name, callback);
+}
+
+export function onErrorCaptured(callback: (e: DebuggerEvent) => void) {
+  regist(onErrorCaptured.name, callback);
 }
 
 // onErrorCaptured
