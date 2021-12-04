@@ -291,12 +291,13 @@ export class ComponentVode implements VodeInterface {
         () => {
           if (this.isMounted) return this.update(job.isFirst);
           let child: Vode;
+          pauseTracking();
           this.passSlots = shallowReactive(this.slots) as Vode[];
           this.passProps = shallowReactive({
             ...this.props,
-            children: this.passSlots,
+            children:
+              this.passSlots.length === 1 ? this.passSlots[0] : this.passSlots,
           });
-          pauseTracking();
           setCurrentComponentVode(this);
           const childOrRenderFn = (child = this.type(this.passProps));
           setCurrentComponentVode(null);
