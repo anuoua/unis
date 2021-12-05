@@ -3,6 +3,7 @@
  */
 
 import {
+  onErrorCaptured,
   onRenderTracked,
   onRenderTriggered,
   onBeforeMount,
@@ -13,6 +14,7 @@ import {
   onUpdated,
   render,
   nextTick,
+  reactive,
   ref,
 } from "../src/unis";
 
@@ -131,6 +133,61 @@ describe("life", () => {
 
     nextTick(() => {
       expect(result).toMatchObject([1, 2]);
+    });
+  });
+
+  it("errorCaptured", () => {
+    const Bpp = () => {
+      let a = reactive({
+        str: "str",
+      });
+      onMounted(() => {
+        (a as any).str = 0;
+      });
+      return () => <div>{a.str.toLocaleUpperCase()}</div>;
+    };
+
+    const App = () => {
+      const fallback = <div>fallback</div>;
+      const error = ref(false);
+
+      onErrorCaptured(() => {
+        error.value = true;
+        return false;
+      });
+
+      return () => (error.value ? fallback : <Bpp />);
+    };
+
+    render(<App />, container);
+
+    nextTick(() => {
+      expect(container.innerHTML).toBe("<div>fallback</div>");
+    });
+  });
+
+  it("errorCaptured", () => {
+    const Bpp = () => {
+      let a: any;
+      return () => <div>{a.str.toLocaleUpperCase()}</div>;
+    };
+
+    const App = () => {
+      const fallback = <div>fallback</div>;
+      const error = ref(false);
+
+      onErrorCaptured(() => {
+        error.value = true;
+        return false;
+      });
+
+      return () => (error.value ? fallback : <Bpp />);
+    };
+
+    render(<App />, container);
+
+    nextTick(() => {
+      expect(container.innerHTML).toBe("<div>fallback</div>");
     });
   });
 });

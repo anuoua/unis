@@ -1,5 +1,5 @@
 import { DebuggerEvent } from "@vue/reactivity";
-import { ComponentVode } from "./vode";
+import { ComponentVode, Vode } from "./vode";
 
 let currentComponentVode: ComponentVode | null = null;
 
@@ -55,7 +55,9 @@ export function onRenderTriggered(callback: (e: DebuggerEvent) => void) {
   regist(onRenderTriggered.name, callback);
 }
 
-export function onErrorCaptured(callback: (e: DebuggerEvent) => void) {
+export function onErrorCaptured(
+  callback: (e: Event, vode: Vode, info: string) => void
+) {
   regist(onErrorCaptured.name, callback);
 }
 

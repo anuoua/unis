@@ -16,6 +16,7 @@ import {
 import {
   onBeforeMount,
   onBeforeUpdate,
+  onErrorCaptured,
   onRenderTracked,
   onRenderTriggered,
   onUnmounted,
@@ -307,7 +308,12 @@ export class ComponentVode implements VodeInterface {
           this.callLife(onBeforeMount.name);
           if (isFun(childOrRenderFn)) {
             this.renderFn = childOrRenderFn;
-            child = this.renderFn();
+            try {
+              child = this.renderFn();
+            } catch (e: any) {
+              child = null as any;
+              this.throwCapturedError(e);
+            }
           } else {
             // if is react function style comp, trigger track manully
             [{ ...this.passProps }, [...this.passSlots]];
@@ -354,7 +360,13 @@ export class ComponentVode implements VodeInterface {
 
     const comps = this.getWalkedVodes().componentList;
 
-    const newChild = this.renderFn(this.passProps);
+    let newChild;
+    try {
+      newChild = this.renderFn(this.passProps);
+    } catch (e: any) {
+      newChild = null as any;
+      this.throwCapturedError(e);
+    }
     updateChildren(this.children, formatChildren(newChild), this);
 
     // wait for all updated
@@ -387,9 +399,22 @@ export class ComponentVode implements VodeInterface {
   }
 
   callLife(key: string, ...params: any[]) {
-    if (!this.life[key]) return;
-    for (const callback of this.life[key]) {
+    for (const callback of this.life?.[key] ?? []) {
       callback(...params);
     }
+  }
+
+  throwCapturedError(e: Error) {
+    let vode: Vode = this;
+
+    while ((vode = vode.parentVode)) {
+      if (vode instanceof ComponentVode) {
+        for (const callback of vode.life?.[onErrorCaptured.name] ?? []) {
+          if (callback(e, vode, e.message) === false) return false;
+        }
+      }
+    }
+    /* istanbul ignore next */
+    console.error(e);
   }
 }
