@@ -60,9 +60,3 @@ export function onErrorCaptured(
 ) {
   regist(onErrorCaptured.name, callback);
 }
-
-// onErrorCaptured
-// onRenderTracked
-// onRenderTriggered
-// onActivated
-// onDeactivated
