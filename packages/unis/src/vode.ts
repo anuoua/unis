@@ -53,7 +53,7 @@ export interface VodeInterface {
   patch: (...params: any[]) => void;
   getEntityEls: () => Node[];
   getContainerEl?: () => Element;
-  getWalkedVodes: WalkedVodesFn;
+  walkTree: WalkTreeFn;
   mount: () => void;
 }
 
@@ -62,18 +62,18 @@ export interface WalkedVodes {
   teleportList: TeleportVode[];
 }
 
-export type WalkedVodesFn = (visitor?: (vode: Vode) => void) => WalkedVodes;
+export type WalkTreeFn = (visitor?: (vode: Vode) => void) => WalkedVodes;
 
-function getWalkedVodesGen({ isComponent = false, isTeleport = false } = {}) {
+function walkTreeGen({ isComponent = false, isTeleport = false } = {}) {
   return function (this: Vode, visitor?: (vode: Vode) => void): WalkedVodes {
     visitor?.(this);
     return (this.children ?? []).reduce(
       (pre, cur) => ({
         componentList: pre.componentList.concat(
-          cur.getWalkedVodes(visitor).componentList
+          cur.walkTree(visitor).componentList
         ),
         teleportList: pre.teleportList.concat(
-          cur.getWalkedVodes(visitor).teleportList
+          cur.walkTree(visitor).teleportList
         ),
       }),
       {
@@ -91,10 +91,10 @@ export class TextVode implements VodeInterface {
   public type = TEXT;
   public children = null;
   public isMounted = false;
-  public getWalkedVodes: WalkedVodesFn;
+  public walkTree: WalkTreeFn;
 
   constructor(public props: { nodeValue: string }) {
-    this.getWalkedVodes = getWalkedVodesGen();
+    this.walkTree = walkTreeGen();
   }
 
   create(parentVode: ParentVode) {
@@ -126,11 +126,11 @@ export class ElementVode implements VodeInterface {
   public parentVode!: ParentVode;
   public isMounted = false;
   public isSVG = false;
-  public getWalkedVodes: WalkedVodesFn;
+  public walkTree: WalkTreeFn;
 
   constructor(public type: string, public props: any, public children: Vode[]) {
     if (type === "svg") this.isSVG = true;
-    this.getWalkedVodes = getWalkedVodesGen();
+    this.walkTree = walkTreeGen();
   }
 
   create(parentVode: ParentVode) {
@@ -174,10 +174,10 @@ export class FragmentVode implements VodeInterface {
   public parentVode!: ParentVode;
   public type = Fragment;
   public isMounted = false;
-  public getWalkedVodes: WalkedVodesFn;
+  public walkTree: WalkTreeFn;
 
   constructor(public props: any, public children: Vode[]) {
-    this.getWalkedVodes = getWalkedVodesGen();
+    this.walkTree = walkTreeGen();
   }
 
   create(parentVode: ParentVode) {
@@ -216,11 +216,11 @@ export class TeleportVode implements VodeInterface {
   public type = Teleport;
   public parentVode!: ParentVode;
   public isMounted = false;
-  public getWalkedVodes: WalkedVodesFn;
+  public walkTree: WalkTreeFn;
   public el!: DocumentFragment;
 
   constructor(public props: { to: Element }, public children: Vode[]) {
-    this.getWalkedVodes = getWalkedVodesGen({
+    this.walkTree = walkTreeGen({
       isTeleport: true,
     });
   }
@@ -272,11 +272,11 @@ export class ComponentVode implements VodeInterface {
   public life: { [index: string]: any[] } = {};
   public effectScope!: EffectScope;
   public updateEffect!: ReactiveEffect;
-  public getWalkedVodes: WalkedVodesFn;
+  public walkTree: WalkTreeFn;
 
   constructor(public type: Function, public props: any, public slots: Vode[]) {
     this.update = this.update.bind(this);
-    this.getWalkedVodes = getWalkedVodesGen({
+    this.walkTree = walkTreeGen({
       isComponent: true,
     });
   }
@@ -391,7 +391,7 @@ export class ComponentVode implements VodeInterface {
     this.callLife(onBeforeUpdate.name);
     this.isUpdating = true;
 
-    const comps = this.getWalkedVodes().componentList;
+    const comps = this.walkTree().componentList;
 
     let newChild;
     try {

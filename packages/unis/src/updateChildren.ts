@@ -88,7 +88,7 @@ function insertVodes(
 function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   const utilVode = new FragmentVode({}, removeChildren);
 
-  const { componentList, teleportList } = utilVode.getWalkedVodes();
+  const { componentList, teleportList } = utilVode.walkTree();
 
   // call onBeforeUnmount life
   for (const comp of componentList) {
@@ -110,7 +110,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
 }
 
 export function afterMountVode(vode: Vode) {
-  const { componentList, teleportList } = vode.getWalkedVodes((vode) => {
+  const { componentList, teleportList } = vode.walkTree((vode) => {
     vode.isMounted = true;
   });
 
