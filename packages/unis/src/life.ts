@@ -55,8 +55,6 @@ export function onRenderTriggered(callback: (e: DebuggerEvent) => void) {
   regist(onRenderTriggered.name, callback);
 }
 
-export function onErrorCaptured(
-  callback: (e: Event, vode: Vode, info: string) => void
-) {
+export function onErrorCaptured(callback: (e: any, vode: Vode) => void) {
   regist(onErrorCaptured.name, callback);
 }

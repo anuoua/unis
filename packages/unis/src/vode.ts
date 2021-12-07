@@ -261,10 +261,11 @@ export class TeleportVode implements VodeInterface {
 export class ComponentVode implements VodeInterface {
   public depth!: number;
   public el!: DocumentFragment;
-  public children!: Vode[];
+  public children: Vode[] = [];
   public parentVode!: ParentVode;
   public isMounted = false;
   public isUpdating = false;
+  public isSuspending = false;
   public passProps: any;
   public passSlots: any;
   public renderFn!: Function;
@@ -286,53 +287,85 @@ export class ComponentVode implements VodeInterface {
     this.el = createFragment();
     this.renderFn = this.type;
 
-    const effectScope = (this.effectScope = new EffectScope());
+    if (!this.setup()) return;
+    this.createChildren();
+  }
 
-    effectScope.run(() => {
-      let job: SchedulerJob;
-      const effect = (this.updateEffect = new ReactiveEffect(
-        () => {
-          if (this.isMounted) return this.update(job.isFirst);
-          let child: Vode;
-          pauseTracking();
-          this.passSlots = shallowReactive(this.slots) as Vode[];
-          this.passProps = shallowReactive({
-            ...this.props,
-            children:
-              this.passSlots.length === 1 ? this.passSlots[0] : this.passSlots,
-          });
-          setCurrentComponentVode(this);
-          const childOrRenderFn = (child = this.type(this.passProps));
-          setCurrentComponentVode(null);
-          resetTracking();
-          this.callLife(onBeforeMount.name);
-          if (isFun(childOrRenderFn)) {
-            this.renderFn = childOrRenderFn;
-            try {
-              child = this.renderFn();
-            } catch (e: any) {
-              child = null as any;
-              this.throwCapturedError(e);
-            }
-          } else {
-            // if is react function style comp, trigger track manully
-            [{ ...this.passProps }, [...this.passSlots]];
-          }
-          this.children = formatChildren(child);
-        },
-        () => this.nextTickUpdate(job)
-      ));
-      effect.onTrack = (event) => this.callLife(onRenderTracked.name, event);
-      effect.onTrigger = (event) =>
-        this.callLife(onRenderTriggered.name, event);
-      job = effect.run = effect.run.bind(effect);
-      job.id = this.depth;
-      job();
-    });
-
+  createChildren() {
     for (const child of this.children) {
       child.create(this);
       child.mount();
+    }
+  }
+
+  resume() {
+    if (!this.isMounted || !this.setup()) return;
+    this.createChildren();
+  }
+
+  setup() {
+    try {
+      const effectScope = (this.effectScope = new EffectScope());
+
+      effectScope.run(() => {
+        let job: SchedulerJob;
+        const effect = (this.updateEffect = new ReactiveEffect(
+          () => {
+            if (this.isMounted) return this.update(job.isFirst);
+            let child;
+            let childOrRenderFn;
+            let catchedError;
+            pauseTracking();
+            setCurrentComponentVode(this);
+            this.passSlots = shallowReactive(this.slots) as Vode[];
+            this.passProps = shallowReactive({
+              ...this.props,
+              children:
+                this.passSlots.length === 1
+                  ? this.passSlots[0]
+                  : this.passSlots,
+            });
+            try {
+              childOrRenderFn = child = this.type(this.passProps);
+            } catch (e: any) {
+              catchedError = e;
+            }
+            setCurrentComponentVode(null);
+            resetTracking();
+            if (catchedError) throw catchedError;
+            this.callLife(onBeforeMount.name);
+            if (isFun(childOrRenderFn)) {
+              this.renderFn = childOrRenderFn;
+              child = this.renderFn();
+            } else {
+              // if is react function style comp, trigger track manully
+              [{ ...this.passProps }, [...this.passSlots]];
+            }
+            this.children = formatChildren(child);
+          },
+          () => this.nextTickUpdate(job)
+        ));
+        effect.onTrack = (event) => this.callLife(onRenderTracked.name, event);
+        effect.onTrigger = (event) =>
+          this.callLife(onRenderTriggered.name, event);
+        job = effect.run = effect.run.bind(effect);
+        job.id = this.depth;
+        job();
+      });
+      return true;
+    } catch (e: any) {
+      if (e instanceof Promise) {
+        this.isSuspending = true;
+        e.then(() => {
+          this.resume();
+        }).finally(() => {
+          this.isSuspending = false;
+        });
+      }
+      this.effectScope.stop();
+      this.life = {};
+      this.throwCapturedError(e);
+      return false;
     }
   }
 
@@ -399,21 +432,23 @@ export class ComponentVode implements VodeInterface {
   }
 
   callLife(key: string, ...params: any[]) {
-    for (const callback of this.life?.[key] ?? []) {
+    for (const callback of this.life[key] ?? []) {
       callback(...params);
     }
   }
 
-  throwCapturedError(e: Error) {
+  throwCapturedError(e: any) {
     let vode: Vode = this;
 
     while ((vode = vode.parentVode)) {
       if (vode instanceof ComponentVode) {
-        for (const callback of vode.life?.[onErrorCaptured.name] ?? []) {
-          if (callback(e, vode, e.message) === false) return false;
+        for (const callback of vode.life[onErrorCaptured.name] ?? []) {
+          if (callback(e, vode) === false) return false;
         }
       }
     }
+    /* istanbul ignore next */
+    if (e instanceof Error) throw e;
     /* istanbul ignore next */
     console.error(e);
   }
