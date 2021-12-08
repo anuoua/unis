@@ -357,8 +357,9 @@ export class ComponentVode implements VodeInterface {
       if (e instanceof Promise) {
         this.isSuspending = true;
         e.then(() => {
+          this.isSuspending = false;
           this.resume();
-        }).finally(() => {
+        }).catch(() => {
           this.isSuspending = false;
         });
       }
