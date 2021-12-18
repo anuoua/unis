@@ -1,4 +1,4 @@
-# Unis
+# Unis [中文](./README-zh_CN.md)
 
 A simple frontend framwork inspired by Vue & React.
 
@@ -12,22 +12,49 @@ npm i @unis/unis
 
 ## Vite try
 
-```shell
-npm i @unis/unis vite
+```jsx
+npm i vite -D
 ```
 
-vite.config.json
+vite.config.js
 
-```javascript
+```jsx
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  root: ".",
   esbuild: {
     jsxFactory: 'h',
     jsxFragment: 'Fragment'
   }
 });
+```
+
+index.html
+
+```jsx
+<html>
+	...
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./index.jsx"></script>
+  </body>
+</html>
+```
+
+index.jsx
+
+```jsx
+import { h } from '@unis/unis'
+
+function App() {
+  return () => (
+    <div>
+      hello
+    </div>
+  )
+}
+
+render(<App />, document.querySelector('#root'))
 ```
 
 See [todo example](packages/unis-example)
@@ -52,9 +79,9 @@ Unis's API is like vue's composition API.
   - onUpdated
   - onBeforeUnmount
   - onUnmounted
-  - ~~*onErrorCaptured*~~
-  - ~~*onRenderTracked*~~
-  - ~~*onRenderTriggered*~~
+  - onErrorCaptured
+  - onRenderTracked
+  - onRenderTriggered
 
 - Schedule
   - nextTick
@@ -71,7 +98,7 @@ Fragment is supported
 
 ## Todos
 
-- [ ] Context API
+- [x] Context API
 - [ ] Suspense support
 - [ ] Transition support
 - [ ] Unis Router
