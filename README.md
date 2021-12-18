@@ -33,7 +33,7 @@ index.html
 
 ```jsx
 <html>
-	...
+  ...
   <body>
     <div id="root"></div>
     <script type="module" src="./index.jsx"></script>

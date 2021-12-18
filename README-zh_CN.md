@@ -33,11 +33,11 @@ index.html
 
 ```jsx
 <html>
-	...
-	<body>
+  ...
+  <body>
     <div id="root"></div>
     <script type="module" src="./index.jsx"></script>
-	</body>
+  </body>
 </html>
 ```
 
@@ -47,11 +47,11 @@ index.jsx
 import { h } from '@unis/unis'
 
 function App() {
-	return () => (
+  return () => (
     <div>
       hello
     </div>
-	)
+  )
 }
 
 render(<App />, document.querySelector('#root'))
@@ -65,23 +65,23 @@ Unis 的用法很简单，熟悉 React 可以很快上手。
 import { h, render, ref, onMounted } from '@unis/unis'
 
 function Main(props) {
-	return () => (
-		<main>{props.content}</main>
-	)
+  return () => (
+    <main>{props.content}</main>
+  )
 }
 
 function App() {
-	const hello = ref('hello')
-	const title = ref('example')
-	
-	onMounted(() => { hello.value = 'hello world!' })	
+  const hello = ref('hello')
+  const title = ref('example')
+  
+  onMounted(() => { hello.value = 'hello world!' })	
 
-	return () => (
-		<div>
-			<head>{title.value}</head>
-			<Main content={hello.value} />
-		</div>
-	)
+  return () => (
+    <div>
+      <head>{title.value}</head>
+      <Main content={hello.value} />
+    </div>
+  )
 }
 
 render(<App />, document.querySelector('#root'))
@@ -95,12 +95,12 @@ render(<App />, document.querySelector('#root'))
 import { h, Fragment } from '@unis/unis'
 
 function App() {
-	return () => (
-		<Fragment>
-			<div></div>
+  return () => (
+    <Fragment>
+      <div></div>
       <span></span>
-		</Fragment>
-	)
+    </Fragment>
+  )
 }
 ```
 
@@ -110,11 +110,11 @@ function App() {
 import { h, Teleport } from '@unis/unis'
 
 function App() {
-	return () => (
-		<Teleport to={document.body}>
-			<div></div>
-		</Fragment>
-	)
+  return () => (
+    <Teleport to={document.body}>
+      <div></div>
+    </Fragment>
+  )
 }
 ```
 
@@ -126,18 +126,18 @@ import { h, createContext, render } from '@unis/unis'
 const MainContext = createContext({ name: '' })
 
 function App() {
-	const ctx = MainContext.getValue();
-	
-	return () => (
-		<div>{ctx.name}</div>
-	)
+  const ctx = MainContext.getValue();
+  
+  return () => (
+    <div>{ctx.name}</div>
+  )
 }
 
 render(
-	<MainContext.Provider value={{ name: 'hello' }}>
-		<App />
-	</MainContext.Provider>,
-	document.querySelector('#root')
+  <MainContext.Provider value={{ name: 'hello' }}>
+    <App />
+  </MainContext.Provider>,
+  document.querySelector('#root')
 )
 ```
 
