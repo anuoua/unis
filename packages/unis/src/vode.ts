@@ -22,15 +22,12 @@ import {
   onRenderTriggered,
   onUnmounted,
   onUpdated,
-  setCurrentComponentVode,
 } from "./life";
 import { Fragment, Teleport, formatChildren } from "./h";
 import { SchedulerJob } from "./schedule";
 import { isFun, rEach } from "./utils";
 import { addToQueue } from "./schedule";
 import { updateChildren } from "./updateChildren";
-
-export const TEXT = Symbol("text");
 
 export type VodeType = Symbol | Function | string;
 
@@ -58,12 +55,30 @@ export interface VodeInterface {
   mount: () => void;
 }
 
+let currentComponentVode: ComponentVode | null = null;
+
+export const TEXT = Symbol("text");
+
 export function walkTree(rootVode: Vode, handler: (vode: Vode) => unknown) {
   handler(rootVode);
   if (rootVode instanceof TextVode) return;
   for (const childVode of rootVode.children) {
     walkTree(childVode, handler);
   }
+}
+
+export function findParent(vode: Vode, condition: (vode: Vode) => boolean) {
+  while ((vode = vode.parentVode)) {
+    if (condition(vode) === true) return vode;
+  }
+}
+
+export function getCurrentComponentVode() {
+  return currentComponentVode;
+}
+
+export function setCurrentComponentVode(vode: ComponentVode | null) {
+  currentComponentVode = vode;
 }
 
 export class TextVode implements VodeInterface {

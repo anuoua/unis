@@ -1,4 +1,4 @@
-import { getCurrentComponentVode } from "./life";
+import { getCurrentComponentVode } from "./vode";
 
 export function forceUpdator() {
   const currentVode = getCurrentComponentVode();
