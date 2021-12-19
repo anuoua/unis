@@ -55,35 +55,15 @@ export interface VodeInterface {
   patch: (...params: any[]) => void;
   getEntityEls: () => Node[];
   getContainerEl?: () => Element;
-  walkTree: WalkTreeFn;
   mount: () => void;
 }
 
-export interface WalkedVodes {
-  componentList: ComponentVode[];
-  teleportList: TeleportVode[];
-}
-
-export type WalkTreeFn = (visitor?: (vode: Vode) => void) => WalkedVodes;
-
-function walkTreeGen({ isComponent = false, isTeleport = false } = {}) {
-  return function (this: Vode, visitor?: (vode: Vode) => void): WalkedVodes {
-    visitor?.(this);
-    return (this.children ?? []).reduce(
-      (pre, cur) => ({
-        componentList: pre.componentList.concat(
-          cur.walkTree(visitor).componentList
-        ),
-        teleportList: pre.teleportList.concat(
-          cur.walkTree(visitor).teleportList
-        ),
-      }),
-      {
-        componentList: isComponent ? [this] : [],
-        teleportList: isTeleport ? [this] : [],
-      } as WalkedVodes
-    );
-  };
+export function walkTree(rootVode: Vode, handler: (vode: Vode) => unknown) {
+  handler(rootVode);
+  if (rootVode instanceof TextVode) return;
+  for (const childVode of rootVode.children) {
+    walkTree(childVode, handler);
+  }
 }
 
 export class TextVode implements VodeInterface {
@@ -94,11 +74,8 @@ export class TextVode implements VodeInterface {
   public type = TEXT;
   public children = null;
   public isMounted = false;
-  public walkTree: WalkTreeFn;
 
-  constructor(public props: { nodeValue: string }) {
-    this.walkTree = walkTreeGen();
-  }
+  constructor(public props: { nodeValue: string }) {}
 
   create(parentVode: ParentVode) {
     this.parentVode = parentVode;
@@ -128,11 +105,9 @@ export class ElementVode implements VodeInterface {
   public parentVode!: ParentVode;
   public isMounted = false;
   public isSVG = false;
-  public walkTree: WalkTreeFn;
 
   constructor(public type: string, public props: any, public children: Vode[]) {
     if (type === "svg") this.isSVG = true;
-    this.walkTree = walkTreeGen();
   }
 
   create(parentVode: ParentVode) {
@@ -179,11 +154,8 @@ export class FragmentVode implements VodeInterface {
   public parentVode!: ParentVode;
   public type = Fragment;
   public isMounted = false;
-  public walkTree: WalkTreeFn;
 
-  constructor(public props: any, public children: Vode[]) {
-    this.walkTree = walkTreeGen();
-  }
+  constructor(public props: any, public children: Vode[]) {}
 
   create(parentVode: ParentVode) {
     this.parentVode = parentVode;
@@ -223,14 +195,9 @@ export class TeleportVode implements VodeInterface {
   public type = Teleport;
   public parentVode!: ParentVode;
   public isMounted = false;
-  public walkTree: WalkTreeFn;
   public el!: DocumentFragment;
 
-  constructor(public props: { to: Element }, public children: Vode[]) {
-    this.walkTree = walkTreeGen({
-      isTeleport: true,
-    });
-  }
+  constructor(public props: { to: Element }, public children: Vode[]) {}
 
   create(parentVode: ParentVode) {
     this.parentVode = parentVode;
@@ -282,13 +249,9 @@ export class ComponentVode implements VodeInterface {
   public life: { [index: string]: any[] } = {};
   public effectScope!: EffectScope;
   public updateEffect!: ReactiveEffect;
-  public walkTree: WalkTreeFn;
 
   constructor(public type: Function, public props: any, public slots: Vode[]) {
     this.update = this.update.bind(this);
-    this.walkTree = walkTreeGen({
-      isComponent: true,
-    });
   }
 
   create(parentVode: ParentVode) {
@@ -402,7 +365,11 @@ export class ComponentVode implements VodeInterface {
     this.callLife(onBeforeUpdate.name);
     this.isUpdating = true;
 
-    const comps = this.walkTree().componentList;
+    const componentList: ComponentVode[] = [];
+
+    walkTree(this, (vode: Vode) => {
+      if (vode instanceof ComponentVode) componentList.push(vode);
+    });
 
     let newChild;
     try {
@@ -416,7 +383,7 @@ export class ComponentVode implements VodeInterface {
     // wait for all updated
     if (isRootUpdate) {
       addToQueue(() => {
-        rEach(comps, (comp: ComponentVode) => {
+        rEach(componentList, (comp: ComponentVode) => {
           comp.isMounted && comp.isUpdating && comp.callLife(onUpdated.name);
           comp.isUpdating = false;
         });
