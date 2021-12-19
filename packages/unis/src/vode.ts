@@ -5,6 +5,7 @@ import {
   updateElementProperties,
   append,
   removeElements,
+  updateTextNode,
 } from "./dom";
 import {
   EffectScope,
@@ -43,6 +44,7 @@ export type Vode = TextVode | ParentVode;
 
 export interface VodeInterface {
   depth: number;
+  index: number;
   isMounted: boolean;
   type: VodeType;
   props?: any;
@@ -86,6 +88,7 @@ function walkTreeGen({ isComponent = false, isTeleport = false } = {}) {
 
 export class TextVode implements VodeInterface {
   public depth!: number;
+  public index!: number;
   public el!: Text;
   public parentVode!: ParentVode;
   public type = TEXT;
@@ -104,11 +107,9 @@ export class TextVode implements VodeInterface {
   }
 
   patch(newVode: TextVode) {
-    const { nodeValue } = newVode.props;
-    if (this.props.nodeValue !== nodeValue) {
-      this.props.nodeValue = nodeValue;
-      this.el.nodeValue = nodeValue;
-    }
+    updateTextNode(this.el, this.props, newVode.props);
+    this.index = newVode.index;
+    this.props = newVode.props;
   }
 
   mount() {
@@ -122,6 +123,7 @@ export class TextVode implements VodeInterface {
 
 export class ElementVode implements VodeInterface {
   public depth!: number;
+  public index!: number;
   public el!: Element;
   public parentVode!: ParentVode;
   public isMounted = false;
@@ -151,6 +153,8 @@ export class ElementVode implements VodeInterface {
 
   patch(newVode: ElementVode) {
     updateElementProperties(this.el, this.props, newVode.props, this.isSVG);
+    this.index = newVode.index;
+    this.props = newVode.props;
     this.updateRef();
     updateChildren(this.children, newVode.children, this);
   }
@@ -170,6 +174,7 @@ export class ElementVode implements VodeInterface {
 
 export class FragmentVode implements VodeInterface {
   public depth!: number;
+  public index!: number;
   public el!: DocumentFragment;
   public parentVode!: ParentVode;
   public type = Fragment;
@@ -195,6 +200,7 @@ export class FragmentVode implements VodeInterface {
   }
 
   patch(newVode: FragmentVode) {
+    this.index = newVode.index;
     this.props = newVode.props;
     updateChildren(this.children, newVode.children, this);
   }
@@ -213,6 +219,7 @@ export class FragmentVode implements VodeInterface {
 
 export class TeleportVode implements VodeInterface {
   public depth!: number;
+  public index!: number;
   public type = Teleport;
   public parentVode!: ParentVode;
   public isMounted = false;
@@ -246,6 +253,8 @@ export class TeleportVode implements VodeInterface {
   }
 
   patch(newVode: TeleportVode) {
+    this.index = newVode.index;
+    this.props = newVode.props;
     updateChildren(this.children, newVode.children, this);
   }
 
@@ -260,6 +269,7 @@ export class TeleportVode implements VodeInterface {
 
 export class ComponentVode implements VodeInterface {
   public depth!: number;
+  public index!: number;
   public el!: DocumentFragment;
   public children: Vode[] = [];
   public parentVode!: ParentVode;
@@ -415,6 +425,7 @@ export class ComponentVode implements VodeInterface {
   }
 
   patch(newVode: ComponentVode) {
+    this.index = newVode.index;
     this.props = newVode.props;
     this.slots = newVode.slots;
     Object.assign(this.passProps, newVode.props);

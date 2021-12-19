@@ -8,6 +8,12 @@ export function createFragment() {
   return document.createDocumentFragment();
 }
 
+export function updateTextNode(el: Text, oldProps: any, newProps: any) {
+  if (oldProps.nodeValue !== newProps.nodeValue) {
+    el.nodeValue = newProps.nodeValue;
+  }
+}
+
 export function createElement(type: string, props?: any, isSVG = false) {
   const el = isSVG
     ? document.createElementNS("http://www.w3.org/2000/svg", type)
