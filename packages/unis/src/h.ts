@@ -42,10 +42,7 @@ export function formatChildren(children: any) {
   return children
     .reduce((p: any, c: any) => p.concat(Array.isArray(c) ? c : [c]), [])
     .filter((i: any) => ![null, false, true, undefined].includes(i))
-    .map((i: any, index: number) => {
-      const vode =
-        isStr(i) || isNum(i) ? new TextVode({ nodeValue: i }) : (i as Vode);
-      vode.index = index;
-      return vode;
-    });
+    .map((i: any) =>
+      isStr(i) || isNum(i) ? new TextVode({ nodeValue: i }) : (i as Vode)
+    );
 }

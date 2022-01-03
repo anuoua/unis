@@ -48,7 +48,7 @@ export interface VodeInterface {
   children: Vode[] | null;
   el: Text | DocumentFragment | Element;
   parentVode: Vode;
-  create: (parentVode: ParentVode) => void;
+  create: (parentVode: ParentVode, index: number) => void;
   patch: (...params: any[]) => void;
   getEntityEls: () => Node[];
   getContainerEl?: () => Element;
@@ -65,6 +65,16 @@ export function walkTree(rootVode: Vode, handler: (vode: Vode) => unknown) {
   for (const childVode of rootVode.children) {
     walkTree(childVode, handler);
   }
+}
+
+export function createCommon(
+  this: Vode,
+  parentVode: ParentVode,
+  index: number
+) {
+  this.index = index;
+  this.parentVode = parentVode;
+  this.depth = parentVode.depth + 1;
 }
 
 export function findParent(vode: Vode, condition: (vode: Vode) => boolean) {
@@ -92,9 +102,8 @@ export class TextVode implements VodeInterface {
 
   constructor(public props: { nodeValue: string }) {}
 
-  create(parentVode: ParentVode) {
-    this.parentVode = parentVode;
-    this.depth = parentVode.depth + 1;
+  create(parentVode: ParentVode, index = 0) {
+    createCommon.bind(this)(parentVode, index);
     this.el = createTextNode(this.props.nodeValue);
   }
 
@@ -125,15 +134,14 @@ export class ElementVode implements VodeInterface {
     if (type === "svg") this.isSVG = true;
   }
 
-  create(parentVode: ParentVode) {
-    this.parentVode = parentVode;
+  create(parentVode: ParentVode, index = 0) {
+    createCommon.bind(this)(parentVode, index);
     this.isSVG = this.isSVG || Boolean((parentVode as ElementVode).isSVG);
-    this.depth = parentVode.depth + 1;
     this.el = createElement(this.type, this.props, this.isSVG);
-    for (const child of this.children) {
-      child.create(this);
+    this.children.forEach((child, index) => {
+      child.create(this, index);
       child.mount();
-    }
+    });
   }
 
   mount() {
@@ -172,14 +180,13 @@ export class FragmentVode implements VodeInterface {
 
   constructor(public props: any, public children: Vode[]) {}
 
-  create(parentVode: ParentVode) {
-    this.parentVode = parentVode;
-    this.depth = parentVode.depth + 1;
+  create(parentVode: ParentVode, index = 0) {
+    createCommon.bind(this)(parentVode, index);
     this.el = createFragment();
-    for (const child of this.children) {
-      child.create(this);
+    this.children.forEach((child, index) => {
+      child.create(this, index);
       child.mount();
-    }
+    });
   }
 
   mount() {
@@ -214,14 +221,13 @@ export class TeleportVode implements VodeInterface {
 
   constructor(public props: { to: Element }, public children: Vode[]) {}
 
-  create(parentVode: ParentVode) {
-    this.parentVode = parentVode;
+  create(parentVode: ParentVode, index = 0) {
+    createCommon.bind(this)(parentVode, index);
     this.el = createFragment();
-    this.depth = parentVode.depth + 1;
-    for (const child of this.children) {
-      child.create(this);
+    this.children.forEach((child, index) => {
+      child.create(this, index);
       child.mount();
-    }
+    });
   }
 
   mount() {
@@ -269,9 +275,8 @@ export class ComponentVode implements VodeInterface {
     this.update = this.update.bind(this);
   }
 
-  create(parentVode: ParentVode) {
-    this.parentVode = parentVode;
-    this.depth = parentVode.depth + 1;
+  create(parentVode: ParentVode, index = 0) {
+    createCommon.bind(this)(parentVode, index);
     this.el = createFragment();
     this.renderFn = this.type;
 
@@ -280,10 +285,10 @@ export class ComponentVode implements VodeInterface {
   }
 
   createChildren() {
-    for (const child of this.children) {
-      child.create(this);
+    this.children.forEach((child, index) => {
+      child.create(this, index);
       child.mount();
-    }
+    });
   }
 
   resume() {
