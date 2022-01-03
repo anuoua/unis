@@ -59,7 +59,7 @@ render(<App />, document.querySelector('#root'))
 
 ## 用法
 
-Unis 的用法很简单，熟悉 React 可以很快上手。
+Unis 的用法很简单，熟悉 React & Vue 3 可以很快上手。
 
 ```jsx
 import { h, render, ref, onMounted } from '@unis/unis'
@@ -140,6 +140,8 @@ render(
   document.querySelector('#root')
 )
 ```
+
+查看 [todo 例子](packages/unis-example)
 
 ## API
 
