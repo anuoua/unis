@@ -94,7 +94,7 @@ export function prepend(el: Element | DocumentFragment, ...els: Node[]) {
   return el.prepend(...els);
 }
 
-export function removeElements(children: Node[]) {
+export function removeElements(children: Array<Node | Text>) {
   const fg = createFragment();
   fg.append(...children);
 }

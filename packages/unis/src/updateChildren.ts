@@ -1,11 +1,5 @@
 import { isSameVode, rEach } from "./utils";
-import {
-  ComponentVode,
-  FragmentVode,
-  getVodesEls,
-  TeleportVode,
-  walkVodes,
-} from "./vode";
+import { ComponentVode, getVodesEls, TeleportVode, walkVodes } from "./vode";
 import { insertBefore, nextSibline, prepend, removeElements } from "./dom";
 import { ParentVode, Vode } from "./vode";
 import { onBeforeUnmount, onMounted } from "./life";
@@ -35,9 +29,9 @@ function syncVodeEls(
   newChildren: Vode[],
   newVodeIndex: number,
   direction: "after" | "pre",
-  insertVode?: Vode
+  insertVodes?: Vode[]
 ) {
-  const targetVode = insertVode ?? newChildren[newVodeIndex];
+  const targetVodes = insertVodes ?? [newChildren[newVodeIndex]];
 
   if (direction === "pre") {
     const preVodeEls = findElsInEntityVode(
@@ -46,18 +40,18 @@ function syncVodeEls(
       direction
     );
     if (!preVodeEls[0]) {
-      prepend(parentVode.getContainerEl(), ...getVodesEls([targetVode]));
+      prepend(parentVode.getContainerEl(), ...getVodesEls(targetVodes));
     } else {
       insertBefore(
         parentVode.getContainerEl(),
-        getVodesEls([targetVode]),
+        getVodesEls(targetVodes),
         nextSibline(preVodeEls.pop())
       );
     }
   } else {
     insertBefore(
       parentVode.getContainerEl(),
-      getVodesEls([targetVode]),
+      getVodesEls(targetVodes),
       findElsInEntityVode(newChildren, newVodeIndex + 1, direction)[0]
     );
   }
@@ -78,26 +72,18 @@ function insertVodes(
   insertChildren: Vode[],
   insertIndex: number
 ) {
-  const utilVode = new FragmentVode({}, insertChildren);
-  utilVode.create(parentVode);
-
-  syncVodeEls(parentVode, newChildren, insertIndex, "pre", utilVode);
-
-  for (const vode of insertChildren) {
-    vode.parentVode = parentVode;
-    vode.depth--;
-  }
-
-  afterMountVode(utilVode);
+  insertChildren.forEach((vode, index) => {
+    vode.create(parentVode, index);
+  });
+  syncVodeEls(parentVode, newChildren, insertIndex, "pre", insertChildren);
+  afterMountVode(insertChildren);
 }
 
 function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
-  const utilVode = new FragmentVode({}, removeChildren);
-
   const componentList: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
-  walkVodes([utilVode], (vode: Vode) => {
+  walkVodes(removeChildren, (vode: Vode) => {
     if (vode instanceof ComponentVode) componentList.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);
   });
@@ -113,7 +99,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   });
 
   // unmount all entity elements
-  removeElements(getVodesEls([utilVode]));
+  removeElements(getVodesEls(removeChildren));
 
   // unmount components (call onUnmounted life & clear)
   rEach(componentList, (comp) => {
@@ -121,11 +107,11 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   });
 }
 
-export function afterMountVode(vode: Vode) {
+export function afterMountVode(vodes: Vode[]) {
   const componentList: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
-  walkVodes([vode], (vode: Vode) => {
+  walkVodes(vodes, (vode: Vode) => {
     vode.isMounted = true;
     if (vode instanceof ComponentVode) componentList.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);

@@ -11,5 +11,5 @@ export function render(vode: any, el: Node | null) {
   vode.create(rootVode);
   vode.mount();
 
-  afterMountVode(vode);
+  afterMountVode([vode]);
 }
