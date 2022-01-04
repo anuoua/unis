@@ -1,5 +1,11 @@
 import { isSameVode, rEach } from "./utils";
-import { ComponentVode, FragmentVode, TeleportVode, walkTree } from "./vode";
+import {
+  ComponentVode,
+  FragmentVode,
+  getVodesEls,
+  TeleportVode,
+  walkTree,
+} from "./vode";
 import { insertBefore, nextSibline, prepend, removeElements } from "./dom";
 import { ParentVode, Vode } from "./vode";
 import { onBeforeUnmount, onMounted } from "./life";
@@ -15,7 +21,7 @@ function findElsInEntityVode(
     direction === "pre" ? i-- : i++
   ) {
     const vode = children[i];
-    const entityEls = vode.getEntityEls();
+    const entityEls = getVodesEls([vode]);
     if (vode.isMounted && entityEls.length) {
       return entityEls;
     }
@@ -40,18 +46,18 @@ function syncVodeEls(
       direction
     );
     if (!preVodeEls[0]) {
-      prepend(parentVode.getContainerEl(), ...targetVode.getEntityEls());
+      prepend(parentVode.getContainerEl(), ...getVodesEls([targetVode]));
     } else {
       insertBefore(
         parentVode.getContainerEl(),
-        targetVode.getEntityEls(),
+        getVodesEls([targetVode]),
         nextSibline(preVodeEls.pop())
       );
     }
   } else {
     insertBefore(
       parentVode.getContainerEl(),
-      targetVode.getEntityEls(),
+      getVodesEls([targetVode]),
       findElsInEntityVode(newChildren, newVodeIndex + 1, direction)[0]
     );
   }
@@ -107,7 +113,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   });
 
   // unmount all entity elements
-  removeElements(utilVode.getEntityEls());
+  removeElements(getVodesEls([utilVode]));
 
   // unmount components (call onUnmounted life & clear)
   rEach(componentList, (comp) => {

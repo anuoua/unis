@@ -50,7 +50,6 @@ export interface VodeInterface {
   parentVode: Vode;
   create: (parentVode: ParentVode, index: number) => void;
   patch: (...params: any[]) => void;
-  getEntityEls: () => Node[];
   getContainerEl?: () => Element;
   mount: () => void;
 }
@@ -91,6 +90,20 @@ export function setCurrentComponentVode(vode: ComponentVode | null) {
   currentComponentVode = vode;
 }
 
+export function getVodesEls(vodes: Vode[]): Node[] {
+  let results: Node[] = [];
+  for (const vode of vodes) {
+    if (vode instanceof ElementVode || vode instanceof TextVode) {
+      results.push(vode.el);
+    } else if (vode instanceof TeleportVode) {
+      continue;
+    } else {
+      results = results.concat(getVodesEls(vode.children));
+    }
+  }
+  return results;
+}
+
 export class TextVode implements VodeInterface {
   public depth!: number;
   public index!: number;
@@ -115,10 +128,6 @@ export class TextVode implements VodeInterface {
 
   mount() {
     append(this.parentVode.el, this.el);
-  }
-
-  getEntityEls() {
-    return [this.el];
   }
 }
 
@@ -161,10 +170,6 @@ export class ElementVode implements VodeInterface {
     if (this.props.ref) this.props.ref.value = this.el;
   }
 
-  getEntityEls() {
-    return [this.el];
-  }
-
   getContainerEl(): Element {
     return this.el;
   }
@@ -199,13 +204,6 @@ export class FragmentVode implements VodeInterface {
     updateChildren(this.children, newVode.children, this);
   }
 
-  getEntityEls(): Node[] {
-    return this.children.reduce(
-      (pre, cur) => pre.concat(cur.getEntityEls()),
-      [] as Node[]
-    );
-  }
-
   getContainerEl(): Element {
     return this.parentVode.getContainerEl();
   }
@@ -235,8 +233,7 @@ export class TeleportVode implements VodeInterface {
   }
 
   unmount() {
-    const utilVode = new FragmentVode({}, this.children);
-    removeElements(utilVode.getEntityEls());
+    removeElements(getVodesEls(this.children));
     this.isMounted = false;
   }
 
@@ -244,10 +241,6 @@ export class TeleportVode implements VodeInterface {
     this.index = newVode.index;
     this.props = newVode.props;
     updateChildren(this.children, newVode.children, this);
-  }
-
-  getEntityEls(): Node[] {
-    return [];
   }
 
   getContainerEl(): Element {
@@ -417,13 +410,6 @@ export class ComponentVode implements VodeInterface {
     this.slots = newVode.slots;
     Object.assign(this.passProps, newVode.props);
     Object.assign(this.passSlots, newVode.slots);
-  }
-
-  getEntityEls(): Node[] {
-    return this.children.reduce(
-      (pre, cur) => pre.concat(cur.getEntityEls()),
-      [] as Node[]
-    );
   }
 
   getContainerEl(): Element {
