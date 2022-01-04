@@ -58,11 +58,11 @@ let currentComponentVode: ComponentVode | null = null;
 
 export const TEXT = Symbol("text");
 
-export function walkTree(rootVode: Vode, handler: (vode: Vode) => unknown) {
-  handler(rootVode);
-  if (rootVode instanceof TextVode) return;
-  for (const childVode of rootVode.children) {
-    walkTree(childVode, handler);
+export function walkVodes(vodes: Vode[], handler: (vode: Vode) => unknown) {
+  for (const childVode of vodes) {
+    handler(childVode);
+    if (childVode instanceof TextVode) continue;
+    walkVodes(childVode.children, handler);
   }
 }
 
@@ -380,7 +380,7 @@ export class ComponentVode implements VodeInterface {
 
     const componentList: ComponentVode[] = [];
 
-    walkTree(this, (vode: Vode) => {
+    walkVodes([this], (vode: Vode) => {
       if (vode instanceof ComponentVode) componentList.push(vode);
     });
 

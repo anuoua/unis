@@ -4,7 +4,7 @@ import {
   FragmentVode,
   getVodesEls,
   TeleportVode,
-  walkTree,
+  walkVodes,
 } from "./vode";
 import { insertBefore, nextSibline, prepend, removeElements } from "./dom";
 import { ParentVode, Vode } from "./vode";
@@ -97,7 +97,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   const componentList: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
-  walkTree(utilVode, (vode: Vode) => {
+  walkVodes([utilVode], (vode: Vode) => {
     if (vode instanceof ComponentVode) componentList.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);
   });
@@ -125,7 +125,7 @@ export function afterMountVode(vode: Vode) {
   const componentList: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
-  walkTree(vode, (vode: Vode) => {
+  walkVodes([vode], (vode: Vode) => {
     vode.isMounted = true;
     if (vode instanceof ComponentVode) componentList.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);
