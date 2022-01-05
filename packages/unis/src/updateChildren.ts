@@ -1,5 +1,10 @@
 import { isSameVode, rEach } from "./utils";
-import { ComponentVode, getVodesEls, TeleportVode, walkVodes } from "./vode";
+import {
+  ComponentVode,
+  getVodesEls,
+  TeleportVode,
+  walkVodesLayer,
+} from "./vode";
 import { insertBefore, nextSibline, prepend, removeElements } from "./dom";
 import { ParentVode, Vode } from "./vode";
 import { onBeforeUnmount, onMounted } from "./life";
@@ -83,7 +88,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   const componentList: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
-  walkVodes(removeChildren, (vode: Vode) => {
+  walkVodesLayer(removeChildren, (vode: Vode) => {
     if (vode instanceof ComponentVode) componentList.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);
   });
@@ -111,7 +116,7 @@ export function afterMountVode(vodes: Vode[]) {
   const componentList: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
-  walkVodes(vodes, (vode: Vode) => {
+  walkVodesLayer(vodes, (vode: Vode) => {
     vode.isMounted = true;
     if (vode instanceof ComponentVode) componentList.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);

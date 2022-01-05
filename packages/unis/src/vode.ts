@@ -58,12 +58,23 @@ let currentComponentVode: ComponentVode | null = null;
 
 export const TEXT = Symbol("text");
 
-export function walkVodes(vodes: Vode[], handler: (vode: Vode) => unknown) {
-  for (const childVode of vodes) {
-    handler(childVode);
-    if (childVode instanceof TextVode) continue;
-    walkVodes(childVode.children, handler);
+export function walkVodesDeep(vodes: Vode[], handler: (vode: Vode) => unknown) {
+  for (const vode of vodes) {
+    handler(vode);
+    walkVodesDeep(vode.children, handler);
   }
+}
+
+export function walkVodesLayer(
+  vodes: Vode[],
+  handler: (vode: Vode) => unknown
+) {
+  let next: Vode[] = [];
+  for (const vode of vodes) {
+    handler(vode);
+    next = next.concat(vode.children);
+  }
+  next.length > 0 && walkVodesLayer(next, handler);
 }
 
 export function createCommon(
@@ -110,7 +121,7 @@ export class TextVode implements VodeInterface {
   public el!: Text;
   public parentVode!: ParentVode;
   public type = TEXT;
-  public children = null;
+  public children: Vode[] = [];
   public isMounted = false;
 
   constructor(public props: { nodeValue: string }) {}
@@ -380,7 +391,7 @@ export class ComponentVode implements VodeInterface {
 
     const componentList: ComponentVode[] = [];
 
-    walkVodes([this], (vode: Vode) => {
+    walkVodesLayer([this], (vode: Vode) => {
       if (vode instanceof ComponentVode) componentList.push(vode);
     });
 
