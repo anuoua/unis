@@ -58,10 +58,9 @@ export function updateElementProperties(
       if (oldProps.hasOwnProperty(key) && !newProps.hasOwnProperty(key)) {
         el.removeAttribute(key);
       } else {
-        const attrName = camel2kebab(key);
         isSVG
-          ? el.setAttributeNS(null, attrName, newProps[key])
-          : el.setAttribute(attrName, newProps[key]);
+          ? el.setAttributeNS(null, camel2kebab(key), newProps[key])
+          : el.setAttribute(key.toLowerCase(), newProps[key]);
       }
     }
   }

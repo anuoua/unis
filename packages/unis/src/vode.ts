@@ -58,12 +58,12 @@ let currentComponentVode: ComponentVode | null = null;
 
 export const TEXT = Symbol("text");
 
-export function walkVodesDeep(vodes: Vode[], handler: (vode: Vode) => unknown) {
-  for (const vode of vodes) {
-    handler(vode);
-    walkVodesDeep(vode.children, handler);
-  }
-}
+// export function walkVodesDeep(vodes: Vode[], handler: (vode: Vode) => unknown) {
+//   for (const vode of vodes) {
+//     handler(vode);
+//     walkVodesDeep(vode.children, handler);
+//   }
+// }
 
 export function walkVodesLayer(
   vodes: Vode[],
