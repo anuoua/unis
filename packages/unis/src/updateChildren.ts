@@ -101,6 +101,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   // unmount teleport elements
   rEach(teleportList, (teleport) => {
     teleport.unmount();
+    teleport.isMounted = false;
   });
 
   // unmount all entity elements
@@ -109,6 +110,7 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   // unmount components (call onUnmounted life & clear)
   rEach(componentList, (comp) => {
     comp.unmount();
+    comp.isMounted = false;
   });
 }
 

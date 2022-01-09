@@ -139,6 +139,7 @@ export class TextVode implements VodeInterface {
 
   mount() {
     append(this.parentVode.el, this.el);
+    this.isMounted = true;
   }
 }
 
@@ -167,6 +168,7 @@ export class ElementVode implements VodeInterface {
   mount() {
     append(this.parentVode.el, this.el);
     this.updateRef();
+    this.isMounted = true;
   }
 
   patch(newVode: ElementVode) {
@@ -207,6 +209,7 @@ export class FragmentVode implements VodeInterface {
 
   mount() {
     append(this.parentVode.el, this.el);
+    this.isMounted = true;
   }
 
   patch(newVode: FragmentVode) {
@@ -241,11 +244,11 @@ export class TeleportVode implements VodeInterface {
 
   mount() {
     append(this.getContainerEl(), this.el);
+    this.isMounted = true;
   }
 
   unmount() {
     removeElements(getVodesEls(this.children));
-    this.isMounted = false;
   }
 
   patch(newVode: TeleportVode) {
@@ -267,7 +270,6 @@ export class ComponentVode implements VodeInterface {
   public parentVode!: ParentVode;
   public isMounted = false;
   public isUpdating = false;
-  public isSuspending = false;
   public passProps: any;
   public passSlots: any;
   public renderFn!: Function;
@@ -284,8 +286,9 @@ export class ComponentVode implements VodeInterface {
     this.el = createFragment();
     this.renderFn = this.type;
 
-    if (!this.setup()) return;
-    this.createChildren();
+    if (this.setup()) {
+      this.createChildren();
+    }
   }
 
   createChildren() {
@@ -351,15 +354,6 @@ export class ComponentVode implements VodeInterface {
       });
       return true;
     } catch (e: any) {
-      if (e instanceof Promise) {
-        this.isSuspending = true;
-        e.then(() => {
-          this.isSuspending = false;
-          this.resume();
-        }).catch(() => {
-          this.isSuspending = false;
-        });
-      }
       this.effectScope.stop();
       this.life = {};
       this.throwCapturedError(e);
@@ -377,10 +371,10 @@ export class ComponentVode implements VodeInterface {
 
   mount() {
     append(this.parentVode.el, this.el);
+    this.isMounted = true;
   }
 
   unmount() {
-    this.isMounted = false;
     this.effectScope.stop();
     this.callLife(onUnmounted.name);
   }
@@ -400,7 +394,7 @@ export class ComponentVode implements VodeInterface {
       newChild = this.renderFn(this.passProps);
     } catch (e: any) {
       newChild = null as any;
-      this.throwCapturedError(e);
+      return this.throwCapturedError(e);
     }
     updateChildren(this.children, formatChildren(newChild), this);
 
@@ -443,9 +437,6 @@ export class ComponentVode implements VodeInterface {
         }
       }
     }
-    /* istanbul ignore next */
-    if (e instanceof Error) throw e;
-    /* istanbul ignore next */
-    console.error(e);
+    throw e;
   }
 }
