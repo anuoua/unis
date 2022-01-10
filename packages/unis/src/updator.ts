@@ -1,11 +1,11 @@
-import { getCurrentComponentVode } from "./vode";
+import { getCurrentVode } from "./vode";
 
 export function forceUpdator() {
-  const currentVode = getCurrentComponentVode();
+  const currentVode = getCurrentVode();
   return () => currentVode?.forceUpdate();
 }
 
 export function nextTickUpdator() {
-  const currentVode = getCurrentComponentVode();
+  const currentVode = getCurrentVode();
   return () => currentVode?.nextTickUpdate();
 }

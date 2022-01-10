@@ -54,7 +54,7 @@ export interface VodeInterface {
   mount: () => void;
 }
 
-let currentComponentVode: ComponentVode | null = null;
+let currentVode: ComponentVode | null = null;
 
 export const TEXT = Symbol("text");
 
@@ -63,6 +63,16 @@ export const TEXT = Symbol("text");
 //     handler(vode);
 //     walkVodesDeep(vode.children, handler);
 //   }
+// }
+
+// export function getId() {
+//   const currentVode = getCurrentVode()!;
+//   const indexs: Array<number> = [];
+//   findParent(currentVode, (vode) => {
+//     indexs.push(vode.index);
+//     return vode.parentVode ? true : false;
+//   });
+//   return indexs.join(":");
 // }
 
 export function walkVodesLayer(
@@ -93,15 +103,15 @@ export function findParent(vode: Vode, condition: (vode: Vode) => boolean) {
   }
 }
 
-export function getCurrentComponentVode() {
-  return currentComponentVode;
+export function getCurrentVode() {
+  return currentVode;
 }
 
-export function setCurrentComponentVode(vode: ComponentVode | null) {
-  currentComponentVode = vode;
+export function setCurrentVode(vode: ComponentVode | null) {
+  currentVode = vode;
 }
 
-export function getVodesEls(vodes: Vode[]): Node[] {
+export function getEntityEls(vodes: Vode[]): Node[] {
   let results: Node[] = [];
   for (const vode of vodes) {
     if (vode instanceof ElementVode || vode instanceof TextVode) {
@@ -109,7 +119,7 @@ export function getVodesEls(vodes: Vode[]): Node[] {
     } else if (vode instanceof TeleportVode) {
       continue;
     } else {
-      results = results.concat(getVodesEls(vode.children));
+      results = results.concat(getEntityEls(vode.children));
     }
   }
   return results;
@@ -126,7 +136,7 @@ export class TextVode implements VodeInterface {
 
   constructor(public props: { nodeValue: string }) {}
 
-  create(parentVode: ParentVode, index = 0) {
+  create(parentVode: ParentVode, index: number) {
     createCommon.bind(this)(parentVode, index);
     this.el = createTextNode(this.props.nodeValue);
   }
@@ -155,7 +165,7 @@ export class ElementVode implements VodeInterface {
     if (type === "svg") this.isSVG = true;
   }
 
-  create(parentVode: ParentVode, index = 0) {
+  create(parentVode: ParentVode, index: number) {
     createCommon.bind(this)(parentVode, index);
     this.isSVG = this.isSVG || Boolean((parentVode as ElementVode).isSVG);
     this.el = createElement(this.type, this.props, this.isSVG);
@@ -198,7 +208,7 @@ export class FragmentVode implements VodeInterface {
 
   constructor(public props: any, public children: Vode[]) {}
 
-  create(parentVode: ParentVode, index = 0) {
+  create(parentVode: ParentVode, index: number) {
     createCommon.bind(this)(parentVode, index);
     this.el = createFragment();
     this.children.forEach((child, index) => {
@@ -233,7 +243,7 @@ export class TeleportVode implements VodeInterface {
 
   constructor(public props: { to: Element }, public children: Vode[]) {}
 
-  create(parentVode: ParentVode, index = 0) {
+  create(parentVode: ParentVode, index: number) {
     createCommon.bind(this)(parentVode, index);
     this.el = createFragment();
     this.children.forEach((child, index) => {
@@ -248,7 +258,7 @@ export class TeleportVode implements VodeInterface {
   }
 
   unmount() {
-    removeElements(getVodesEls(this.children));
+    removeElements(getEntityEls(this.children));
   }
 
   patch(newVode: TeleportVode) {
@@ -281,7 +291,7 @@ export class ComponentVode implements VodeInterface {
     this.update = this.update.bind(this);
   }
 
-  create(parentVode: ParentVode, index = 0) {
+  create(parentVode: ParentVode, index: number) {
     createCommon.bind(this)(parentVode, index);
     this.el = createFragment();
     this.renderFn = this.type;
@@ -298,11 +308,6 @@ export class ComponentVode implements VodeInterface {
     });
   }
 
-  resume() {
-    if (!this.isMounted || !this.setup()) return;
-    this.createChildren();
-  }
-
   setup() {
     try {
       const effectScope = (this.effectScope = new EffectScope());
@@ -316,7 +321,7 @@ export class ComponentVode implements VodeInterface {
             let childOrRenderFn;
             let catchedError;
             pauseTracking();
-            setCurrentComponentVode(this);
+            setCurrentVode(this);
             this.passSlots = shallowReactive(this.slots) as Vode[];
             this.passProps = shallowReactive({
               ...this.props,
@@ -330,7 +335,7 @@ export class ComponentVode implements VodeInterface {
             } catch (e: any) {
               catchedError = e;
             }
-            setCurrentComponentVode(null);
+            setCurrentVode(null);
             resetTracking();
             if (catchedError) throw catchedError;
             this.callLife(onBeforeMount.name);
@@ -383,10 +388,10 @@ export class ComponentVode implements VodeInterface {
     this.callLife(onBeforeUpdate.name);
     this.isUpdating = true;
 
-    const componentList: ComponentVode[] = [];
+    const comps: ComponentVode[] = [];
 
     walkVodesLayer([this], (vode: Vode) => {
-      if (vode instanceof ComponentVode) componentList.push(vode);
+      if (vode instanceof ComponentVode) comps.push(vode);
     });
 
     let newChild;
@@ -401,7 +406,7 @@ export class ComponentVode implements VodeInterface {
     // wait for all updated
     if (isRootUpdate) {
       addToQueue(() => {
-        rEach(componentList, (comp: ComponentVode) => {
+        rEach(comps, (comp: ComponentVode) => {
           comp.isMounted && comp.isUpdating && comp.callLife(onUpdated.name);
           comp.isUpdating = false;
         });

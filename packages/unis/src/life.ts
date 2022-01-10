@@ -1,15 +1,15 @@
 import { DebuggerEvent } from "@vue/reactivity";
-import { getCurrentComponentVode, Vode } from "./vode";
+import { getCurrentVode, Vode } from "./vode";
 
 export function regist(key: string, callback: Function) {
-  const currentComponentVode = getCurrentComponentVode();
-  if (!currentComponentVode) {
+  const currentVode = getCurrentVode();
+  if (!currentVode) {
     throw new Error("Don't call the life cycle api outside the component!");
   } else {
-    if (currentComponentVode.life[key]) {
-      currentComponentVode.life[key].push(callback);
+    if (currentVode.life[key]) {
+      currentVode.life[key].push(callback);
     } else {
-      currentComponentVode.life[key] = [callback];
+      currentVode.life[key] = [callback];
     }
   }
 }

@@ -1,5 +1,5 @@
 import { ref } from "@vue/reactivity";
-import { ComponentVode, findParent, getCurrentComponentVode } from "./vode";
+import { ComponentVode, findParent, getCurrentVode } from "./vode";
 
 const contextMap = new WeakMap();
 
@@ -17,7 +17,7 @@ export function createContext<T extends object>(initial: T) {
   };
 
   const getValue = () => {
-    const vode = getCurrentComponentVode()!;
+    const vode = getCurrentVode()!;
     const targetVode = findParent(vode, (vode) => vode.type === Provider) as
       | ComponentVode
       | undefined;

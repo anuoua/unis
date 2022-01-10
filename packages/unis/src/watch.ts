@@ -1,11 +1,10 @@
 import {
-  enableTracking,
+  // enableTracking,
   isRef,
   ReactiveEffect,
   Ref,
-  resetTracking,
+  // resetTracking,
 } from "@vue/reactivity";
-import { nextTickUpdator } from "./updator";
 import { onBeforeUpdate, onUpdated } from "./life";
 
 interface Options {
@@ -16,7 +15,6 @@ export function watchEffect(
   fn: (onInvalidate: (clear: () => void) => void) => void,
   options?: Options
 ) {
-  const tickUpdate = nextTickUpdator();
   const { flush = "pre" } = options ?? {};
   let clearFn: Function;
   let run: Function | null = null;
@@ -30,16 +28,12 @@ export function watchEffect(
 
   const effect = new ReactiveEffect(
     () => {
-      enableTracking();
       fn(onInvalidate);
-      resetTracking();
     },
     () => {
       run = freshRun;
       if (flush === "sync") {
         run();
-      } else {
-        tickUpdate();
       }
     }
   );

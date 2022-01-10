@@ -1,4 +1,4 @@
-import { camel2kebab, classes, getEventName, isEv } from "./utils";
+import { classes, getEventName, isEv, realSVGAttr } from "./utils";
 
 export function createTextNode(nodeValue: string) {
   return document.createTextNode(nodeValue);
@@ -59,7 +59,7 @@ export function updateElementProperties(
         el.removeAttribute(key);
       } else {
         isSVG
-          ? el.setAttributeNS(null, camel2kebab(key), newProps[key])
+          ? el.setAttributeNS(null, realSVGAttr(key), newProps[key])
           : el.setAttribute(key.toLowerCase(), newProps[key]);
       }
     }
@@ -69,7 +69,7 @@ export function updateElementProperties(
 export function insertBefore(
   parentEl: Node,
   newEls: Node[],
-  targetEl: Node | null = null
+  targetEl: Node | null
 ) {
   let insertEl: any;
   if (newEls.length === 1) {
@@ -81,8 +81,8 @@ export function insertBefore(
   parentEl.insertBefore(insertEl, targetEl);
 }
 
-export function nextSibline(el?: Node) {
-  return el ? el.nextSibling : null;
+export function nextSibline(el: Node) {
+  return el.nextSibling;
 }
 
 export function append(el: Element | DocumentFragment, ...els: Node[]) {

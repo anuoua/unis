@@ -1,3 +1,4 @@
+import { displayAttrs } from "./svg";
 import { Vode } from "./vode";
 
 export function isEv(a: string) {
@@ -38,6 +39,17 @@ export function rEach<T extends any>(arr: T[], callback: (a: T) => unknown) {
 export function isObj(a: any) {
   const type = typeof a;
   return (type === "object" || type === "function") && a !== null;
+}
+
+export function realSVGAttr(key: string) {
+  for (let str of ["xmlns", "xml", "xlink"]) {
+    if (key.startsWith(str)) return key.toLowerCase().replace(str, `${str}:`);
+  }
+  if (displayAttrs.includes(key)) {
+    return camel2kebab(key);
+  } else {
+    return key;
+  }
 }
 
 export function classes(

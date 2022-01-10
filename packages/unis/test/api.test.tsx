@@ -60,7 +60,7 @@ describe("api test", () => {
         });
       });
 
-      return () => null;
+      return () => a.value;
     };
 
     render(<App />, container);
@@ -111,7 +111,7 @@ describe("api test", () => {
         });
       });
 
-      return () => null;
+      return () => String(a.value) + b.value;
     };
 
     render(<App />, container);

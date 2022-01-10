@@ -1,7 +1,7 @@
 import { isSameVode, rEach } from "./utils";
 import {
   ComponentVode,
-  getVodesEls,
+  getEntityEls,
   TeleportVode,
   walkVodesLayer,
 } from "./vode";
@@ -20,7 +20,7 @@ function findElsInEntityVode(
     direction === "pre" ? i-- : i++
   ) {
     const vode = children[i];
-    const entityEls = getVodesEls([vode]);
+    const entityEls = getEntityEls([vode]);
     if (vode.isMounted && entityEls.length) {
       return entityEls;
     }
@@ -37,6 +37,7 @@ function syncVodeEls(
   insertVodes?: Vode[]
 ) {
   const targetVodes = insertVodes ?? [newChildren[newVodeIndex]];
+  let insertTargetEl: Node | null;
 
   if (direction === "pre") {
     const preVodeEls = findElsInEntityVode(
@@ -44,20 +45,22 @@ function syncVodeEls(
       newVodeIndex - 1,
       direction
     );
-    if (!preVodeEls[0]) {
-      prepend(parentVode.getContainerEl(), ...getVodesEls(targetVodes));
-    } else {
-      insertBefore(
-        parentVode.getContainerEl(),
-        getVodesEls(targetVodes),
-        nextSibline(preVodeEls.pop())
-      );
-    }
+    preVodeEls[0]
+      ? (insertTargetEl = nextSibline(preVodeEls.pop()!))
+      : prepend(parentVode.getContainerEl(), ...getEntityEls(targetVodes));
   } else {
+    insertTargetEl = findElsInEntityVode(
+      newChildren,
+      newVodeIndex + 1,
+      direction
+    )[0];
+  }
+
+  if (insertTargetEl!) {
     insertBefore(
       parentVode.getContainerEl(),
-      getVodesEls(targetVodes),
-      findElsInEntityVode(newChildren, newVodeIndex + 1, direction)[0]
+      getEntityEls(targetVodes),
+      insertTargetEl
     );
   }
 }
@@ -85,16 +88,16 @@ function insertVodes(
 }
 
 function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
-  const componentList: ComponentVode[] = [];
+  const comps: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
   walkVodesLayer(removeChildren, (vode: Vode) => {
-    if (vode instanceof ComponentVode) componentList.push(vode);
+    if (vode instanceof ComponentVode) comps.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);
   });
 
   // call onBeforeUnmount life
-  for (const comp of componentList) {
+  for (const comp of comps) {
     comp.callLife(onBeforeUnmount.name);
   }
 
@@ -105,22 +108,22 @@ function removeVodes(parentVode: ParentVode, removeChildren: Vode[]) {
   });
 
   // unmount all entity elements
-  removeElements(getVodesEls(removeChildren));
+  removeElements(getEntityEls(removeChildren));
 
   // unmount components (call onUnmounted life & clear)
-  rEach(componentList, (comp) => {
+  rEach(comps, (comp) => {
     comp.unmount();
     comp.isMounted = false;
   });
 }
 
 export function afterMountVode(vodes: Vode[]) {
-  const componentList: ComponentVode[] = [];
+  const comps: ComponentVode[] = [];
   const teleportList: TeleportVode[] = [];
 
   walkVodesLayer(vodes, (vode: Vode) => {
     vode.isMounted = true;
-    if (vode instanceof ComponentVode) componentList.push(vode);
+    if (vode instanceof ComponentVode) comps.push(vode);
     if (vode instanceof TeleportVode) teleportList.push(vode);
   });
 
@@ -128,7 +131,7 @@ export function afterMountVode(vodes: Vode[]) {
     teleport.mount();
   }
 
-  rEach(componentList, (comp) => {
+  rEach(comps, (comp) => {
     comp.callLife(onMounted.name);
   });
 }
