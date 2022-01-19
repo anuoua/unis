@@ -81,8 +81,8 @@ export function insertBefore(
   parentEl.insertBefore(insertEl, targetEl);
 }
 
-export function nextSibline(el: Node) {
-  return el.nextSibling;
+export function nextSibline(el?: Node) {
+  return el ? el.nextSibling : null;
 }
 
 export function append(el: Element | DocumentFragment, ...els: Node[]) {

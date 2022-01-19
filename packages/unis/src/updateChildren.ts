@@ -37,7 +37,6 @@ function syncVodeEls(
   insertVodes?: Vode[]
 ) {
   const targetVodes = insertVodes ?? [newChildren[newVodeIndex]];
-  let insertTargetEl: Node | null;
 
   if (direction === "pre") {
     const preVodeEls = findElsInEntityVode(
@@ -45,22 +44,18 @@ function syncVodeEls(
       newVodeIndex - 1,
       direction
     );
-    preVodeEls[0]
-      ? (insertTargetEl = nextSibline(preVodeEls.pop()!))
+    preVodeEls.length > 0
+      ? insertBefore(
+          parentVode.getContainerEl(),
+          getEntityEls(targetVodes),
+          nextSibline(preVodeEls.pop())
+        )
       : prepend(parentVode.getContainerEl(), ...getEntityEls(targetVodes));
   } else {
-    insertTargetEl = findElsInEntityVode(
-      newChildren,
-      newVodeIndex + 1,
-      direction
-    )[0];
-  }
-
-  if (insertTargetEl!) {
     insertBefore(
       parentVode.getContainerEl(),
       getEntityEls(targetVodes),
-      insertTargetEl
+      findElsInEntityVode(newChildren, newVodeIndex + 1, direction)[0]
     );
   }
 }
