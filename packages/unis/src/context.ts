@@ -1,13 +1,11 @@
-import { ref } from "@vue/reactivity";
 import { ComponentVode, findParent, getCurrentVode } from "./vode";
 
 const contextMap = new WeakMap();
 
-export function createContext<T extends object>(initial: T) {
-  let data = ref(initial);
-
+export function createContext<T extends any>(initial: T) {
   const Provider = (props: { children: JSX.Element; value?: T }) => {
-    props.value && (data.value = props.value);
+    const vode = getCurrentVode()!;
+    contextMap.set(vode, props.value ?? initial);
     return () => props.children;
   };
 
@@ -22,10 +20,8 @@ export function createContext<T extends object>(initial: T) {
       | ComponentVode
       | undefined;
     if (!targetVode) throw new Error("No context provider found");
-    return contextMap.get(targetVode.type).value as T;
+    return contextMap.get(targetVode) as T;
   };
-
-  contextMap.set(Provider, data);
 
   return {
     Provider,

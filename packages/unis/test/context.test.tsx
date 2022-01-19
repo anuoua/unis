@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+import { reactive } from "@vue/reactivity";
 import { createContext } from "../src/context";
 import { onMounted } from "../src/life";
 import { render } from "../src/render";
@@ -15,7 +16,7 @@ describe("Context", () => {
   });
 
   it("get", () => {
-    const Context = createContext({ hello: "name" });
+    const Context = createContext(reactive({ hello: "name" }));
 
     function App() {
       const state = Context.getValue();
@@ -28,7 +29,7 @@ describe("Context", () => {
     }
 
     render(
-      <Context.Provider value={{ hello: "hello" }}>
+      <Context.Provider value={reactive({ hello: "hello" })}>
         <App />
       </Context.Provider>,
       container
@@ -40,7 +41,7 @@ describe("Context", () => {
   });
 
   it("Consumer", () => {
-    const Context = createContext({ hello: "name" });
+    const Context = createContext(reactive({ hello: "name" }));
 
     function App() {
       const state = Context.getValue();
