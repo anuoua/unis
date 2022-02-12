@@ -65,15 +65,15 @@ export const TEXT = Symbol("text");
 //   }
 // }
 
-// export function getId() {
-//   const currentVode = getCurrentVode()!;
-//   const indexs: Array<number> = [];
-//   findParent(currentVode, (vode) => {
-//     indexs.push(vode.index);
-//     return vode.parentVode ? true : false;
-//   });
-//   return indexs.join(":");
-// }
+export function getId() {
+  const currentVode = getCurrentVode()!;
+  const indexs: Array<number> = [currentVode.index];
+  findParent(currentVode, (vode) => {
+    indexs.push(vode.index);
+    return vode.parentVode ? false : true;
+  });
+  return indexs.join(":");
+}
 
 export function walkVodesLayer(
   vodes: Vode[],
