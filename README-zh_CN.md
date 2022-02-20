@@ -1,8 +1,6 @@
 # Unis 中文
 
-Unis 是一款受 Vue 和 React 启发的简单的前端框架。
-
-Unis 看起来像 React，但由 @vue/reactivity 驱动。如果你喜欢 React（讨厌hooks）和 Vue 的响应式系统，你会喜欢 Unis。
+Unis 是一款比 React 更简单易用的前端框架
 
 ## 安装
 
@@ -13,19 +11,32 @@ npm i @unis/unis
 ## Vite 开发
 
 ```jsx
-npm i vite -D
+npm i vite rollup-plugin-reassign -D
 ```
 
 vite.config.js
 
 ```jsx
 import { defineConfig } from "vite";
+import { reassign } from "rollup-plugin-reassign";
 
 export default defineConfig({
   esbuild: {
     jsxFactory: 'h',
     jsxFragment: 'Fragment'
-  }
+  },
+  reassign({
+    include: ["**/*.(t|j)s?(x)"],
+    targetFns: {
+      "@unis/unis": {
+        use: 1,
+        useState: 1,
+        useProps: 1,
+        useContext: 1,
+        useReducer: 2,
+      },
+    },
+  })
 });
 ```
 
@@ -59,27 +70,30 @@ render(<App />, document.querySelector('#root'))
 
 ## 用法
 
-Unis 的用法很简单，熟悉 React & Vue 3 可以很快上手。
+Unis 的用法很简单，熟悉 React 的可以很快上手。
 
 ```jsx
-import { h, render, ref, onMounted } from '@unis/unis'
+import { h, render, useState, useEffect, useProps } from '@unis/unis'
 
 function Main(props) {
+  let { context } = useProps(props)
   return () => (
-    <main>{props.content}</main>
+    <main>{content}</main>
   )
 }
 
 function App() {
-  const hello = ref('hello')
-  const title = ref('example')
-  
-  onMounted(() => { hello.value = 'hello world!' })	
+  let [hello, setHello] = useState('hello')
+  let [title, setTitle] = useState('example')
+
+  useEffect(() => {
+    setHello('hello world!')
+  }, () => [])
 
   return () => (
     <div>
-      <head>{title.value}</head>
-      <Main content={hello.value} />
+      <head>{title}</head>
+      <Main content={hello} />
     </div>
   )
 }
@@ -104,70 +118,69 @@ function App() {
 }
 ```
 
-### Teleport
+### Portal
 
 ```jsx
-import { h, Teleport } from '@unis/unis'
+import { h, createPortal } from '@unis/unis'
 
 function App() {
-  return () => (
-    <Teleport to={document.body}>
-      <div></div>
-    </Fragment>
+  return () => createPortal(
+    <div></div>,
+    document.body
   )
 }
 ```
 
-### Context API（实验中）
+### Context
 
 ```jsx
 import { h, createContext, render } from '@unis/unis'
 
-const MainContext = createContext({ name: '' })
+const ThemeContext = createContext('light')
 
 function App() {
-  const ctx = MainContext.getValue();
+  const theme = useContext(ThemeContext)
   
   return () => (
-    <div>{ctx.name}</div>
+    <div>{theme}</div>
   )
 }
 
 render(
-  <MainContext.Provider value={{ name: 'hello' }}>
+  <ThemeContext.Provider value="dark">
     <App />
-  </MainContext.Provider>,
+  </ThemeContext.Provider>,
   document.querySelector('#root')
 )
 ```
 
-查看 [todo 例子](packages/unis-example)
+## Todo 项目
+
+完整项目请查看 [packages/unis-example](packages/unis-example) Todo 示例。
 
 ## API
 
-Unis 的 API 和 vue 的 Composition API 大概一致。
+Unis 的 API 和 React 相似。
 
-- [Reactivity](https://v3.vuejs.org/api/reactivity-api.html) API
-    - ref
-    - reactive
-    - computed
-    - ...
-    - watch*
-    - watchEffect*
+- Framework
+  - h
+  - h2
+  - Fragment
+  - createPortal
+  - createContext
+  - render
+  - memo
 
-> * 是部分支持
-> 
-- 生命周期
-    - onBeforeMount
-    - onMounted
-    - onBeforeUpdate
-    - onUpdated
-    - onBeforeUnmount
-    - onUnmounted
-    - onErrorCaptured
-    - onRenderTracked
-    - onRenderTriggered
-- 其他
-    - nextTick
-    - forceUpdator
-    - nextTickUpdator
+- Hooks
+  - use
+  - useProps
+  - useState
+  - useReducer
+  - useContext
+  - useEffect
+  - useRef
+  - useId
+
+## License
+
+MIT @anuoua

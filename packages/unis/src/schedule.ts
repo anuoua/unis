@@ -1,41 +1,38 @@
-export interface SchedulerJob extends Function {
-  id?: number;
-  isFirst?: boolean;
-}
+import { Fiber } from "./fiber";
+import { startWork } from "./reconcile";
 
-export function nextTick(cb: SchedulerJob) {
-  return Promise.resolve().then(() => cb());
-}
+let lastTime: number;
+const interval = 14;
 
-let updateQueue: SchedulerJob[] = [];
-let flushing = false;
+export const trigger = (fiber: Fiber) => {
+  lastTime = performance.now();
+  startWork(fiber);
+};
 
-export function flushQueue() {
-  updateQueue.sort((a, b) => a.id! - b.id!);
-  flushing = true;
-  const firstJob = updateQueue.shift();
-  if (firstJob) {
-    firstJob.isFirst = true;
-    firstJob();
-    delete firstJob.isFirst;
-  }
-  let job;
-  while ((job = updateQueue.shift())) {
-    job();
-  }
-  flushing = false;
-}
+export const triggerDebounce = (() => {
+  let pending = false;
+  return (fiber: Fiber) => {
+    if (pending) return;
+    pending = true;
+    queueMicrotask(() => {
+      pending = false;
+      trigger(fiber);
+    });
+  };
+})();
 
-export function addToQueue(job: SchedulerJob, sync = false) {
-  if (updateQueue.includes(job)) return;
-  job.id = job.id ?? Number.MAX_SAFE_INTEGER;
-  if (flushing) {
-    const index = updateQueue.findIndex((j) => j.id! > job.id!);
-    index === -1 ? updateQueue.push(job) : updateQueue.splice(index, 0, job);
+export const shouldYield = () => performance.now() - lastTime > interval;
+
+export const nextTick = (cb: Function) => {
+  const cbWrap = () => {
+    lastTime = performance.now();
+    cb();
+  };
+  if (window.MessageChannel) {
+    const { port1, port2 } = new window.MessageChannel();
+    port1.postMessage("");
+    port2.onmessage = () => cbWrap();
   } else {
-    updateQueue.push(job);
-    if (updateQueue.length === 1) {
-      sync ? flushQueue() : nextTick(() => flushQueue());
-    }
+    setTimeout(() => cbWrap());
   }
-}
+};

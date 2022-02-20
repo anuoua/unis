@@ -1480,7 +1480,7 @@ type EventHandlers<E> = {
 type ReservedProps = {
   children?: unknown;
   key?: string | number | symbol;
-  ref?: { value: any } | ((ref: Element | null) => void);
+  ref?: { current: any } | ((ref: Element | null) => void);
 };
 
 type ElementAttrs<T> = T & ReservedProps;

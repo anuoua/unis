@@ -1,31 +1,42 @@
-# Unis [中文](./README-zh_CN.md)
+# Unis
 
-A simple frontend framwork inspired by Vue & React.
-
-Unis looks like React but drive by `@vue/reactivity`. if you like React (hate hooks) and Vue's reactive system，you will have fun with it.
+Unis is a simpler and easier to use front-end framework than React
 
 ## Install
 
-```shell
+```bash
 npm i @unis/unis
 ```
 
-## Vite try
+## Vite Dev
 
 ```jsx
-npm i vite -D
+npm i vite rollup-plugin-reassign -D
 ```
 
 vite.config.js
 
 ```jsx
 import { defineConfig } from "vite";
+import { reassign } from "rollup-plugin-reassign";
 
 export default defineConfig({
   esbuild: {
     jsxFactory: 'h',
     jsxFragment: 'Fragment'
-  }
+  },
+  reassign({
+    include: ["**/*.(t|j)s?(x)"],
+    targetFns: {
+      "@unis/unis": {
+        use: 1,
+        useState: 1,
+        useProps: 1,
+        useContext: 1,
+        useReducer: 2,
+      },
+    },
+  })
 });
 ```
 
@@ -57,31 +68,32 @@ function App() {
 render(<App />, document.querySelector('#root'))
 ```
 
-See [todo example](packages/unis-example)
-
 ## Usage
 
-The Unis's usage is easy, and you can get started quickly if you are familiar with React & Vue 3.
+The usage of Unis is very simple, and those who are familiar with React can get started quickly.
 
 ```jsx
-import { h, render, ref, onMounted } from '@unis/unis'
+import { h, render, useState, useEffect, useProps } from '@unis/unis'
 
 function Main(props) {
+  let { context } = useProps(props)
   return () => (
-    <main>{props.content}</main>
+    <main>{content}</main>
   )
 }
 
 function App() {
-  const hello = ref('hello')
-  const title = ref('example')
-  
-  onMounted(() => { hello.value = 'hello world!' })	
+  let [hello, setHello] = useState('hello')
+  let [title, setTitle] = useState('example')
+
+  useEffect(() => {
+    setHello('hello world!')
+  }, () => [])
 
   return () => (
     <div>
-      <head>{title.value}</head>
-      <Main content={hello.value} />
+      <head>{title}</head>
+      <Main content={hello} />
     </div>
   )
 }
@@ -89,7 +101,7 @@ function App() {
 render(<App />, document.querySelector('#root'))
 ```
 
-## Feature
+## Features
 
 ### Fragment
 
@@ -106,68 +118,69 @@ function App() {
 }
 ```
 
-### Teleport
+### Portal
 
 ```jsx
-import { h, Teleport } from '@unis/unis'
+import { h, createPortal } from '@unis/unis'
 
 function App() {
-  return () => (
-    <Teleport to={document.body}>
-      <div></div>
-    </Fragment>
+  return () => createPortal(
+    <div></div>,
+    document.body
   )
 }
 ```
 
-### Context API（Experimental）
+### Context
 
 ```jsx
 import { h, createContext, render } from '@unis/unis'
 
-const MainContext = createContext({ name: '' })
+const ThemeContext = createContext('light')
 
 function App() {
-  const ctx = MainContext.getValue();
+  const theme = useContext(ThemeContext)
   
   return () => (
-    <div>{ctx.name}</div>
+    <div>{theme}</div>
   )
 }
 
 render(
-  <MainContext.Provider value={{ name: 'hello' }}>
+  <ThemeContext.Provider value="dark">
     <App />
-  </MainContext.Provider>,
+  </ThemeContext.Provider>,
   document.querySelector('#root')
 )
 ```
 
+## Todo Project
+
+See the [packages/unis-example](packages/unis-example) Todo example for the full project.
+
 ## API
 
-Unis's API like Vue's Composition API.
+Unis' API is similar to React.
 
-- [Reactivity](https://v3.vuejs.org/api/reactivity-api.html) API
-    - ref
-    - reactive
-    - computed
-    - ...
-    - watch*
-    - watchEffect*
+- Framework
+  - h
+  - h2
+  - Fragment
+  - createPortal
+  - createContext
+  - render
+  - memo
 
-> * Partially Supported
+- Hooks
+  - use
+  - useProps
+  - useState
+  - useReducer
+  - useContext
+  - useEffect
+  - useRef
+  - useId
 
-- 生命周期
-    - onBeforeMount
-    - onMounted
-    - onBeforeUpdate
-    - onUpdated
-    - onBeforeUnmount
-    - onUnmounted
-    - onErrorCaptured
-    - onRenderTracked
-    - onRenderTriggered
-- 其他
-    - nextTick
-    - forceUpdator
-    - nextTickUpdator
+## License
+
+MIT @anuoua

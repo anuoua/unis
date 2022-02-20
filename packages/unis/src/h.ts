@@ -1,51 +1,68 @@
-import { isStr, isNum, isFun } from "./utils";
-import {
-  ComponentVode,
-  ElementVode,
-  FragmentVode,
-  TextVode,
-  TeleportVode,
-  Vode,
-} from "./vode";
+import { isNum, isStr } from "./utils";
+import { Fiber, MEMO, PORTAL, TEXT } from "./fiber";
 
-/* istanbul ignore next */
-export function Fragment(props: { children?: any }): any {}
+export const h = (type: any, props: any, ...children: any[]) => {
+  props = { ...props };
+  if (children.length === 1) props.children = children[0];
+  if (children.length > 1) props.children = children;
+  return {
+    type,
+    props,
+  } as Fiber;
+};
 
-/* istanbul ignore next */
-export function Teleport(props: { children: any; to: Element }): any {}
-
-export function h(type: any, props: any, ...children: any[]) {
-  props = props ?? {};
-  children = formatChildren(children);
-  if (type === Fragment) {
-    return new FragmentVode(props, children);
-  } else if (type === Teleport) {
-    return new TeleportVode(props, children);
-  } else if (isFun(type)) {
-    return new ComponentVode(type, props, children);
-  } else if (isStr(type)) {
-    return new ElementVode(type, props, children);
-  }
+export function h2(type: any, props: any, key?: string | number) {
+  if (key !== undefined) props.key = key;
+  return {
+    type,
+    props,
+  } as Fiber;
 }
 
-export function h2(
-  type: any,
-  { children = [], ...props }: any,
-  key?: string | number
-) {
-  key !== undefined && (props.key = key);
-  return h(type, props, ...[].concat(children));
-}
-
-export function formatChildren(children: any) {
+export const formatChildren = (children: any) => {
   children = [].concat(children);
-  return children
-    .reduce((p: any, c: any) => p.concat(Array.isArray(c) ? c : [c]), [])
-    .filter((i: any) => ![null, false, true, undefined].includes(i))
-    .map((i: any, index: number) => {
-      const vode =
-        isStr(i) || isNum(i) ? new TextVode({ nodeValue: i }) : (i as Vode);
-      vode.index = index;
-      return vode;
-    });
-}
+  return children.reduce(
+    (pre: any, cur: any) =>
+      [null, false, true, undefined].includes(cur)
+        ? pre
+        : pre.concat(
+            isStr(cur) || isNum(cur)
+              ? { type: TEXT, props: { nodeValue: cur } }
+              : cur
+          ),
+    []
+  );
+};
+
+export const createPortal = (child: any, container: Element) => {
+  return {
+    type: PORTAL,
+    to: container,
+    props: {
+      children: child,
+    },
+  } as Fiber;
+};
+
+const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
+  const newKeys = Object.keys(newProps);
+  const oldKeys = Object.keys(oldProps);
+  if (newKeys.length !== oldKeys.length) return false;
+  return newKeys.every((key) => Object.is(newProps[key], oldProps[key]));
+};
+
+export const memo = (child: any, compare: Function = defaultCompare) => {
+  return (props: any) =>
+    ({
+      type: MEMO,
+      props: {
+        children: {
+          type: child,
+          props,
+        },
+      },
+      compare,
+    } as Fiber);
+};
+
+export const Fragment = (props: any) => props.children;
