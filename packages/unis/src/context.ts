@@ -1,31 +1,61 @@
-import { ComponentVode, findParent, getCurrentVode } from "./vode";
+import { getWF, use } from "./api";
+import { CONTEXT, Fiber } from "./fiber";
+import { getContextList } from "./reconcile";
 
-const contextMap = new WeakMap();
+export interface Context {
+  Provider: Function;
+  Consumer: Function;
+  initial: any;
+}
 
-export function createContext<T extends any>(initial: T) {
-  const Provider = (props: { children: JSX.Element; value?: T }) => {
-    const vode = getCurrentVode()!;
-    contextMap.set(vode, props.value ?? initial);
-    return () => props.children;
-  };
+export interface ContextItem {
+  context: Context;
+  value: any;
+}
 
-  const Consumer = (props: { children: (value: T) => JSX.Element }) => {
-    const ctxValue = getValue();
-    return () => props.children(ctxValue as T);
-  };
+export const contextMap = new WeakMap<Function, Context>();
 
-  const getValue = () => {
-    const vode = getCurrentVode()!;
-    const targetVode = findParent(vode, (vode) => vode.type === Provider) as
-      | ComponentVode
-      | undefined;
-    if (!targetVode) throw new Error("No context provider found");
-    return contextMap.get(targetVode) as T;
-  };
-
+export const createContextItem = (fiber: Fiber) => {
   return {
+    context: contextMap.get(fiber.type as Function)!,
+    value: fiber.props.value,
+  };
+};
+
+export const createContext = <T extends any>(initial: T) => {
+  const Provider = (props: { value: T; children: any }) =>
+    ({
+      type: CONTEXT,
+      props,
+    } as Fiber);
+
+  const Consumer = (props: { children: any }) => {
+    // @ts-ignore
+    let state = useContext(context, ($) => (state = $));
+    return () => props.children(state);
+  };
+
+  const context = {
     Provider,
     Consumer,
-    getValue,
+    initial,
   };
+
+  contextMap.set(Provider, context);
+
+  return context;
+};
+
+export const contextHOF = (context: Context) => {
+  const readContext = (fiber: Fiber) => {
+    const dependencies = getContextList();
+    fiber.dependencies = [...dependencies];
+    const provider = dependencies.find((i) => i.context === context);
+    return provider ? provider.value : context.initial;
+  };
+  return () => readContext(getWF());
+};
+
+export function useContext(ctx: Context) {
+  return use(contextHOF(ctx), arguments[1]);
 }
