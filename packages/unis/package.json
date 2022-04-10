@@ -1,7 +1,7 @@
 {
   "name": "@unis/unis",
   "version": "0.0.4",
-  "description": "a simple frontend web framwork",
+  "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "build/umd/unis.js",
   "module": "build/esm/unis.js",
   "types": "build/esm/unis.d.ts",
@@ -32,7 +32,8 @@
   "files": [
     "build",
     "jsx-runtime.d.ts",
-    "jsx-runtime.js"
+    "jsx-runtime.js",
+    "../../README.md"
   ],
   "author": "anuoua",
   "license": "MIT",
