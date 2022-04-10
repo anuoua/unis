@@ -16,7 +16,7 @@ const configGen = (format) => ({
     nodeResolve(),
     esbuild({
       sourceMap: true,
-      minify: false,
+      minify: process.env.NODE_ENV === 'development' ? false : true,
       target: 'esnext'
     }),
   ],

@@ -7,7 +7,15 @@ export default defineConfig({
     typescript(),
     reassign({
       targetFns: {
-        "../src/api": ["useState", "use", "use2"],
+        "../src/api": {
+          use: 1,
+          useState: 1,
+          useProps: 1,
+          useReducer: 2,
+        },
+        "../src/context": {
+          useContext: 1,
+        },
       },
     }),
   ],
