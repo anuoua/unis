@@ -11,13 +11,13 @@ export const h = (type: any, props: any, ...children: any[]) => {
   } as Fiber;
 };
 
-export function h2(type: any, props: any, key?: string | number) {
+export const h2 = (type: any, props: any, key?: string | number) => {
   if (key !== undefined) props.key = key;
   return {
     type,
     props,
   } as Fiber;
-}
+};
 
 export const formatChildren = (children: any) => {
   children = [].concat(children);

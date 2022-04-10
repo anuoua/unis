@@ -7,6 +7,10 @@ export const isEv = (a: string) => a.startsWith("on");
 export const isFun = (a: any): a is Function => typeof a === "function";
 export const isStr = (a: any): a is string => typeof a === "string";
 export const isNum = (a: any) => typeof a === "number";
+export const isObj = (a: any) => {
+  const type = typeof a;
+  return (type === "object" || type === "function") && a !== null;
+};
 
 export const isSame = (fiber1?: Fiber, fiber2?: Fiber) => {
   return (
@@ -17,13 +21,13 @@ export const isSame = (fiber1?: Fiber, fiber2?: Fiber) => {
   );
 };
 
-export function camel2kebab(text: string) {
+export const camel2kebab = (text: string) => {
   return text.replace(/([A-Z])/g, "-$1").toLowerCase();
-}
+};
 
-export function getEventName(event: string) {
+export const getEventName = (event: string) => {
   return event.slice(2).toLowerCase();
-}
+};
 
 export const arraysEqual = (a: any, b: any) => {
   if (a == null || b == null) return false;
@@ -34,12 +38,7 @@ export const arraysEqual = (a: any, b: any) => {
   return true;
 };
 
-export function isObj(a: any) {
-  const type = typeof a;
-  return (type === "object" || type === "function") && a !== null;
-}
-
-export function realSVGAttr(key: string) {
+export const realSVGAttr = (key: string) => {
   for (let str of ["xmlns", "xml", "xlink"]) {
     if (key.startsWith(str)) return key.toLowerCase().replace(str, `${str}:`);
   }
@@ -48,11 +47,11 @@ export function realSVGAttr(key: string) {
   } else {
     return key;
   }
-}
+};
 
-export function classes(
+export const classes = (
   cs: Array<string | number | undefined | null | boolean> | string | {}
-) {
+) => {
   const obj2Str = (a: any) =>
     Object.keys(a)
       .filter((i) => a[i])
@@ -77,4 +76,4 @@ export function classes(
   } else {
     return "";
   }
-}
+};
