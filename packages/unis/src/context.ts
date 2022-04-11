@@ -1,4 +1,4 @@
-import { getWF, use } from "./api";
+import { getWF, use, useProps } from "./api";
 import { CONTEXT, Fiber } from "./fiber";
 import { getContextList } from "./reconcile";
 
@@ -31,8 +31,10 @@ export const createContext = <T extends any>(initial: T) => {
 
   const Consumer = (props: { children: any }) => {
     // @ts-ignore
+    let p = useProps(props, ($) => (p = $));
+    // @ts-ignore
     let state = useContext(context, ($) => (state = $));
-    return () => props.children(state);
+    return () => p.children(state);
   };
 
   const context = {
@@ -50,8 +52,8 @@ export const contextHOF = (context: Context) => {
   const readContext = (fiber: Fiber) => {
     const dependencies = getContextList();
     fiber.dependencies = [...dependencies];
-    const provider = dependencies.find((i) => i.context === context);
-    return provider ? provider.value : context.initial;
+    const contextItem = dependencies.find((i) => i.context === context);
+    return contextItem ? contextItem.value : context.initial;
   };
   return () => readContext(getWF());
 };

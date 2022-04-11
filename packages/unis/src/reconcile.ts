@@ -13,7 +13,6 @@ import {
   isElement,
   isMemo,
   isPortal,
-  walk,
 } from "./fiber";
 import { formatChildren } from "./h";
 import { nextTick, shouldYield } from "./schedule";
@@ -121,13 +120,33 @@ export const hook = {
         isContext(enter.alternate) &&
         !Object.is(enter.alternate.props.value, enter.props.value)
       ) {
-        walk(enter.alternate!, (fiber: Fiber) => {
-          fiber.dependencies?.find(
+        let indexFiber: Fiber | undefined = enter.alternate!;
+
+        const next = (indexFiber: Fiber | undefined, skipChild = false) => {
+          if (indexFiber?.child && !skipChild) return indexFiber.child;
+          while (indexFiber) {
+            if (indexFiber.sibling) return indexFiber.sibling;
+            indexFiber = indexFiber.parent;
+            if (indexFiber === enter.alternate!) return;
+          }
+        };
+
+        const find = (indexFiber: Fiber) =>
+          indexFiber.dependencies?.find(
             (contextItem) =>
               contextItem.context ===
               contextMap.get(enter.parent?.type as Function)
-          ) && markFiber(fiber);
-        });
+          );
+
+        do {
+          find(indexFiber) && markFiber(indexFiber);
+        } while (
+          (indexFiber = next(
+            indexFiber,
+            isContext(indexFiber) &&
+              indexFiber.parent?.type === enter.parent?.type
+          ))
+        );
       }
     }
   },
@@ -224,10 +243,8 @@ export const updateComponent = (fiber: Fiber) => {
     }
     fiber.rendered = rendered;
   } else {
-    if (fiber.stateEffects) {
-      for (let effect of fiber.stateEffects) {
-        effect();
-      }
+    for (let effect of fiber.stateEffects ?? []) {
+      effect();
     }
     if (fiber.commitFlag) fiber.rendered = fiber.renderFn(fiber.props);
   }

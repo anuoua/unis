@@ -85,7 +85,9 @@ export const commitEffectList = (effect: Fiber | undefined) => {
         parent.child = parentChildren![0];
         break;
     }
-    isComponent(effect) && comps.push(effect);
+    effect.commitFlag !== FLAG.REUSE &&
+      isComponent(effect) &&
+      comps.push(effect);
     delete effect.commitFlag;
     delete effect.alternate;
     const nextEffect = effect.nextEffect;

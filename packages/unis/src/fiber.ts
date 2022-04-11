@@ -50,21 +50,3 @@ export const isComponent = (fiber: Fiber) => typeof fiber.type === "function";
 export const isElement = (fiber: Fiber) => typeof fiber.type === "string";
 export const isAbstract = (fiber: Fiber) =>
   isPortal(fiber) || isMemo(fiber) || isComponent(fiber) || isContext(fiber);
-export const walk = (fiber: Fiber, cb: (fiber: Fiber) => void) => {
-  let indexFiber: Fiber | undefined = fiber;
-  while (indexFiber) {
-    cb(indexFiber);
-    if (indexFiber.child) {
-      indexFiber = indexFiber.child;
-      continue;
-    }
-    while (indexFiber) {
-      if (indexFiber.sibling) {
-        indexFiber = indexFiber.sibling;
-        break;
-      }
-      indexFiber = indexFiber.parent;
-      if (fiber === indexFiber) return;
-    }
-  }
-};
