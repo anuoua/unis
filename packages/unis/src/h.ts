@@ -52,7 +52,7 @@ const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
 };
 
 export const memo = (child: any, compare: Function = defaultCompare) => {
-  return (props: any) => () =>
+  return (props: any) =>
     ({
       type: MEMO,
       props: {
@@ -65,4 +65,4 @@ export const memo = (child: any, compare: Function = defaultCompare) => {
     } as Fiber);
 };
 
-export const Fragment = (props: any) => () => props.children;
+export const Fragment = (props: any) => props.children;

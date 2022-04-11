@@ -52,7 +52,13 @@ export const contextHOF = (context: Context) => {
   const readContext = (fiber: Fiber) => {
     const dependencies = getContextList();
     fiber.dependencies = [...dependencies];
-    const contextItem = dependencies.find((i) => i.context === context);
+    let contextItem: ContextItem | undefined;
+    for (let i = dependencies.length - 1; i > 0; i--) {
+      if (dependencies[i].context === context) {
+        contextItem = dependencies[i];
+        break;
+      }
+    }
     return contextItem ? contextItem.value : context.initial;
   };
   return () => readContext(getWF());

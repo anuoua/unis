@@ -120,14 +120,16 @@ export const hook = {
         isContext(enter.alternate) &&
         !Object.is(enter.alternate.props.value, enter.props.value)
       ) {
-        let indexFiber: Fiber | undefined = enter.alternate!;
+        let alternate = enter.alternate;
+        let indexFiber: Fiber | undefined = alternate;
 
         const next = (indexFiber: Fiber | undefined, skipChild = false) => {
           if (indexFiber?.child && !skipChild) return indexFiber.child;
           while (indexFiber) {
             if (indexFiber.sibling) return indexFiber.sibling;
+            if (indexFiber === alternate) return;
             indexFiber = indexFiber.parent;
-            if (indexFiber === enter.alternate!) return;
+            if (indexFiber === alternate) return;
           }
         };
 
@@ -143,7 +145,8 @@ export const hook = {
         } while (
           (indexFiber = next(
             indexFiber,
-            isContext(indexFiber) &&
+            indexFiber !== alternate &&
+              isContext(indexFiber) &&
               indexFiber.parent?.type === enter.parent?.type
           ))
         );
