@@ -34,7 +34,7 @@ export const formatChildren = (children: any) => {
   );
 };
 
-export const createPortal = (child: any, container: Element) => {
+export const createPortal = (child: JSX.Element, container: Element) => {
   return {
     type: PORTAL,
     to: container,
@@ -51,8 +51,11 @@ const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
   return newKeys.every((key) => Object.is(newProps[key], oldProps[key]));
 };
 
-export const memo = (child: any, compare: Function = defaultCompare) => {
-  return (props: any) =>
+export const memo = <T extends (props: any) => JSX.Element>(
+  child: T,
+  compare: Function = defaultCompare
+) => {
+  return (props: Parameters<T>[0]) =>
     ({
       type: MEMO,
       props: {
