@@ -48,5 +48,3 @@ export const isMemo = (fiber: Fiber) => fiber.type === MEMO;
 export const isContext = (fiber: Fiber) => fiber.type === CONTEXT;
 export const isComponent = (fiber: Fiber) => typeof fiber.type === "function";
 export const isElement = (fiber: Fiber) => typeof fiber.type === "string";
-export const isAbstract = (fiber: Fiber) =>
-  isPortal(fiber) || isMemo(fiber) || isComponent(fiber) || isContext(fiber);

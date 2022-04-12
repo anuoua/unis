@@ -7,7 +7,6 @@ import {
   Fiber,
   FiberEl,
   FLAG,
-  isAbstract,
   isComponent,
   isContext,
   isElement,
@@ -102,9 +101,11 @@ export const hook = {
   sibling: (from: Fiber, to?: Fiber) => {
     {
       // preEl
-      isElement(from) && (workingPreEl = from.el);
-      isAbstract(from) && (workingPreEl = from.preEl);
-      setReuseFiberPreEl(from);
+      if (from.commitFlag === FLAG.REUSE) {
+        setReuseFiberPreEl(from);
+      } else {
+        isElement(from) && (workingPreEl = from.el);
+      }
     }
   },
 
