@@ -20,7 +20,7 @@ export const attrsChanged = (newProps: any = {}, oldProps: any = {}) => {
   const { children: c2, ...restOldProps } = oldProps;
   const newKeys = Object.keys(restNewProps);
   const oldKeys = Object.keys(restOldProps);
-  if (newKeys.length === oldKeys.length) return false;
+  if (newKeys.length !== oldKeys.length) return false;
   return !newKeys.find((key) => restOldProps[key] !== restNewProps[key]);
 };
 
