@@ -28,7 +28,11 @@
 
 import * as CSS from "csstype";
 
-type VNode = {};
+export interface VNode {
+  type?: any;
+  props?: any;
+}
+
 export interface CSSProperties
   extends CSS.Properties<string | number>,
     CSS.PropertiesHyphen<string | number> {
@@ -1493,7 +1497,16 @@ type NativeElements = {
 
 declare global {
   namespace JSX {
-    interface Element extends VNode {}
+    type ElementTypes =
+      | string
+      | number
+      | null
+      | boolean
+      | void
+      | undefined
+      | VNode;
+
+    type Element = ElementTypes | ElementTypes[] | (() => JSX.Element);
     interface ElementClass {
       props: {};
     }
