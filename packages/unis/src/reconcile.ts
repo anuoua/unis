@@ -2,7 +2,7 @@ import { markFiber } from "./api";
 import { commitEffectList } from "./commit";
 import { ContextItem, contextMap, createContextItem } from "./context";
 import { clone, diff } from "./diff";
-import { createElement, findEls } from "./dom";
+import { findEls } from "./dom";
 import {
   Fiber,
   FiberEl,
@@ -200,7 +200,6 @@ export const tickWork = () => {
 export const update = (fiber: Fiber) => {
   if (fiber.commitFlag === FLAG.REUSE) return next(fiber, true);
   if (isElement(fiber)) {
-    if (fiber.commitFlag === FLAG.CREATE) fiber.el = createElement(fiber);
     updateHost(fiber);
   } else if (isPortal(fiber)) {
     updateHost(fiber);

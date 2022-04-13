@@ -1,4 +1,5 @@
-import { Fiber, FLAG, isPortal } from "./fiber";
+import { createElement } from "./dom";
+import { Fiber, FLAG, isElement, isPortal } from "./fiber";
 import { effectLink } from "./reconcile";
 import { isSame } from "./utils";
 
@@ -22,9 +23,11 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
 };
 
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
+  const isSVG = newFiber.type === "svg" || parentFiber.isSVG;
   return {
     ...newFiber,
-    isSVG: newFiber.type === "svg" || parentFiber.isSVG,
+    isSVG,
+    el: isElement(newFiber) ? createElement({ ...newFiber, isSVG }) : undefined,
     commitFlag: isPortal(newFiber) ? undefined : FLAG.CREATE,
   } as Fiber;
 };
