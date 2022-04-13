@@ -1,6 +1,6 @@
 import { attrsChanged, createElement } from "./dom";
 import { Fiber, FLAG, isElement, isPortal } from "./fiber";
-import { effectLink } from "./reconcile";
+import { pushEffect } from "./reconcile";
 import { isSame } from "./utils";
 
 export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
@@ -72,7 +72,7 @@ export const diff = (
 
   const deletion = (fiber: Fiber) => {
     fiber.commitFlag = FLAG.DELETE;
-    effectLink(fiber);
+    pushEffect(fiber);
   };
 
   const forward = () => {

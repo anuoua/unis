@@ -60,9 +60,9 @@ export const commitCommon = (fiber: Fiber, container?: FiberEl) => {
   );
 };
 
-export const commitEffectList = (effect: Fiber | undefined) => {
+export const commitEffectList = (effectList: Fiber[]) => {
   const comps: Fiber[] = [];
-  while (effect) {
+  for (let effect of effectList) {
     switch (effect.commitFlag) {
       case FLAG.DELETE:
         commitDeletion(effect);
@@ -90,9 +90,6 @@ export const commitEffectList = (effect: Fiber | undefined) => {
       comps.push(effect);
     delete effect.commitFlag;
     delete effect.alternate;
-    const nextEffect = effect.nextEffect;
-    delete effect.nextEffect;
-    effect = nextEffect;
   }
   comps.forEach((i) => runEffects(i));
 };
