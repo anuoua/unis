@@ -1,10 +1,16 @@
-import { createElement } from "./dom";
+import { attrsChanged, createElement } from "./dom";
 import { Fiber, FLAG, isElement, isPortal } from "./fiber";
 import { effectLink } from "./reconcile";
 import { isSame } from "./utils";
 
 export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
   flag = flag ?? oldFiber.flag;
+  if (
+    isElement(newFiber) &&
+    !attrsChanged(newFiber.props, oldFiber.props) &&
+    flag === FLAG.UPDATE
+  )
+    flag = undefined;
   if (isPortal(newFiber)) flag = undefined;
   return {
     ...newFiber,

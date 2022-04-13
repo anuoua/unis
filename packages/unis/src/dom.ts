@@ -21,11 +21,10 @@ export const attrsChanged = (newProps: any = {}, oldProps: any = {}) => {
   const newKeys = Object.keys(restNewProps);
   const oldKeys = Object.keys(restOldProps);
   if (newKeys.length !== oldKeys.length) return false;
-  return !newKeys.find((key) => restOldProps[key] !== restNewProps[key]);
+  return !!newKeys.find((key) => restOldProps[key] !== restNewProps[key]);
 };
 
 export const updateProperties = (fiber: Fiber) => {
-  if (attrsChanged(fiber.props, fiber.alternate?.props)) return;
   isText(fiber) ? updateTextProperties(fiber) : updateElementProperties(fiber);
 };
 
