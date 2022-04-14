@@ -2,11 +2,14 @@ import { createFragment, findEls, remove, updateProperties } from "./dom";
 import { Fiber, FiberEl, FLAG, isComponent, isElement } from "./fiber";
 import { arraysEqual } from "./utils";
 
-export const getContainer = (fiber: Fiber | undefined): FiberEl | undefined => {
+export const getContainer = (
+  fiber: Fiber | undefined
+): [FiberEl | undefined, boolean] => {
   while ((fiber = fiber?.parent)) {
-    if (fiber.to) return fiber.to;
-    if (fiber.el) return fiber.el as Element;
+    if (fiber.to) return [fiber.to, true];
+    if (fiber.el) return [fiber.el, false];
   }
+  return [undefined, false];
 };
 
 export const runEffects = (fiber: Fiber, leave = false) => {
@@ -49,14 +52,20 @@ export const commitDeletion = (fiber: Fiber) => {
   while ((indexFiber = loop(indexFiber, fiber))) {}
 };
 
-export const commitCommon = (fiber: Fiber, container?: FiberEl) => {
+export const commitCommon = (fiber: Fiber) => {
+  const [container, isPortalContainer] = getContainer(fiber);
   if (isElement(fiber)) updateProperties(fiber);
+  if (fiber.commitFlag === FLAG.UPDATE) return;
   if (!container) return;
   const fragment = createFragment();
   fragment.append(...findEls([fiber]));
   container.insertBefore(
     fragment,
-    fiber.preEl ? fiber.preEl.nextSibling : container.childNodes[0]
+    isPortalContainer
+      ? null
+      : fiber.preEl
+      ? fiber.preEl.nextSibling
+      : container.childNodes[0]
   );
 };
 
@@ -70,10 +79,7 @@ export const commitEffectList = (effectList: Fiber[]) => {
       case FLAG.UPDATE:
       case FLAG.CREATE:
       case FLAG.INSERT:
-        commitCommon(
-          effect,
-          effect.commitFlag === FLAG.UPDATE ? undefined : getContainer(effect)
-        );
+        commitCommon(effect);
         break;
       case FLAG.REUSE:
         const parent = effect.parent!;
