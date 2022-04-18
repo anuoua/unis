@@ -1,4 +1,4 @@
-# Unis
+# Unis [中文](README-zh_CN.md)
 
 Unis is a simpler and easier to use front-end framework than React
 
