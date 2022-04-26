@@ -1,4 +1,8 @@
-# Unis 中文
+<p align="center">
+  <img height="300" src="logo.svg">
+</p>
+
+# Unis
 
 Unis 是一款比 React 更简单易用的前端框架
 
@@ -92,7 +96,7 @@ render(<App />, document.querySelector('#root'))
 
 ### 组件状态
 
-Unis 中的 useState 用法和 React 相似，但是要注意的是 Unis 中 use 系列方法，定义类型必须为 let ，因为 Unis 使用了 Callback Reassign 编译策略，rollup-plugin-reassign 帮我们补全了 Callback Reassign 代码。
+Unis 中的 useState 用法和 React 相似，但是要注意的是 Unis 中 `use` 系列方法，定义类型必须为 `let` ，因为 Unis 使用了 Callback Reassign 编译策略，rollup-plugin-reassign 帮我们补全了 Callback Reassign 代码。
 
 ```jsx
 const App = () => {
@@ -118,7 +122,7 @@ const App = (p) => {
   /**
    * Compile to:
    * 
-   * let { some } = useProps(p, ({ some: $0 }) => { $0 = some });
+   * let { some } = useProps(p, ({ some: $0 }) => { some = $0 });
    */
   return () => (
     <div>{some}</div>
@@ -128,7 +132,7 @@ const App = (p) => {
 
 ### 副作用
 
-Unis 保留了和 React 基本一致的 useEffect ，但 Deps 是一个返回数组的函数。
+Unis 保留了和 React 基本一致的 useEffect ，但 deps 是一个返回数组的函数。
 
 ```jsx
 const App = () => {
@@ -140,7 +144,7 @@ const App = () => {
         // 清理...
       }
     },
-    () => [] // Deps 是一个返回数组的函数
+    () => [] // deps 是一个返回数组的函数
   )
 
   return () => (

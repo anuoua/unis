@@ -1,4 +1,10 @@
-import { classes, getEventName, isEv, realSVGAttr } from "./utils";
+import {
+  classes,
+  getEventName,
+  isEv,
+  realSVGAttr,
+  style2String,
+} from "./utils";
 import { Fiber, FiberEl, isElement, isPortal, isText } from "./fiber";
 import { keys } from "./utils";
 
@@ -65,9 +71,7 @@ export const updateElementProperties = (fiber: Fiber) => {
       el.removeEventListener(getEventName(key), preProps[key]);
       el.addEventListener(getEventName(key), props[key]);
     } else if (key === "style") {
-      const temp = document.createElement("div");
-      Object.assign(temp.style, props.style);
-      (el as HTMLElement).style.cssText = temp.style.cssText;
+      (el as HTMLElement).style.cssText = style2String(props.style);
     } else {
       if (key in preProps && !(key in props)) {
         el.removeAttribute(key);

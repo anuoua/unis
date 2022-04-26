@@ -1,24 +1,15 @@
-import { Fiber } from "./fiber";
 import { displayAttrs } from "./svg";
 
 export const keys = Object.keys;
 
+export const isArray = Array.isArray;
 export const isEv = (a: string) => a.startsWith("on");
 export const isFun = (a: any): a is Function => typeof a === "function";
 export const isStr = (a: any): a is string => typeof a === "string";
-export const isNum = (a: any) => typeof a === "number";
-export const isObj = (a: any) => {
+export const isNum = (a: any): a is number => typeof a === "number";
+export const isObj = (a: any): a is object => {
   const type = typeof a;
   return (type === "object" || type === "function") && a !== null;
-};
-
-export const isSame = (fiber1?: Fiber, fiber2?: Fiber) => {
-  return (
-    fiber1 &&
-    fiber2 &&
-    fiber1.type === fiber2.type &&
-    fiber1.props?.key === fiber2.props?.key
-  );
 };
 
 export const camel2kebab = (text: string) => {
@@ -38,42 +29,31 @@ export const arraysEqual = (a: any, b: any) => {
   return true;
 };
 
+export const style2String = (style: CSSStyleDeclaration) => {
+  const temp = document.createElement("div");
+  Object.assign(temp.style, style);
+  return temp.style.cssText;
+};
+
 export const realSVGAttr = (key: string) => {
   for (let str of ["xmlns", "xml", "xlink"]) {
     if (key.startsWith(str)) return key.toLowerCase().replace(str, `${str}:`);
   }
-  if (displayAttrs.includes(key)) {
-    return camel2kebab(key);
-  } else {
-    return key;
-  }
+  return displayAttrs.includes(key) ? camel2kebab(key) : key;
 };
 
 export const classes = (
-  cs: Array<string | number | undefined | null | boolean> | string | {}
+  cs: Array<string | number | undefined | null | false | object> | object
 ) => {
-  const obj2Str = (a: any) =>
-    Object.keys(a)
-      .filter((i) => a[i])
-      .join(" ");
-  if (Array.isArray(cs)) {
-    return cs
-      .map((i) => {
-        if (isNum(i) || isStr(i)) {
-          return i;
-        } else if (isObj(i)) {
-          return obj2Str(i);
-        } else {
-          return null;
-        }
-      })
-      .filter((i) => i)
-      .join(" ");
-  } else if (isObj(cs)) {
-    return obj2Str(cs);
-  } else if (isStr(cs)) {
-    return cs;
-  } else {
-    return "";
-  }
+  const obj2Str = (a: object) =>
+    keys(a).reduce((pre, cur) => (pre + cur ? ` ${cur}` : ""), "");
+
+  return isArray(cs)
+    ? cs.reduce(
+        (pre, cur) =>
+          pre +
+          `${cur ? " " + (isNum(cur) || isStr(cur) ? cur : obj2Str(cur)) : ""}`,
+        ""
+      )
+    : obj2Str(cs);
 };

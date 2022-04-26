@@ -1,7 +1,6 @@
 import { attrsChanged, createElement } from "./dom";
-import { Fiber, FLAG, isElement, isPortal } from "./fiber";
+import { Fiber, FLAG, isElement, isPortal, isSame } from "./fiber";
 import { pushEffect } from "./reconcile";
-import { isSame } from "./utils";
 
 export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
   flag = flag ?? oldFiber.flag;

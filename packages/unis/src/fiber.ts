@@ -48,3 +48,9 @@ export const isMemo = (fiber: Fiber) => fiber.type === MEMO;
 export const isContext = (fiber: Fiber) => fiber.type === CONTEXT;
 export const isComponent = (fiber: Fiber) => typeof fiber.type === "function";
 export const isElement = (fiber: Fiber) => typeof fiber.type === "string";
+
+export const isSame = (fiber1?: Fiber, fiber2?: Fiber) =>
+  fiber1 &&
+  fiber2 &&
+  fiber1.type === fiber2.type &&
+  fiber1.props?.key === fiber2.props?.key;

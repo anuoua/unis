@@ -1,3 +1,7 @@
+<p align="center">
+  <img height="300" src="logo.svg">
+</p>
+
 # Unis [中文](README-zh_CN.md)
 
 Unis is a simpler and easier to use front-end framework than React
@@ -6,13 +10,13 @@ Unis is a simpler and easier to use front-end framework than React
 
 ```bash
 npm i @unis/unis
-````
+```
 
-## Vite development
+## Vite dev
 
 ```jsx
 npm i vite rollup-plugin-reassign -D
-````
+```
 
 vite.config.js
 
@@ -38,7 +42,7 @@ export default defineConfig({
     },
   })
 });
-````
+```
 
 index.html
 
@@ -50,7 +54,7 @@ index.html
     <script type="module" src="./index.jsx"></script>
   </body>
 </html>
-````
+```
 
 index.jsx
 
@@ -66,11 +70,11 @@ function App() {
 }
 
 render(<App />, document.querySelector('#root'))
-````
+```
 
 ## Usage
 
-Unis is not a copy of React, but a brand new framework that retains the experience of using React. Unis is very simple to use, and those who are familiar with React can get started quickly.
+Unis is not a fork of React, but a brand new framework that retains the experience of using React. Unis is very simple to use, and those who are familiar with React can get started quickly.
 
 ### Components
 
@@ -88,11 +92,11 @@ const App = () => {
 }
 
 render(<App />, document.querySelector('#root'))
-````
+```
 
-### Component Status
+### Component State
 
-The usage of **useState** in Unis is similar to that of React, but it should be noted that for the **use** series methods in Unis, the definition type must be **let** , because Unis uses the **Callback Reassign** compilation strategy, and rollup-plugin-reassign helps us complete the Callback Reassign code.
+The usage of useState in Unis is similar to that of React, but it should be noted that for the `use` series methods in Unis, the definition type must be `let` , because Unis uses the Callback Reassign compilation strategy, and rollup-plugin-reassign helps us complete the Callback Reassign code.
 
 ```jsx
 const App = () => {
@@ -106,7 +110,7 @@ const App = () => {
     <div>{msg}</div>
   )
 }
-````
+```
 
 ### Props
 
@@ -118,17 +122,17 @@ const App = (p) => {
   /**
    * Compile to:
    *
-   * let { some } = useProps(p, ({ some: $0 }) => { $0 = some });
+   * let { some } = useProps(p, ({ some: $0 }) => { some = $0 });
    */
   return () => (
     <div>{some}</div>
   )
 }
-````
+```
 
-### side effect
+### Side Effect
 
-Unis retains **useEffect** which is basically the same as React, but Deps is a function that returns an array.
+Unis retains useEffect which is basically the same as React, but deps is a function that returns an array.
 
 ```jsx
 const App = () => {
@@ -140,18 +144,18 @@ const App = () => {
         // clean up...
       }
     },
-    () => [] // Deps is a function that returns an array
+    () => [] // deps is a function that returns an array
   )
 
   return () => (
     <div>hello</div>
   )
 }
-````
+```
 
-### Custom hook
+### Custom Hook
 
-The custom hook of Unis needs to be used with the **use** method in scenarios with return values, because of the **Callback Reassign** compilation strategy mentioned above.
+The custom hook of Unis needs to be used with the `use` method in scenarios with return values, because of the Callback Reassign compilation strategy mentioned above.
 
 ```jsx
 // Create hook, hook is a higher-order function
@@ -161,7 +165,7 @@ const Count = () => {
   return () => [count, add]
 }
 
-// use hook with `use`
+// use hook via `use`
 function App() {
   let [count, add] = use(Count());
   /**
@@ -173,7 +177,7 @@ function App() {
     <div onClick={add}>{count}</div>
   )
 }
-````
+```
 
 ## Features
 
@@ -190,7 +194,7 @@ function App() {
     </Fragment>
   )
 }
-````
+```
 
 ### Portal
 
@@ -203,7 +207,7 @@ function App() {
     document.body
   )
 }
-````
+```
 
 ### Context
 
@@ -226,7 +230,7 @@ render(
   </ThemeContext.Provider>,
   document.querySelector('#root')
 )
-````
+```
 
 ## Todo Project
 
@@ -243,7 +247,7 @@ Check out the full project
   - Fragment
   - createPortal
   - createContext
-  -render
+  - render
   - memo
 
 - Hooks
