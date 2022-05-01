@@ -23,11 +23,11 @@ afterEach(() => {
 
 it("portal", async () => {
   const App = () => {
-    let [visible, setVisible] = useState(false);
+    let [visible, setVisible] = useState(true);
 
     useEffect(
       () => {
-        setVisible(true);
+        setVisible(false);
       },
       () => []
     );
@@ -42,10 +42,10 @@ it("portal", async () => {
 
   render(<App />, root);
   expect(document.body.innerHTML).toBe(
-    "<div><div>hello</div></div><div></div>"
+    "<div><div>hello</div></div><div><main>hello dialog</main></div>"
   );
   await sleep(1);
   expect(document.body.innerHTML).toBe(
-    "<div><div>hello</div></div><div><main>hello dialog</main></div>"
+    "<div><div>hello</div></div><div></div>"
   );
 });

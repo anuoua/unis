@@ -1,5 +1,13 @@
 import { createFragment, findEls, remove, updateProperties } from "./dom";
-import { Fiber, FiberEl, FLAG, isComponent, isElement } from "./fiber";
+import {
+  createNext,
+  Fiber,
+  FiberEl,
+  FLAG,
+  isComponent,
+  isElement,
+  isPortal,
+} from "./fiber";
 import { arraysEqual } from "./utils";
 
 export const getContainer = (
@@ -36,24 +44,25 @@ export const commitDeletion = (fiber: Fiber) => {
       runEffects(fiber, true);
       remove(fiber);
     }
-  };
-
-  const loop = (indexFiber: Fiber | undefined, topFiber: Fiber) => {
-    if (indexFiber?.child) return indexFiber.child;
-    if (indexFiber === topFiber) return destroy(indexFiber);
-    while (indexFiber) {
-      if (indexFiber.sibling) {
-        if (!indexFiber.sibling.child) destroy(indexFiber.sibling);
-        return indexFiber.sibling;
-      }
-      indexFiber = indexFiber.parent;
-      if (indexFiber) destroy(indexFiber);
-      if (indexFiber === topFiber) return;
+    if (isPortal(fiber)) {
+      fiber.child && remove(fiber.child);
     }
   };
 
-  let indexFiber: Fiber | undefined | void = fiber;
-  while ((indexFiber = loop(indexFiber, fiber))) {}
+  const [next, addHook] = createNext();
+
+  addHook({
+    up(from, to) {
+      if (to) destroy(to);
+      if (to === fiber) return false;
+    },
+    sibling(from, to) {
+      if (to && !to.child) destroy(to);
+    },
+  });
+
+  let indexFiber: Fiber | undefined = fiber;
+  while ((indexFiber = next(indexFiber))) {}
   remove(fiber);
 };
 
