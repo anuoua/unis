@@ -44,7 +44,7 @@ export const updateElementProperties = (fiber: Fiber) => {
   const { class: klass, className } = props;
 
   if (klass || className) {
-    const classStr = ((className ?? "") + " " + classes(klass)).trim();
+    const classStr = (className + " " + (klass ? classes(klass) : "")).trim();
     if (isSVG) {
       (el as SVGAElement).setAttributeNS(null, "class", classStr);
     } else {
@@ -87,7 +87,6 @@ export const updateElementProperties = (fiber: Fiber) => {
 export const remove = (fiber: Fiber) => {
   const els = findEls([fiber]);
   createFragment().append(...els);
-  fiber.props.ref && (fiber.props.ref.current = undefined);
 };
 
 export const findEls = (fibers: Fiber[]): FiberEl[] =>

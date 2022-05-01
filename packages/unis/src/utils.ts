@@ -3,14 +3,17 @@ import { displayAttrs } from "./svg";
 export const keys = Object.keys;
 
 export const isArray = Array.isArray;
+
+export const type = (a: any) =>
+  Object.prototype.toString.bind(a)().slice(8, -1);
+
 export const isEv = (a: string) => a.startsWith("on");
-export const isFun = (a: any): a is Function => typeof a === "function";
-export const isStr = (a: any): a is string => typeof a === "string";
-export const isNum = (a: any): a is number => typeof a === "number";
-export const isObj = (a: any): a is object => {
-  const type = typeof a;
-  return (type === "object" || type === "function") && a !== null;
-};
+export const isFun = (a: any): a is Function => type(a) === "Function";
+export const isStr = (a: any): a is string => type(a) === "String";
+export const isNum = (a: any): a is number => type(a) === "Number";
+export const isBool = (a: any): a is boolean => type(a) === "Boolean";
+export const isObj = (a: any): a is object => type(a) === "Object";
+export const isNullish = (a: any) => a == null;
 
 export const camel2kebab = (text: string) => {
   return text.replace(/([A-Z])/g, "-$1").toLowerCase();
@@ -29,7 +32,7 @@ export const arraysEqual = (a: any, b: any) => {
   return true;
 };
 
-export const style2String = (style: CSSStyleDeclaration) => {
+export const style2String = (style: Partial<CSSStyleDeclaration>) => {
   const temp = document.createElement("div");
   Object.assign(temp.style, style);
   return temp.style.cssText;
@@ -42,18 +45,29 @@ export const realSVGAttr = (key: string) => {
   return displayAttrs.includes(key) ? camel2kebab(key) : key;
 };
 
-export const classes = (
-  cs: Array<string | number | undefined | null | false | object> | object
-) => {
-  const obj2Str = (a: object) =>
-    keys(a).reduce((pre, cur) => (pre + cur ? ` ${cur}` : ""), "");
+export const classes = (cs: Array<any> | object): string => {
+  const objClasses = (a: Record<string, any>) =>
+    keys(a)
+      .reduce((pre, cur) => pre + " " + (a[cur] ? cur : ""), "")
+      .trim();
 
   return isArray(cs)
-    ? cs.reduce(
-        (pre, cur) =>
-          pre +
-          `${cur ? " " + (isNum(cur) || isStr(cur) ? cur : obj2Str(cur)) : ""}`,
-        ""
-      )
-    : obj2Str(cs);
+    ? cs
+        .reduce(
+          (pre: string, cur) =>
+            pre +
+            " " +
+            `${
+              isNum(cur) || isStr(cur)
+                ? cur
+                : isObj(cur)
+                ? objClasses(cur)
+                : isArray(cur)
+                ? classes(cur)
+                : ""
+            }`,
+          ""
+        )
+        .trim()
+    : objClasses(cs);
 };

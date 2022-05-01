@@ -4,7 +4,14 @@
 
 import { test, beforeEach, afterEach } from "vitest";
 import { use, useState } from "../src/api";
+import { Fragment, h } from "../src/h";
 import { render } from "../src/render";
+
+function sleep(time: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
 
 let root: Element;
 
@@ -17,7 +24,7 @@ afterEach(() => {
   root.innerHTML = "";
 });
 
-test("test", (done) => {
+test.only("test", async () => {
   function toggleState(initial: boolean = true) {
     let [toggle, setToggle] = useState(initial);
 
@@ -38,13 +45,13 @@ test("test", (done) => {
     return () => {
       console.log("App render");
       return toggle ? (
-        <>
+        <Fragment>
           <div>
             <span key={2}>2</span>
             <span key={1}>1</span>
             <span key={3}>3</span>
           </div>
-        </>
+        </Fragment>
       ) : (
         <div>
           <div>9999</div>
@@ -63,8 +70,7 @@ test("test", (done) => {
     console.log(e);
   }
 
-  setTimeout(() => {
-    console.log(root.innerHTML);
-    done();
-  }, 200);
+  await sleep(10);
+
+  console.log(root.innerHTML);
 });

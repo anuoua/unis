@@ -30,8 +30,13 @@ export const runEffects = (fiber: Fiber, leave = false) => {
 
 export const commitDeletion = (fiber: Fiber) => {
   const destroy = (fiber: Fiber) => {
-    isElement(fiber) && remove(fiber);
-    isComponent(fiber) && runEffects(fiber, true);
+    if (isElement(fiber)) {
+      fiber.props.ref && (fiber.props.ref.current = undefined);
+    }
+    if (isComponent(fiber)) {
+      runEffects(fiber, true);
+      remove(fiber);
+    }
   };
 
   const loop = (indexFiber: Fiber | undefined, topFiber: Fiber) => {
@@ -50,6 +55,7 @@ export const commitDeletion = (fiber: Fiber) => {
 
   let indexFiber: Fiber | undefined | void = fiber;
   while ((indexFiber = loop(indexFiber, fiber))) {}
+  remove(fiber);
 };
 
 export const commitCommon = (fiber: Fiber) => {

@@ -1,10 +1,12 @@
 import { defineConfig } from "vitest/config";
-import typescript from "@rollup/plugin-typescript";
 import { reassign } from "rollup-plugin-reassign";
 
 export default defineConfig({
+  esbuild: {
+    jsxFactory: "h",
+    jsxFragment: "Fragment",
+  },
   plugins: [
-    typescript(),
     reassign({
       targetFns: {
         "../src/api": {
