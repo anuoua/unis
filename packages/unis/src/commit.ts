@@ -4,12 +4,11 @@ import { arraysEqual } from "./utils";
 
 export const getContainer = (
   fiber: Fiber | undefined
-): [FiberEl | undefined, boolean] => {
+): [FiberEl | undefined, boolean] | undefined => {
   while ((fiber = fiber?.parent)) {
     if (fiber.to) return [fiber.to, true];
     if (fiber.el) return [fiber.el, false];
   }
-  return [undefined, false];
 };
 
 export const runEffects = (fiber: Fiber, leave = false) => {
@@ -59,7 +58,7 @@ export const commitDeletion = (fiber: Fiber) => {
 };
 
 export const commitCommon = (fiber: Fiber) => {
-  const [container, isPortalContainer] = getContainer(fiber);
+  const [container, isPortalContainer] = getContainer(fiber)!;
   if (isElement(fiber)) updateProperties(fiber);
   if (fiber.commitFlag === FLAG.UPDATE) return;
   if (!container) return;

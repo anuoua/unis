@@ -2,18 +2,23 @@ import { attrsChanged, createElement } from "./dom";
 import { Fiber, FLAG, isElement, isPortal, isSame } from "./fiber";
 import { pushEffect } from "./reconcile";
 
-export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
+const getRealFlag = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
   flag = flag ?? oldFiber.flag;
   if (
     isElement(newFiber) &&
     !attrsChanged(newFiber.props, oldFiber.props) &&
     flag === FLAG.UPDATE
-  )
+  ) {
     flag = undefined;
+  }
   if (isPortal(newFiber)) flag = undefined;
+  return flag;
+};
+
+export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
   return {
     ...newFiber,
-    commitFlag: flag,
+    commitFlag: getRealFlag(newFiber, oldFiber, flag),
     renderFn: oldFiber.renderFn,
     rendered: oldFiber.rendered,
     stateEffects: oldFiber.stateEffects,

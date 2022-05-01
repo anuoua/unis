@@ -1,9 +1,10 @@
 import { markFiber } from "./api";
 import { commitEffectList } from "./commit";
-import { ContextItem, contextMap, createContextItem } from "./context";
+import { Dependency, createDependency, findDependency } from "./context";
 import { clone, diff } from "./diff";
 import { findEls } from "./dom";
 import {
+  createNext,
   Fiber,
   FiberEl,
   FLAG,
@@ -21,7 +22,7 @@ let rootCurrentFiber: Fiber;
 let rootWorkingFiber: Fiber;
 
 let effectList: Fiber[] = [];
-let contextList: ContextItem[] = [];
+let dependencyList: Dependency[] = [];
 
 let workingFiber: Fiber | undefined;
 let workingPreEl: FiberEl | undefined;
@@ -30,136 +31,93 @@ export const getWorkingFiber = () => workingFiber;
 export const setWorkingFiber = (fiber: Fiber | undefined) =>
   (workingFiber = fiber);
 
-export const getContextList = () => contextList;
+export const getDependency = () => dependencyList;
 
 export const pushEffect = (fiber: Fiber) => effectList.push(fiber);
 
-export const setReuseFiberPreEl = (fiber: Fiber) => {
-  if (fiber.commitFlag === FLAG.REUSE) {
-    const endEl = findEls([fiber.alternate!]).pop();
-    endEl && (workingPreEl = endEl);
-  }
+const setReuseFiberPreEl = (fiber: Fiber) => {
+  if (fiber.commitFlag !== FLAG.REUSE) return;
+  const endEl = findEls([fiber.alternate!]).pop();
+  endEl && (workingPreEl = endEl);
 };
 
-export const next = (fiber: Fiber, skipChild = false): Fiber | undefined => {
-  hook.enter(fiber, skipChild);
-  const { child } = fiber;
-  let nextFiber: Fiber | undefined = fiber;
-  if (child && !skipChild) {
-    hook.down(nextFiber, child);
-    nextFiber = child;
-  } else {
-    while (nextFiber) {
-      const { sibling, parent } = nextFiber as Fiber;
-      if (sibling) {
-        hook.sibling(nextFiber, sibling);
-        nextFiber = sibling;
-        break;
-      }
-      hook.up(nextFiber, parent);
-      nextFiber = parent;
-    }
-  }
-  hook.return(nextFiber);
-  return nextFiber;
-};
+// reconcile walker
+const [next, addHook] = createNext();
 
-export const hook = {
+// preEl
+addHook({
   down: (from: Fiber, to?: Fiber) => {
-    {
-      // preEl
-      isElement(from) && (workingPreEl = undefined);
-      isPortal(from) && (workingPreEl = undefined);
-    }
-    {
-      // context
-      isContext(from) && contextList.push(createContextItem(from.parent!));
-    }
+    isElement(from) && (workingPreEl = undefined);
+    isPortal(from) && (workingPreEl = undefined);
   },
 
   up: (from: Fiber, to?: Fiber) => {
-    {
-      // preEl
-      if (to) {
-        isElement(to) && (workingPreEl = to.el);
-        isPortal(to) && (workingPreEl = to.preEl);
-      }
-      setReuseFiberPreEl(from);
+    if (to) {
+      isElement(to) && (workingPreEl = to.el);
+      isPortal(to) && (workingPreEl = to.preEl);
     }
-    {
-      // effect
-      to?.commitFlag && pushEffect(to);
-    }
-    {
-      // context
-      isContext(from) && contextList.pop();
-    }
+    setReuseFiberPreEl(from);
   },
 
   sibling: (from: Fiber, to?: Fiber) => {
-    {
-      // preEl
-      if (from.commitFlag === FLAG.REUSE) {
-        setReuseFiberPreEl(from);
-      } else {
-        isElement(from) && (workingPreEl = from.el);
-      }
-    }
-  },
-
-  enter: (enter: Fiber, skipChild: boolean) => {
-    {
-      // effect
-      (!enter.child || skipChild) && enter.commitFlag && pushEffect(enter);
-    }
-    {
-      // context
-      if (
-        enter.alternate &&
-        isContext(enter.alternate) &&
-        !Object.is(enter.alternate.props.value, enter.props.value)
-      ) {
-        let alternate = enter.alternate;
-        let indexFiber: Fiber | undefined = alternate;
-
-        const next = (indexFiber: Fiber | undefined, skipChild = false) => {
-          if (indexFiber?.child && !skipChild) return indexFiber.child;
-          while (indexFiber) {
-            if (indexFiber.sibling) return indexFiber.sibling;
-            if (indexFiber === alternate) return;
-            indexFiber = indexFiber.parent;
-            if (indexFiber === alternate) return;
-          }
-        };
-
-        const find = (indexFiber: Fiber) =>
-          indexFiber.dependencies?.find(
-            (contextItem) =>
-              contextItem.context ===
-              contextMap.get(enter.parent?.type as Function)
-          );
-
-        do {
-          find(indexFiber) && markFiber(indexFiber);
-        } while (
-          (indexFiber = next(
-            indexFiber,
-            indexFiber !== alternate &&
-              isContext(indexFiber) &&
-              indexFiber.parent?.type === enter.parent?.type
-          ))
-        );
-      }
+    if (from.commitFlag === FLAG.REUSE) {
+      setReuseFiberPreEl(from);
+    } else {
+      isElement(from) && (workingPreEl = from.el);
     }
   },
 
   return: (retn?: Fiber) => {
-    {
-      // preEl
-      if (retn) retn.preEl = workingPreEl;
+    if (retn) retn.preEl = workingPreEl;
+  },
+});
+
+// effect
+addHook({
+  up: (from: Fiber, to?: Fiber) => {
+    to?.commitFlag && pushEffect(to);
+  },
+
+  enter: (enter: Fiber, skipChild: boolean) => {
+    (!enter.child || skipChild) && enter.commitFlag && pushEffect(enter);
+  },
+});
+
+// context
+addHook({
+  down: (from: Fiber, to?: Fiber) => {
+    isContext(from) && dependencyList.push(createDependency(from.parent!));
+  },
+
+  up: (from: Fiber, to?: Fiber) => {
+    isContext(from) && dependencyList.pop();
+  },
+
+  enter: (enter: Fiber, skipChild: boolean) => {
+    if (
+      enter.alternate &&
+      isContext(enter.alternate) &&
+      !Object.is(enter.alternate.props.value, enter.props.value)
+    ) {
+      let alternate = enter.alternate;
+      let indexFiber: Fiber | undefined = alternate;
+
+      const [next, addHook] = createNext();
+
+      addHook({ up: (from, to) => to !== alternate });
+
+      do {
+        findDependency(indexFiber, enter) && markFiber(indexFiber);
+        indexFiber = next(
+          indexFiber,
+          indexFiber !== alternate &&
+            isContext(indexFiber) &&
+            indexFiber.parent?.type === enter.parent?.type
+        );
+      } while (indexFiber);
     }
   },
-};
+});
 
 export const startWork = (rootFiber?: Fiber) => {
   !rootCurrentFiber && rootFiber && (rootCurrentFiber = rootFiber);
@@ -176,7 +134,7 @@ export const startWork = (rootFiber?: Fiber) => {
   tickWork();
 };
 
-export const tickWork = () => {
+const tickWork = () => {
   while (workingFiber && !shouldYield()) {
     workingFiber = update(workingFiber);
   }
@@ -190,7 +148,7 @@ export const tickWork = () => {
   }
 };
 
-export const update = (fiber: Fiber) => {
+const update = (fiber: Fiber) => {
   if (fiber.commitFlag === FLAG.REUSE) return next(fiber, true);
 
   if (isElement(fiber) || isPortal(fiber) || isContext(fiber)) {
@@ -206,11 +164,11 @@ export const update = (fiber: Fiber) => {
   return next(fiber);
 };
 
-export const updateHost = (fiber: Fiber) => {
+const updateHost = (fiber: Fiber) => {
   diff(fiber, fiber.alternate?.children, formatChildren(fiber.props.children));
 };
 
-export const updateMemo = (fiber: Fiber) => {
+const updateMemo = (fiber: Fiber) => {
   const newMemoChild = fiber.props.children;
   const oldMemoChild = fiber.alternate?.children?.[0]!;
   if (
@@ -228,7 +186,7 @@ export const updateMemo = (fiber: Fiber) => {
   }
 };
 
-export const updateComponent = (fiber: Fiber) => {
+const updateComponent = (fiber: Fiber) => {
   if (!fiber.renderFn) {
     fiber.renderFn = fiber.type as Function;
     let rendered = fiber.renderFn(fiber.props);

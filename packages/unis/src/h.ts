@@ -51,11 +51,11 @@ const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
   return newKeys.every((key) => Object.is(newProps[key], oldProps[key]));
 };
 
-export const memo = <T extends (props: any) => JSX.Element>(
+export const memo = <T extends (props: any) => JSX.Element, T2>(
   child: T,
   compare: Function = defaultCompare
 ) => {
-  return (props: Parameters<T>[0]) =>
+  return (props: Parameters<T>[0] extends undefined ? {} : Parameters<T>[0]) =>
     ({
       type: MEMO,
       props: {

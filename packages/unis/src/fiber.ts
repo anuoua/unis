@@ -1,5 +1,5 @@
 import { Effect } from "./api";
-import { ContextItem } from "./context";
+import { Dependency } from "./context";
 
 export enum FLAG {
   CREATE = 1,
@@ -34,7 +34,7 @@ export interface Fiber {
   nextEffect?: Fiber;
   stateEffects?: Effect[];
   effects?: Effect[];
-  dependencies?: ContextItem[];
+  dependencies?: Dependency[];
 }
 
 export const TEXT = "$$Text";
@@ -54,3 +54,64 @@ export const isSame = (fiber1?: Fiber, fiber2?: Fiber) =>
   fiber2 &&
   fiber1.type === fiber2.type &&
   fiber1.props?.key === fiber2.props?.key;
+
+export interface Hook {
+  enter?: (currentFiber: Fiber, skipChild: boolean) => any;
+  down?: (currentFiber: Fiber, nextFiber: Fiber) => any;
+  sibling?: (currentFiber: Fiber, nextFiber?: Fiber) => any;
+  up?: (currentFiber: Fiber, nextFiber?: Fiber) => any;
+  return?: (currentFiber?: Fiber) => any;
+}
+
+export type HookKeys = keyof Hook;
+
+export type HookList = {
+  [K in keyof Hook]: Hook[K][];
+};
+
+export const createNext = () => {
+  const hookStore: HookList = {};
+
+  const addHook = (hook: Hook) => {
+    Object.entries(hook).forEach(([key, value]) => {
+      const list = hookStore[key as HookKeys];
+      list ? list.push(value) : (hookStore[key as HookKeys] = [value]);
+    });
+  };
+
+  const runHooks = <T extends HookKeys>(
+    key: T,
+    ...args: Parameters<Required<Hook>[T]>
+  ) => {
+    return hookStore[key]?.map((hook) => hook!(...(args as [any, any])));
+  };
+
+  const next = (fiber: Fiber, skipChild = false): Fiber | undefined => {
+    runHooks("enter", fiber, skipChild);
+    const { child } = fiber;
+    let nextFiber: Fiber | undefined = fiber;
+    if (child && !skipChild) {
+      runHooks("down", nextFiber, child);
+      nextFiber = child;
+    } else {
+      while (nextFiber) {
+        const { sibling, parent } = nextFiber as Fiber;
+        if (sibling) {
+          runHooks("sibling", nextFiber, sibling);
+          nextFiber = sibling;
+          break;
+        }
+        const results = runHooks("up", nextFiber, parent);
+        if (results?.includes(false)) {
+          nextFiber = undefined;
+          break;
+        }
+        nextFiber = parent;
+      }
+    }
+    runHooks("return", nextFiber);
+    return nextFiber;
+  };
+
+  return [next, addHook] as const;
+};

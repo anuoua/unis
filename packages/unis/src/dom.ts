@@ -24,10 +24,12 @@ export const createElement = (fiber: Fiber) => {
 export const attrsChanged = (newProps: any = {}, oldProps: any = {}) => {
   const { children: c1, ...restNewProps } = newProps;
   const { children: c2, ...restOldProps } = oldProps;
-  const newKeys = Object.keys(restNewProps);
-  const oldKeys = Object.keys(restOldProps);
-  if (newKeys.length !== oldKeys.length) return false;
-  return !!newKeys.find((key) => restOldProps[key] !== restNewProps[key]);
+  const newKeys = keys(restNewProps);
+  const oldKeys = keys(restOldProps);
+  if (newKeys.length !== oldKeys.length) return true;
+  return !!newKeys.find(
+    (key) => !Object.is(restOldProps[key], restNewProps[key])
+  );
 };
 
 export const updateProperties = (fiber: Fiber) => {
@@ -43,13 +45,20 @@ export const updateElementProperties = (fiber: Fiber) => {
   const preProps = fiber.alternate?.props ?? {};
   const { class: klass, className } = props;
 
+  const setAttr = (el: FiberEl, isSVG: boolean) =>
+    isSVG
+      ? (el as SVGAElement).setAttributeNS.bind(el, null)
+      : (el as HTMLElement).setAttribute.bind(el);
+  const removeAttr = (el: FiberEl, isSVG: boolean) =>
+    isSVG
+      ? (el as SVGAElement).removeAttributeNS.bind(el, null)
+      : (el as HTMLElement).removeAttribute.bind(el);
+
   if (klass || className) {
     const classStr = (className + " " + (klass ? classes(klass) : "")).trim();
-    if (isSVG) {
-      (el as SVGAElement).setAttributeNS(null, "class", classStr);
-    } else {
-      (el as HTMLElement).className = classStr;
-    }
+    setAttr(el!, !!isSVG)("class", classStr);
+  } else {
+    removeAttr(el!, !!isSVG)("class");
   }
 
   el = el as Element;
@@ -74,11 +83,12 @@ export const updateElementProperties = (fiber: Fiber) => {
       (el as HTMLElement).style.cssText = style2String(props.style);
     } else {
       if (key in preProps && !(key in props)) {
-        el.removeAttribute(key);
+        removeAttr(el!, !!isSVG)(key);
       } else {
-        isSVG
-          ? el.setAttributeNS(null, realSVGAttr(key), props[key])
-          : el.setAttribute(key.toLowerCase(), props[key]);
+        setAttr(el!, !!isSVG)(
+          isSVG ? realSVGAttr(key) : key.toLowerCase(),
+          props[key]
+        );
       }
     }
   }

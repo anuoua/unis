@@ -89,7 +89,12 @@ export function use<T extends (...args: any[]) => any>(fn: T, raFn?: Function) {
   return fn(workingFiber) as ReturnType<T>;
 }
 
-export function useState<T>(initial: T) {
+export function useState<T = undefined>(): [
+  T | undefined,
+  (value: T | undefined) => void
+];
+export function useState<T>(initial: T): [T, (value: T) => void];
+export function useState<T>(initial?: T) {
   return use(stateHOF(initial), arguments[1]);
 }
 
