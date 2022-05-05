@@ -55,7 +55,7 @@ it("dom", async () => {
 
   render(<App />, root);
   expect(root.innerHTML).toBe(
-    '<div class="class1" style="background: yellow;" tabindex="1">hello</div>'
+    '<div style="background: yellow;" tabindex="1" class="class1">hello</div>'
   );
   await sleep(10);
   expect(root.innerHTML).toBe(

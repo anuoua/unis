@@ -45,7 +45,13 @@ export const realSVGAttr = (key: string) => {
   return displayAttrs.includes(key) ? camel2kebab(key) : key;
 };
 
-export const classes = (cs: Array<any> | object): string => {
+export type CSValue = string | number | boolean | undefined | null;
+
+export type CSObject = Record<string, CSValue>;
+
+export type CSArray = (CSValue | CSObject | CSArray)[];
+
+export const classes = (cs: CSArray | CSObject): string => {
   const objClasses = (a: Record<string, any>) =>
     keys(a)
       .reduce((pre, cur) => pre + " " + (a[cur] ? cur : ""), "")

@@ -1,24 +1,25 @@
-import { attrsChanged, createElement } from "./dom";
+import { attrDiff, createElement } from "./dom";
 import { Fiber, FLAG, isElement, isPortal, isSame } from "./fiber";
 import { pushEffect } from "./reconcile";
 
-const getRealFlag = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
-  flag = flag ?? oldFiber.flag;
-  if (
-    isElement(newFiber) &&
-    !attrsChanged(newFiber.props, oldFiber.props) &&
-    flag === FLAG.UPDATE
-  ) {
-    flag = undefined;
-  }
-  if (isPortal(newFiber)) flag = undefined;
-  return flag;
+const handleElementFiber = (retFiber: Fiber, oldFiber: Fiber): Fiber => {
+  const diff = attrDiff(retFiber, oldFiber);
+  const commitFlag =
+    retFiber.commitFlag === FLAG.UPDATE && diff.length === 0
+      ? undefined
+      : retFiber.commitFlag;
+  return { ...retFiber, commitFlag, attrDiff: diff };
 };
 
+const handlePortalFiber = (retFiber: Fiber): Fiber => ({
+  ...retFiber,
+  commitFlag: undefined,
+});
+
 export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
-  return {
+  const retFiber = {
     ...newFiber,
-    commitFlag: getRealFlag(newFiber, oldFiber, flag),
+    commitFlag: flag ?? oldFiber.flag,
     renderFn: oldFiber.renderFn,
     rendered: oldFiber.rendered,
     stateEffects: oldFiber.stateEffects,
@@ -30,16 +31,23 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
     id: oldFiber.id,
     alternate: oldFiber,
   } as Fiber;
+  return isElement(retFiber)
+    ? handleElementFiber(retFiber, oldFiber)
+    : isPortal(retFiber)
+    ? handlePortalFiber(retFiber)
+    : retFiber;
 };
 
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
   const isSVG = newFiber.type === "svg" || parentFiber.isSVG;
-  return {
+  const retFiber = {
     ...newFiber,
     isSVG,
     el: isElement(newFiber) ? createElement({ ...newFiber, isSVG }) : undefined,
     commitFlag: isPortal(newFiber) ? undefined : FLAG.CREATE,
   } as Fiber;
+  retFiber.attrDiff = attrDiff(retFiber, { props: {} });
+  return retFiber;
 };
 
 export const keyIndexMapGen = (

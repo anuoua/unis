@@ -2,6 +2,8 @@ import {
   classes,
   getEventName,
   isEv,
+  isNullish,
+  isStr,
   realSVGAttr,
   style2String,
 } from "./utils";
@@ -21,15 +23,73 @@ export const createElement = (fiber: Fiber) => {
   return el;
 };
 
-export const attrsChanged = (newProps: any = {}, oldProps: any = {}) => {
-  const { children: c1, ...restNewProps } = newProps;
-  const { children: c2, ...restOldProps } = oldProps;
-  const newKeys = keys(restNewProps);
-  const oldKeys = keys(restOldProps);
-  if (newKeys.length !== oldKeys.length) return true;
-  return !!newKeys.find(
-    (key) => !Object.is(restOldProps[key], restNewProps[key])
-  );
+export type AttrDiff = [string, any, any][];
+
+export const attrDiff = (
+  newFiber: Record<string, any>,
+  oldFiber: Record<string, any>
+) => {
+  const diff: AttrDiff = [];
+  const newProps = newFiber.props;
+  const oldProps = oldFiber.props;
+
+  const getRealAttr = (attr: string) =>
+    attr === "className"
+      ? "class"
+      : newFiber.isSVG
+      ? realSVGAttr(attr)
+      : attr.toLowerCase();
+
+  const getRealValue = (newValue: any, key: string) => {
+    if (isNullish(newValue)) return;
+    switch (key) {
+      case "className":
+        return isStr(newValue) ? newValue : classes(newValue);
+      case "style":
+        return style2String(newValue as Partial<CSSStyleDeclaration>);
+      default:
+        return newValue;
+    }
+  };
+
+  for (const key of new Set([...keys(newProps), ...keys(oldProps)])) {
+    if (["xmlns", "children"].includes(key)) continue;
+    const newValue = newProps[key];
+    const oldValue = oldProps[key];
+    if (!isNullish(newValue) && !isNullish(oldValue) && oldValue === newValue)
+      continue;
+    diff.push([getRealAttr(key), getRealValue(newValue, key), oldValue]);
+  }
+
+  return diff;
+};
+
+export const updateElementProperties = (fiber: Fiber) => {
+  let { el, isSVG, attrDiff: diff } = fiber;
+
+  const setAttr = (el: FiberEl) =>
+    isSVG
+      ? (el as SVGAElement).setAttributeNS.bind(el, null)
+      : (el as HTMLElement).setAttribute.bind(el);
+  const removeAttr = (el: FiberEl) =>
+    isSVG
+      ? (el as SVGAElement).removeAttributeNS.bind(el, null)
+      : (el as HTMLElement).removeAttribute.bind(el);
+
+  for (const [key, newValue, oldValue] of diff || []) {
+    const newExist = !isNullish(newValue);
+    const oldExist = !isNullish(oldValue);
+    if (key === "ref") {
+      oldExist && (oldValue.current = undefined);
+      newExist && (newValue.current = el);
+    } else if (isEv(key)) {
+      const eventName = getEventName(key);
+      oldExist && el!.removeEventListener(eventName, oldValue);
+      newExist && el!.addEventListener(eventName, newValue);
+    } else {
+      newExist ? setAttr(el!)(key, newValue) : removeAttr(el!)(key);
+    }
+  }
 };
 
 export const updateProperties = (fiber: Fiber) => {
@@ -38,60 +98,6 @@ export const updateProperties = (fiber: Fiber) => {
 
 export const updateTextProperties = (fiber: Fiber) => {
   fiber.el!.nodeValue = fiber.props.nodeValue + "";
-};
-
-export const updateElementProperties = (fiber: Fiber) => {
-  let { props, el, isSVG } = fiber;
-  const preProps = fiber.alternate?.props ?? {};
-  const { class: klass, className } = props;
-
-  const setAttr = (el: FiberEl, isSVG: boolean) =>
-    isSVG
-      ? (el as SVGAElement).setAttributeNS.bind(el, null)
-      : (el as HTMLElement).setAttribute.bind(el);
-  const removeAttr = (el: FiberEl, isSVG: boolean) =>
-    isSVG
-      ? (el as SVGAElement).removeAttributeNS.bind(el, null)
-      : (el as HTMLElement).removeAttribute.bind(el);
-
-  if (klass || className) {
-    const classStr = (className + " " + (klass ? classes(klass) : "")).trim();
-    setAttr(el!, !!isSVG)("class", classStr);
-  } else {
-    removeAttr(el!, !!isSVG)("class");
-  }
-
-  el = el as Element;
-
-  for (const key of new Set(keys(props).concat(keys(preProps)))) {
-    if (key === "ref") {
-      preProps.ref && (preProps.ref.current = undefined);
-      props.ref && (props.ref.current = el);
-      continue;
-    }
-    if (
-      key === "xmlns" ||
-      key === "className" ||
-      key === "class" ||
-      key === "children"
-    )
-      continue;
-    if (isEv(key)) {
-      el.removeEventListener(getEventName(key), preProps[key]);
-      el.addEventListener(getEventName(key), props[key]);
-    } else if (key === "style") {
-      (el as HTMLElement).style.cssText = style2String(props.style);
-    } else {
-      if (key in preProps && !(key in props)) {
-        removeAttr(el!, !!isSVG)(key);
-      } else {
-        setAttr(el!, !!isSVG)(
-          isSVG ? realSVGAttr(key) : key.toLowerCase(),
-          props[key]
-        );
-      }
-    }
-  }
 };
 
 export const remove = (fiber: Fiber) => {
@@ -111,3 +117,12 @@ export const findEls = (fibers: Fiber[]): FiberEl[] =>
       ),
     [] as FiberEl[]
   );
+
+export const getContainer = (
+  fiber: Fiber | undefined
+): [FiberEl | undefined, boolean] | undefined => {
+  while ((fiber = fiber?.parent)) {
+    if (fiber.to) return [fiber.to, true];
+    if (fiber.el) return [fiber.el, false];
+  }
+};

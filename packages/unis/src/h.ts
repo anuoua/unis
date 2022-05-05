@@ -1,4 +1,4 @@
-import { isNum, isStr } from "./utils";
+import { isNum, isStr, keys } from "./utils";
 import { Fiber, MEMO, PORTAL, TEXT } from "./fiber";
 
 export const h = (type: any, props: any, ...children: any[]) => {
@@ -45,13 +45,13 @@ export const createPortal = (child: JSX.Element, container: Element) => {
 };
 
 const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
-  const newKeys = Object.keys(newProps);
-  const oldKeys = Object.keys(oldProps);
+  const newKeys = keys(newProps);
+  const oldKeys = keys(oldProps);
   if (newKeys.length !== oldKeys.length) return false;
   return newKeys.every((key) => Object.is(newProps[key], oldProps[key]));
 };
 
-export const memo = <T extends (props: any) => JSX.Element, T2>(
+export const memo = <T extends (props: any) => JSX.Element>(
   child: T,
   compare: Function = defaultCompare
 ) => {

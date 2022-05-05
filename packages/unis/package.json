@@ -47,7 +47,6 @@
     "@microsoft/api-extractor": "^7.18.19",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/jsdom": "^16.2.14",
-    "@vue/reactivity": "~3.2.20",
     "c8": "^7.11.0",
     "concat": "^1.0.3",
     "cross-env": "^7.0.3",

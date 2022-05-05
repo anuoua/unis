@@ -74,6 +74,5 @@
   },
   "tsdocMetadata": {
     "enabled": false
-  },
-  "bundledPackages": ["@vue/reactivity"]
+  }
 }

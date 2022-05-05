@@ -1,4 +1,4 @@
-import { markFiber } from "./api";
+import { markFiber, runStateEffects } from "./api";
 import { commitEffectList } from "./commit";
 import { Dependency, createDependency, findDependency } from "./context";
 import { clone, diff } from "./diff";
@@ -196,9 +196,7 @@ const updateComponent = (fiber: Fiber) => {
     }
     fiber.rendered = rendered;
   } else {
-    for (let effect of fiber.stateEffects ?? []) {
-      effect();
-    }
+    runStateEffects(fiber);
     if (fiber.commitFlag) fiber.rendered = fiber.renderFn(fiber.props);
   }
 

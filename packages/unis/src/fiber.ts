@@ -1,5 +1,6 @@
 import { Effect } from "./api";
 import { Dependency } from "./context";
+import { AttrDiff } from "./dom";
 
 export enum FLAG {
   CREATE = 1,
@@ -23,6 +24,7 @@ export interface Fiber {
   isSVG?: boolean;
   props?: any;
   compare?: Function;
+  attrDiff?: AttrDiff;
   alternate?: Fiber;
   type?: string | Function | Symbol | ((...p: any[]) => () => any);
   renderFn?: Function;
@@ -87,7 +89,7 @@ export const createNext = () => {
   };
 
   const next = (fiber: Fiber, skipChild = false): Fiber | undefined => {
-    runHooks("enter", fiber, skipChild);
+    if (runHooks("enter", fiber, skipChild)?.includes(false)) return;
     const { child } = fiber;
     let nextFiber: Fiber | undefined = fiber;
     if (child && !skipChild) {
@@ -101,8 +103,7 @@ export const createNext = () => {
           nextFiber = sibling;
           break;
         }
-        const results = runHooks("up", nextFiber, parent);
-        if (results?.includes(false)) {
+        if (runHooks("up", nextFiber, parent)?.includes(false)) {
           nextFiber = undefined;
           break;
         }

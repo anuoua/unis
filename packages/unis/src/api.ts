@@ -1,6 +1,7 @@
 import { Fiber, FLAG } from "./fiber";
 import { getWorkingFiber } from "./reconcile";
 import { triggerDebounce } from "./schedule";
+import { arraysEqual } from "./utils";
 
 export interface Ref<T> {
   current: T;
@@ -73,6 +74,12 @@ export const idHOF = () => {
   return (WF: Fiber) => WF.id;
 };
 
+export const runStateEffects = (fiber: Fiber) => {
+  for (let effect of fiber.stateEffects ?? []) {
+    effect();
+  }
+};
+
 export function use<T extends (...args: any[]) => any>(fn: T): ReturnType<T>;
 export function use<T extends (...args: any[]) => any>(
   fn: T,
@@ -123,5 +130,21 @@ export const useEffect = (cb: Effect, depsFn?: () => any[]) => {
     workingFiber.effects.push(cb);
   } else {
     workingFiber.effects = [cb];
+  }
+};
+
+export const runEffects = (fiber: Fiber, leave = false) => {
+  if (!fiber.effects) return;
+  for (const effect of fiber.effects) {
+    const deps = effect.depsFn?.();
+    const equal = arraysEqual(deps, effect.deps);
+    effect.deps = deps;
+    if (leave) {
+      effect.clear?.();
+      continue;
+    }
+    if (equal) continue;
+    effect.clear?.();
+    effect.clear = effect();
   }
 };

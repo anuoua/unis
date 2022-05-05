@@ -1,39 +1,19 @@
-import { createFragment, findEls, remove, updateProperties } from "./dom";
+import { runEffects } from "./api";
+import {
+  createFragment,
+  findEls,
+  getContainer,
+  remove,
+  updateProperties,
+} from "./dom";
 import {
   createNext,
   Fiber,
-  FiberEl,
   FLAG,
   isComponent,
   isElement,
   isPortal,
 } from "./fiber";
-import { arraysEqual } from "./utils";
-
-export const getContainer = (
-  fiber: Fiber | undefined
-): [FiberEl | undefined, boolean] | undefined => {
-  while ((fiber = fiber?.parent)) {
-    if (fiber.to) return [fiber.to, true];
-    if (fiber.el) return [fiber.el, false];
-  }
-};
-
-export const runEffects = (fiber: Fiber, leave = false) => {
-  if (!fiber.effects) return;
-  for (const effect of fiber.effects) {
-    const deps = effect.depsFn?.();
-    const equal = arraysEqual(deps, effect.deps);
-    effect.deps = deps;
-    if (leave) {
-      effect.clear?.();
-      continue;
-    }
-    if (equal) continue;
-    effect.clear?.();
-    effect.clear = effect();
-  }
-};
 
 export const commitDeletion = (fiber: Fiber) => {
   const destroy = (fiber: Fiber) => {
@@ -52,6 +32,12 @@ export const commitDeletion = (fiber: Fiber) => {
   const [next, addHook] = createNext();
 
   addHook({
+    enter(enter) {
+      if (enter === fiber && !enter.child) {
+        destroy(enter);
+        return false;
+      }
+    },
     up(from, to) {
       if (to) destroy(to);
       if (to === fiber) return false;
