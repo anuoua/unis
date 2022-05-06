@@ -15,13 +15,10 @@ export const isBool = (a: any): a is boolean => type(a) === "Boolean";
 export const isObj = (a: any): a is object => type(a) === "Object";
 export const isNullish = (a: any) => a == null;
 
-export const camel2kebab = (text: string) => {
-  return text.replace(/([A-Z])/g, "-$1").toLowerCase();
-};
+export const camel2kebab = (text: string) =>
+  text.replace(/([A-Z])/g, "-$1").toLowerCase();
 
-export const getEventName = (event: string) => {
-  return event.slice(2).toLowerCase();
-};
+export const getEvName = (event: string) => event.slice(2).toLowerCase();
 
 export const arraysEqual = (a: any, b: any) => {
   if (a == null || b == null) return false;
@@ -32,13 +29,14 @@ export const arraysEqual = (a: any, b: any) => {
   return true;
 };
 
-export const style2String = (style: Partial<CSSStyleDeclaration>) => {
-  const temp = document.createElement("div");
-  Object.assign(temp.style, style);
-  return temp.style.cssText;
-};
+export const styleStr = (style: Partial<CSSStyleDeclaration>) =>
+  keys(style)
+    .map(
+      (key) => `${camel2kebab(key)}: ${style[key as keyof CSSStyleDeclaration]}`
+    )
+    .join("; ") + ";";
 
-export const realSVGAttr = (key: string) => {
+export const svgKey = (key: string) => {
   for (let str of ["xmlns", "xml", "xlink"]) {
     if (key.startsWith(str)) return key.toLowerCase().replace(str, `${str}:`);
   }

@@ -1,6 +1,6 @@
 import { Effect } from "./api";
 import { Dependency } from "./context";
-import { AttrDiff } from "./dom";
+import { AttrDiff } from "./diff";
 
 export enum FLAG {
   CREATE = 1,

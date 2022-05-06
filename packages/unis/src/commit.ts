@@ -1,8 +1,10 @@
 import { runEffects } from "./api";
 import {
+  append,
   createFragment,
   findEls,
   getContainer,
+  insertBefore,
   remove,
   updateProperties,
 } from "./dom";
@@ -58,8 +60,9 @@ export const commitCommon = (fiber: Fiber) => {
   if (fiber.commitFlag === FLAG.UPDATE) return;
   if (!container) return;
   const fragment = createFragment();
-  fragment.append(...findEls([fiber]));
-  container.insertBefore(
+  append(fragment, ...findEls([fiber]));
+  insertBefore(
+    container,
     fragment,
     isPortalContainer
       ? null

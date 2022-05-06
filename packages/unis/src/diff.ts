@@ -1,6 +1,54 @@
-import { attrDiff, createElement } from "./dom";
+import { createElement } from "./dom";
 import { Fiber, FLAG, isElement, isPortal, isSame } from "./fiber";
 import { pushEffect } from "./reconcile";
+import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
+
+export type AttrDiff = [string, any, any][];
+
+export const attrDiff = (
+  newFiber: Record<string, any>,
+  oldFiber: Record<string, any>
+) => {
+  const diff: AttrDiff = [];
+  const newProps = newFiber.props;
+  const oldProps = oldFiber.props;
+
+  const getRealAttr = (attr: string) =>
+    attr === "className"
+      ? "class"
+      : newFiber.isSVG
+      ? svgKey(attr)
+      : attr.toLowerCase();
+
+  const getRealValue = (newValue: any, key: string) => {
+    if (isNullish(newValue)) return;
+    switch (key) {
+      case "className":
+        return isStr(newValue) ? newValue : classes(newValue);
+      case "style":
+        return styleStr(newValue as Partial<CSSStyleDeclaration>);
+      default:
+        return newValue;
+    }
+  };
+
+  for (const key of new Set([...keys(newProps), ...keys(oldProps)])) {
+    if (["xmlns", "children"].includes(key)) continue;
+    const newValue = newProps[key];
+    const oldValue = oldProps[key];
+    const realNewValue = getRealValue(newValue, key);
+    const realOldValue = getRealValue(oldValue, key);
+    if (
+      !isNullish(newValue) &&
+      !isNullish(oldValue) &&
+      realNewValue === realOldValue
+    )
+      continue;
+    diff.push([getRealAttr(key), realNewValue, realOldValue]);
+  }
+
+  return diff;
+};
 
 const handleElementFiber = (retFiber: Fiber, oldFiber: Fiber): Fiber => {
   const diff = attrDiff(retFiber, oldFiber);
