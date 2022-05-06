@@ -56,9 +56,15 @@ export const attrDiff = (
     if (["xmlns", "children"].includes(key)) continue;
     const newValue = newProps[key];
     const oldValue = oldProps[key];
-    if (!isNullish(newValue) && !isNullish(oldValue) && oldValue === newValue)
+    const realNewValue = getRealValue(newValue, key);
+    const realOldValue = getRealValue(oldValue, key);
+    if (
+      !isNullish(newValue) &&
+      !isNullish(oldValue) &&
+      realNewValue === realOldValue
+    )
       continue;
-    diff.push([getRealAttr(key), getRealValue(newValue, key), oldValue]);
+    diff.push([getRealAttr(key), realNewValue, realOldValue]);
   }
 
   return diff;
