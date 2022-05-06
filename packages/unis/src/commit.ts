@@ -35,6 +35,7 @@ export const commitDeletion = (fiber: Fiber) => {
 
   addHook({
     enter(enter) {
+      delete enter.preEl;
       if (enter === fiber && !enter.child) {
         destroy(enter);
         return false;

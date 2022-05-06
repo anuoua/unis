@@ -22,10 +22,8 @@ export const append = (
   ...nodes: (DocumentFragment | Element | Text)[]
 ) => container.append(...nodes);
 
-export const remove = (fiber: Fiber) => {
-  const els = findEls([fiber]);
-  createFragment().append(...els);
-};
+export const remove = (fiber: Fiber) =>
+  createFragment().append(...findEls([fiber]));
 
 export const findEls = (fibers: Fiber[]): FiberEl[] =>
   fibers.reduce(
