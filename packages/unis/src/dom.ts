@@ -1,5 +1,16 @@
 import { getEvName, isEv, isNullish } from "./utils";
 import { Fiber, FiberEl, isElement, isPortal, isText } from "./fiber";
+import { trigger } from "./schedule";
+
+export const render = (element: any, container: Element) => {
+  trigger({
+    type: container.tagName.toLocaleLowerCase(),
+    el: container,
+    props: {
+      children: [].concat(element),
+    },
+  });
+};
 
 export const createFragment = () => document.createDocumentFragment();
 
@@ -21,6 +32,10 @@ export const append = (
   container: Element | DocumentFragment,
   ...nodes: (DocumentFragment | Element | Text)[]
 ) => container.append(...nodes);
+
+export const nextSibling = (node: Node) => node.nextSibling;
+
+export const firstChild = (node: Node) => node.firstChild;
 
 export const remove = (fiber: Fiber) =>
   createFragment().append(...findEls([fiber]));

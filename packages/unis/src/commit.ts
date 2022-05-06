@@ -3,8 +3,10 @@ import {
   append,
   createFragment,
   findEls,
+  firstChild,
   getContainer,
   insertBefore,
+  nextSibling,
   remove,
   updateProperties,
 } from "./dom";
@@ -68,8 +70,8 @@ export const commitCommon = (fiber: Fiber) => {
     isPortalContainer
       ? null
       : fiber.preEl
-      ? fiber.preEl.nextSibling
-      : container.childNodes[0]
+      ? nextSibling(fiber.preEl)
+      : firstChild(container)
   );
 };
 

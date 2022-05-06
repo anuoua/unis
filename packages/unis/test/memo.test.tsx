@@ -4,7 +4,7 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { useEffect, useState } from "../src/api";
 import { h, h2, memo } from "../src/h";
-import { render } from "../src/render";
+import { render } from "../src/dom";
 import { sleep } from "./util";
 
 let root: Element;
