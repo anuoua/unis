@@ -116,3 +116,17 @@ export const createNext = () => {
 
   return [next, addHook] as const;
 };
+
+export const graft = (oldFiber: Fiber, newFiber: Fiber) => {
+  const parent = oldFiber.parent!;
+  const parentChildren = parent.children!;
+  const index = oldFiber.index!;
+  const preIndex = index - 1;
+
+  if (index === 0) parent.child = newFiber;
+  if (preIndex >= 0) parentChildren[preIndex].sibling = newFiber;
+  if (oldFiber.sibling) newFiber.sibling = oldFiber.sibling;
+
+  parentChildren[index] = newFiber;
+  newFiber.parent = parent;
+};

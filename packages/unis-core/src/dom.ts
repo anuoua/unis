@@ -6,6 +6,7 @@ export const render = (element: any, container: Element) => {
   trigger({
     type: container.tagName.toLocaleLowerCase(),
     el: container,
+    index: 0,
     props: {
       children: [].concat(element),
     },

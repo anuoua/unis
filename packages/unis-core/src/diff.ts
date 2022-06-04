@@ -1,7 +1,15 @@
 import { createElement } from "./dom";
 import { Fiber, FLAG, isElement, isPortal, isSame } from "./fiber";
 import { pushEffect } from "./reconcile";
-import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
+import {
+  classes,
+  isNullish,
+  isStr,
+  keys,
+  picks,
+  styleStr,
+  svgKey,
+} from "./utils";
 
 export type AttrDiff = [string, any, any][];
 
@@ -26,7 +34,9 @@ export const attrDiff = (
       case "className":
         return isStr(newValue) ? newValue : classes(newValue);
       case "style":
-        return styleStr(newValue as Partial<CSSStyleDeclaration>);
+        return isStr(newValue)
+          ? newValue
+          : styleStr(newValue as Partial<CSSStyleDeclaration>);
       default:
         return newValue;
     }
@@ -65,20 +75,22 @@ const handlePortalFiber = (retFiber: Fiber): Fiber => ({
 });
 
 export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
-  const retFiber = {
+  const retFiber: Fiber = {
     ...newFiber,
+    ...picks(oldFiber, [
+      "renderFn",
+      "rendered",
+      "stateEffects",
+      "effects",
+      "to",
+      "el",
+      "isSVG",
+      "index",
+      "id",
+    ]),
     commitFlag: flag ?? oldFiber.flag,
-    renderFn: oldFiber.renderFn,
-    rendered: oldFiber.rendered,
-    stateEffects: oldFiber.stateEffects,
-    effects: oldFiber.effects,
-    to: oldFiber.to,
-    el: oldFiber.el,
-    isSVG: oldFiber.isSVG,
-    index: oldFiber.index,
-    id: oldFiber.id,
     alternate: oldFiber,
-  } as Fiber;
+  };
   return isElement(retFiber)
     ? handleElementFiber(retFiber, oldFiber)
     : isPortal(retFiber)

@@ -125,7 +125,6 @@ export const startWork = (rootFiber?: Fiber) => {
   rootWorkingFiber = workingFiber = clone(
     {
       props: rootCurrentFiber.props,
-      index: rootCurrentFiber.index,
       type: rootCurrentFiber.type,
     },
     rootCurrentFiber
@@ -177,7 +176,6 @@ const updateMemo = (fiber: Fiber) => {
     fiber.compare?.(newMemoChild.props, oldMemoChild.props)
   ) {
     const newChild = clone(newMemoChild, oldMemoChild, FLAG.REUSE);
-    newChild.index = 0;
     newChild.parent = fiber;
     fiber.child = newChild;
     fiber.children = [newChild];

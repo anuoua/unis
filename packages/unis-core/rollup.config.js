@@ -6,8 +6,8 @@ const configGen = (format) => ({
   output: [
     {
       name: "unis",
-      dir: `build/${format}`,
-      entryFileNames: "unis.js",
+      dir: "build",
+      entryFileNames: `unis.${format === "esm" ? "mjs" : "js"}`,
       format,
       sourcemap: true,
     },

@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { expect, it } from "vitest";
-import { classes, svgKey, styleStr } from "../src/utils";
+import { classes, svgKey, styleStr, picks } from "../src/utils";
 
 it("classes", () => {
   expect(classes(["a", "b", 1, ["c", { d: true }]])).toBe("a b 1 c d");
@@ -18,4 +18,10 @@ it("style2String", () => {
   expect(styleStr({ background: "yellow", fontSize: "14px" })).toBe(
     "background: yellow; font-size: 14px;"
   );
+});
+
+it("picks", () => {
+  expect(picks({ hello: "a", world: "b" }, ["hello"])).toMatchObject({
+    hello: "a",
+  });
 });

@@ -2,19 +2,19 @@
   "name": "@unis/unis",
   "version": "1.0.7",
   "description": "Unis is a simpler and easier to use front-end framework than React",
-  "main": "build/umd/unis.js",
-  "module": "build/esm/unis.js",
-  "types": "build/esm/unis.d.ts",
-  "typings": "build/esm/unis.d.ts",
+  "main": "build/unis.js",
+  "module": "build/unis.mjs",
+  "types": "build/unis.d.ts",
+  "typings": "build/unis.d.ts",
   "exports": {
     ".": {
-      "require": "./build/umd/unis.js",
-      "import": "./build/esm/unis.js"
+      "require": "./build/unis.js",
+      "import": "./build/unis.mjs"
     },
     "./jsx-runtime": "./jsx-runtime.js"
   },
   "scripts": {
-    "build": "rimraf build && rimraf dist && rollup --config && pnpm dts && concat -o ./build/umd/unis.d.ts ./build/esm/unis.d.ts",
+    "build": "rimraf build && rimraf dist && rollup --config && pnpm dts",
     "build:dev": "cross-env NODE_ENV=development pnpm build",
     "test": "vitest run --coverage",
     "test:watch": "vitest -w",
@@ -48,7 +48,6 @@
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@types/jsdom": "^16.2.14",
     "c8": "^7.11.0",
-    "concat": "^1.0.3",
     "cross-env": "^7.0.3",
     "esbuild": "^0.13.13",
     "jsdom": "^19.0.0",

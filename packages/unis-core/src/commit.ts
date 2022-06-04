@@ -14,6 +14,7 @@ import {
   createNext,
   Fiber,
   FLAG,
+  graft,
   isComponent,
   isElement,
   isPortal,
@@ -86,20 +87,12 @@ export const commitEffectList = (effectList: Fiber[]) => {
       case FLAG.CREATE:
       case FLAG.INSERT:
         commitCommon(effect);
+        isComponent(effect) && comps.push(effect);
         break;
       case FLAG.REUSE:
-        const parent = effect.parent!;
-        const parentChildren = parent.children!;
-        const alternate = effect.alternate!;
-        alternate.sibling = effect.sibling;
-        alternate.parent = parent;
-        parentChildren[effect.index!] = alternate;
-        parent.child = parentChildren![0];
+        graft(effect, effect.alternate!);
         break;
     }
-    effect.commitFlag !== FLAG.REUSE &&
-      isComponent(effect) &&
-      comps.push(effect);
     delete effect.commitFlag;
     delete effect.alternate;
   }

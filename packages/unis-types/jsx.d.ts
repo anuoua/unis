@@ -325,63 +325,61 @@ type AriaRole =
 export type StyleValue = string | CSSProperties | Array<StyleValue>;
 
 export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
-  innerHTML?: string;
-
-  class?: any;
-  className?: any;
-  style?: StyleValue;
-
   // Standard HTML Attributes
-  accesskey?: string;
-  contenteditable?: Booleanish | "inherit";
-  contextmenu?: string;
-  dir?: string;
-  draggable?: Booleanish;
-  hidden?: Booleanish;
-  id?: string;
-  lang?: string;
-  placeholder?: string;
-  spellcheck?: Booleanish;
-  tabindex?: Numberish;
-  title?: string;
-  translate?: "yes" | "no";
+  accessKey?: string | undefined;
+  class?: any;
+  className?: string | undefined;
+  contentEditable?: Booleanish | "inherit" | undefined;
+  contextMenu?: string | undefined;
+  dir?: string | undefined;
+  draggable?: Booleanish | undefined;
+  hidden?: boolean | undefined;
+  id?: string | undefined;
+  lang?: string | undefined;
+  placeholder?: string | undefined;
+  slot?: string | undefined;
+  spellCheck?: Booleanish | undefined;
+  style?: CSSProperties | undefined;
+  tabIndex?: number | undefined;
+  title?: string | undefined;
+  translate?: "yes" | "no" | undefined;
 
   // Unknown
-  radiogroup?: string; // <command>, <menuitem>
+  radioGroup?: string | undefined; // <command>, <menuitem>
 
   // WAI-ARIA
-  role?: string;
+  role?: AriaRole | undefined;
 
   // RDFa Attributes
-  about?: string;
-  datatype?: string;
+  about?: string | undefined;
+  datatype?: string | undefined;
   inlist?: any;
-  prefix?: string;
-  property?: string;
-  resource?: string;
-  typeof?: string;
-  vocab?: string;
+  prefix?: string | undefined;
+  property?: string | undefined;
+  resource?: string | undefined;
+  typeof?: string | undefined;
+  vocab?: string | undefined;
 
   // Non-standard Attributes
-  autocapitalize?: string;
-  autocorrect?: string;
-  autocave?: string;
-  color?: string;
-  itemprop?: string;
-  itemscope?: Booleanish;
-  itemtype?: string;
-  itemid?: string;
-  itemref?: string;
-  results?: Numberish;
-  security?: string;
-  unselectable?: "on" | "off";
+  autoCapitalize?: string | undefined;
+  autoCorrect?: string | undefined;
+  autoSave?: string | undefined;
+  color?: string | undefined;
+  itemProp?: string | undefined;
+  itemScope?: boolean | undefined;
+  itemType?: string | undefined;
+  itemID?: string | undefined;
+  itemRef?: string | undefined;
+  results?: number | undefined;
+  security?: string | undefined;
+  unselectable?: "on" | "off" | undefined;
 
   // Living Standard
   /**
    * Hints at the type of data that might be entered by the user while editing the element or its contents
    * @see https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute
    */
-  inputmode?:
+  inputMode?:
     | "none"
     | "text"
     | "tel"
@@ -389,12 +387,13 @@ export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
     | "email"
     | "numeric"
     | "decimal"
-    | "search";
+    | "search"
+    | undefined;
   /**
    * Specify that a standard HTML element should behave like a defined custom built-in element
    * @see https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is
    */
-  is?: string;
+  is?: string | undefined;
 }
 
 type HTMLAttributeReferrerPolicy =
