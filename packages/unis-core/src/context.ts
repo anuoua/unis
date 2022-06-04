@@ -29,9 +29,8 @@ export const findDependency = (fiber: Fiber, contextFiber: Fiber) =>
       contextMap.get(contextFiber.parent?.type as Function)
   );
 
-export function createContext<T = undefined>(): Context<T | undefined>;
 export function createContext<T>(initial: T): Context<T>;
-export function createContext<T>(initial?: T) {
+export function createContext<T>(initial: T) {
   const Provider = (props: { value: T | undefined; children: any }) =>
     ({
       type: CONTEXT,

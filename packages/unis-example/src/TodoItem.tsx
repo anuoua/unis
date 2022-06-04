@@ -1,6 +1,6 @@
 import { h, use, memo, useEffect, useProps, useRef } from "@unis/unis";
 import s from "./TodoItem.module.css";
-import { update } from "./hooks/update";
+import { Update } from "./hooks/update";
 
 export interface Item {
   id: number;
@@ -16,7 +16,7 @@ interface TodoItemProps {
 
 export const TodoItem = memo((props: TodoItemProps) => {
   let { item, onDelete } = useProps(props);
-  let [render] = use(update());
+  let [render] = use(Update());
   let { editing, canceled, name } = use(() => item);
 
   const inputRef = useRef();
