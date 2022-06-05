@@ -150,10 +150,13 @@ const tickWork = () => {
 const update = (fiber: Fiber) => {
   if (fiber.commitFlag === FLAG.REUSE) return next(fiber, true);
 
-  if (isElement(fiber) || isPortal(fiber) || isContext(fiber)) {
+  if (
+    isElement(fiber) ||
+    isPortal(fiber) ||
+    isContext(fiber) ||
+    isMemo(fiber)
+  ) {
     updateHost(fiber);
-  } else if (isMemo(fiber)) {
-    updateMemo(fiber);
   } else if (isComponent(fiber)) {
     updateComponent(fiber);
   }
@@ -165,23 +168,6 @@ const update = (fiber: Fiber) => {
 
 const updateHost = (fiber: Fiber) => {
   diff(fiber, fiber.alternate?.children, formatChildren(fiber.props.children));
-};
-
-const updateMemo = (fiber: Fiber) => {
-  const newMemoChild = fiber.props.children;
-  const oldMemoChild = fiber.alternate?.children?.[0]!;
-  if (
-    fiber.commitFlag !== FLAG.CREATE &&
-    !fiber.alternate!.childFlag &&
-    fiber.compare?.(newMemoChild.props, oldMemoChild.props)
-  ) {
-    const newChild = clone(newMemoChild, oldMemoChild, FLAG.REUSE);
-    newChild.parent = fiber;
-    fiber.child = newChild;
-    fiber.children = [newChild];
-  } else {
-    updateHost(fiber);
-  }
 };
 
 const updateComponent = (fiber: Fiber) => {

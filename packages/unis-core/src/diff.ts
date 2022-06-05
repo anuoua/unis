@@ -1,5 +1,5 @@
 import { createElement } from "./dom";
-import { Fiber, FLAG, isElement, isPortal, isSame } from "./fiber";
+import { Fiber, FLAG, isElement, isMemo, isPortal, isSame } from "./fiber";
 import { pushEffect } from "./reconcile";
 import {
   classes,
@@ -74,6 +74,19 @@ const handlePortalFiber = (retFiber: Fiber): Fiber => ({
   commitFlag: undefined,
 });
 
+const handleMemoFiber = (retFiber: Fiber, oldFiber: Fiber) => {
+  if (
+    !oldFiber.childFlag &&
+    retFiber.commitFlag !== FLAG.CREATE &&
+    retFiber.compare?.(
+      retFiber.props.children.props,
+      oldFiber.children![0].props
+    )
+  )
+    retFiber.commitFlag = FLAG.REUSE;
+  return retFiber;
+};
+
 export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
   const retFiber: Fiber = {
     ...newFiber,
@@ -95,6 +108,8 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
     ? handleElementFiber(retFiber, oldFiber)
     : isPortal(retFiber)
     ? handlePortalFiber(retFiber)
+    : isMemo(retFiber)
+    ? handleMemoFiber(retFiber, oldFiber)
     : retFiber;
 };
 

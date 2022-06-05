@@ -17,13 +17,11 @@ export const createFragment = () => document.createDocumentFragment();
 
 export const createElement = (fiber: Fiber) => {
   const { type, isSVG } = fiber;
-  const el = isText(fiber)
+  return isText(fiber)
     ? document.createTextNode(fiber.props.nodeValue + "")
     : isSVG
     ? document.createElementNS("http://www.w3.org/2000/svg", type as string)
     : document.createElement(type as string);
-  fiber.el = el;
-  return el;
 };
 
 export const insertBefore = (container: Node, node: Node, child: Node | null) =>
