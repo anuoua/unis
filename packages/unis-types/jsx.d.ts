@@ -339,7 +339,7 @@ export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
   placeholder?: string | undefined;
   slot?: string | undefined;
   spellCheck?: Booleanish | undefined;
-  style?: CSSProperties | undefined;
+  style?: CSSProperties | string | undefined;
   tabIndex?: number | undefined;
   title?: string | undefined;
   translate?: "yes" | "no" | undefined;
