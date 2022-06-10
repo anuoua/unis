@@ -50,30 +50,31 @@ export type CSObject = Record<string, CSValue>;
 export type CSArray = (CSValue | CSObject | CSArray)[];
 
 export const classes = (cs: CSArray | CSObject): string => {
-  const objClasses = (a: Record<string, any>) =>
-    keys(a)
-      .reduce((pre, cur) => pre + " " + (a[cur] ? cur : ""), "")
+  const objClasses = (objcs: Record<string, any>) =>
+    keys(objcs)
+      .reduce((pre, cur) => pre + " " + (objcs[cur] ? cur : ""), "")
       .trim();
 
-  return isArray(cs)
-    ? cs
-        .reduce(
-          (pre: string, cur) =>
-            pre +
-            " " +
-            `${
-              isNum(cur) || isStr(cur)
-                ? cur
-                : isObj(cur)
-                ? objClasses(cur)
-                : isArray(cur)
-                ? classes(cur)
-                : ""
-            }`,
-          ""
-        )
-        .trim()
-    : objClasses(cs);
+  const arrClasses = (arrcs: CSArray) =>
+    arrcs
+      .reduce(
+        (pre: string, cur) =>
+          pre +
+          " " +
+          `${
+            isNum(cur) || isStr(cur)
+              ? cur
+              : isObj(cur)
+              ? objClasses(cur)
+              : isArray(cur)
+              ? classes(cur)
+              : ""
+          }`,
+        ""
+      )
+      .trim();
+
+  return isArray(cs) ? arrClasses(cs) : objClasses(cs);
 };
 
 export const picks = <T extends Record<string, any>>(
