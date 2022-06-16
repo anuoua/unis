@@ -2,11 +2,11 @@ import { markFiber, runStateEffects } from "./api";
 import { commitEffectList } from "./commit";
 import { Dependency, createDependency, findDependency } from "./context";
 import { clone, diff } from "./diff";
-import { findEls } from "./dom";
 import {
   createNext,
   Fiber,
   FiberEl,
+  findEls,
   FLAG,
   isComponent,
   isContext,

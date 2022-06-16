@@ -130,3 +130,25 @@ export const graft = (oldFiber: Fiber, newFiber: Fiber) => {
   parentChildren[index] = newFiber;
   newFiber.parent = parent;
 };
+
+export const findEls = (fibers: Fiber[]): FiberEl[] =>
+  fibers.reduce(
+    (pre, cur) =>
+      pre.concat(
+        isElement(cur)
+          ? cur.el!
+          : isPortal(cur)
+          ? []
+          : findEls(cur.children ?? [])
+      ),
+    [] as FiberEl[]
+  );
+
+export const getContainer = (
+  fiber: Fiber | undefined
+): [FiberEl | undefined, boolean] | undefined => {
+  while ((fiber = fiber?.parent)) {
+    if (fiber.to) return [fiber.to, true];
+    if (fiber.el) return [fiber.el, false];
+  }
+};

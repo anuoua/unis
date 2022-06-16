@@ -1,5 +1,5 @@
 import { getEvName, isEv, isNullish } from "./utils";
-import { Fiber, FiberEl, isElement, isPortal, isText } from "./fiber";
+import { Fiber, FiberEl, findEls, isText } from "./fiber";
 import { trigger } from "./schedule";
 
 export const render = (element: any, container: Element) => {
@@ -39,37 +39,15 @@ export const firstChild = (node: Node) => node.firstChild;
 export const remove = (fiber: Fiber) =>
   createFragment().append(...findEls([fiber]));
 
-export const findEls = (fibers: Fiber[]): FiberEl[] =>
-  fibers.reduce(
-    (pre, cur) =>
-      pre.concat(
-        isElement(cur)
-          ? cur.el!
-          : isPortal(cur)
-          ? []
-          : findEls(cur.children ?? [])
-      ),
-    [] as FiberEl[]
-  );
-
-export const getContainer = (
-  fiber: Fiber | undefined
-): [FiberEl | undefined, boolean] | undefined => {
-  while ((fiber = fiber?.parent)) {
-    if (fiber.to) return [fiber.to, true];
-    if (fiber.el) return [fiber.el, false];
-  }
-};
-
 export const updateProperties = (fiber: Fiber) => {
   isText(fiber) ? updateTextProperties(fiber) : updateElementProperties(fiber);
 };
 
-export const updateTextProperties = (fiber: Fiber) => {
+const updateTextProperties = (fiber: Fiber) => {
   fiber.el!.nodeValue = fiber.props.nodeValue + "";
 };
 
-export const updateElementProperties = (fiber: Fiber) => {
+const updateElementProperties = (fiber: Fiber) => {
   let { el, isSVG, attrDiff: diff } = fiber;
 
   const setAttr = (el: FiberEl) =>

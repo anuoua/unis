@@ -2,9 +2,7 @@ import { runEffects } from "./api";
 import {
   append,
   createFragment,
-  findEls,
   firstChild,
-  getContainer,
   insertBefore,
   nextSibling,
   remove,
@@ -13,7 +11,9 @@ import {
 import {
   createNext,
   Fiber,
+  findEls,
   FLAG,
+  getContainer,
   graft,
   isComponent,
   isElement,
