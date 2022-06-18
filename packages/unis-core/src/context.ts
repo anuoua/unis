@@ -1,4 +1,4 @@
-import { getWF, use, useProps } from "./api";
+import { use, useProps } from "./api";
 import { CONTEXT, Fiber } from "./fiber";
 import { getDependency } from "./reconcile";
 
@@ -13,11 +13,11 @@ export interface Dependency<T = any> {
   value: T;
 }
 
-export const contextMap = new WeakMap<Function, Context>();
+const providerContextMap = new WeakMap<Function, Context>();
 
 export const createDependency = (fiber: Fiber) => {
   return {
-    context: contextMap.get(fiber.type as Function)!,
+    context: providerContextMap.get(fiber.type as Function)!,
     value: fiber.props.value,
   };
 };
@@ -26,7 +26,7 @@ export const findDependency = (fiber: Fiber, contextFiber: Fiber) =>
   fiber.dependencies?.find(
     (dependency) =>
       dependency.context ===
-      contextMap.get(contextFiber.parent?.type as Function)
+      providerContextMap.get(contextFiber.parent?.type as Function)
   );
 
 export function createContext<T>(initial: T): Context<T>;
@@ -51,25 +51,29 @@ export function createContext<T>(initial: T) {
     initial,
   };
 
-  contextMap.set(Provider, context);
+  providerContextMap.set(Provider, context);
 
   return context;
 }
 
 const contextHOF = (context: Context) => {
   const readContext = (fiber: Fiber) => {
-    const dependencies = getDependency();
-    fiber.dependencies = [...dependencies];
-    let dependency: Dependency | undefined;
-    for (let i = dependencies.length - 1; i >= 0; i--) {
-      if (dependencies[i].context === context) {
-        dependency = dependencies[i];
-        break;
+    const result = getDependency()
+      .filter((dependency) => dependency.context === context)
+      .pop();
+
+    if (result) {
+      if (fiber.dependencies) {
+        fiber.dependencies.push(result);
+      } else {
+        fiber.dependencies = [result];
       }
+      return result.value;
+    } else {
+      return context.initial;
     }
-    return dependency ? dependency.value : context.initial;
   };
-  return () => readContext(getWF());
+  return (WF: Fiber) => readContext(WF);
 };
 
 export function useContext(ctx: Context) {

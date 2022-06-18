@@ -5,17 +5,17 @@ const INTERVAL = 14;
 let lastTime: number;
 let pending = false;
 
-export const trigger = (fiber: Fiber) => {
+export const trigger = (rootFiber: Fiber) => {
   lastTime = performance.now();
-  startWork(fiber);
+  startWork(rootFiber);
 };
 
-export const triggerDebounce = (fiber: Fiber) => {
+export const triggerDebounce = (rootFiber: Fiber) => {
   if (pending) return;
   pending = true;
   queueMicrotask(() => {
     pending = false;
-    trigger(fiber);
+    trigger(rootFiber);
   });
 };
 

@@ -18,9 +18,6 @@ import { formatChildren } from "./h";
 import { nextTick, shouldYield } from "./schedule";
 import { isFun } from "./utils";
 
-let rootCurrentFiber: Fiber;
-let rootWorkingFiber: Fiber;
-
 let effectList: Fiber[] = [];
 let dependencyList: Dependency[] = [];
 
@@ -28,8 +25,6 @@ let workingFiber: Fiber | undefined;
 let workingPreEl: FiberEl | undefined;
 
 export const getWorkingFiber = () => workingFiber;
-export const setWorkingFiber = (fiber: Fiber | undefined) =>
-  (workingFiber = fiber);
 
 export const getDependency = () => dependencyList;
 
@@ -119,15 +114,13 @@ addHook({
   },
 });
 
-export const startWork = (rootFiber?: Fiber) => {
-  !rootCurrentFiber && rootFiber && (rootCurrentFiber = rootFiber);
-
-  rootWorkingFiber = workingFiber = clone(
+export const startWork = (rootFiber: Fiber) => {
+  workingFiber = clone(
     {
-      props: rootCurrentFiber.props,
-      type: rootCurrentFiber.type,
+      props: rootFiber.props,
+      type: rootFiber.type,
     },
-    rootCurrentFiber
+    rootFiber
   );
 
   tickWork();
@@ -141,7 +134,6 @@ const tickWork = () => {
     nextTick(() => tickWork());
   } else {
     commitEffectList(effectList);
-    rootCurrentFiber = rootWorkingFiber;
     workingFiber = undefined;
     effectList = [];
   }

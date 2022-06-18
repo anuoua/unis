@@ -24,14 +24,17 @@ export const getWF = (): Fiber | never => {
   }
 };
 
-export const markFiber = (workingFiber: Fiber) => {
+export const markFiber = (workingFiber: Fiber): Fiber => {
   workingFiber.flag = FLAG.UPDATE;
 
   let indexFiber: Fiber | undefined = workingFiber;
+
   while ((indexFiber = indexFiber.parent)) {
-    if (indexFiber.childFlag) break;
-    indexFiber.childFlag = FLAG.UPDATE;
+    if (!indexFiber.childFlag) indexFiber.childFlag = FLAG.UPDATE;
+    if (!indexFiber.parent) return indexFiber;
   }
+
+  return workingFiber;
 };
 
 export const reducerHOF = <T extends any, T2 extends any>(
@@ -43,8 +46,7 @@ export const reducerHOF = <T extends any, T2 extends any>(
 
   const dispatch = (action: T2) => {
     state = reducerFn(state, action);
-    markFiber(workingFiber);
-    triggerDebounce(workingFiber);
+    triggerDebounce(markFiber(workingFiber));
   };
 
   return (WF: Fiber) => {

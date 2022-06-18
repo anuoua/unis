@@ -38,7 +38,6 @@ export const commitDeletion = (fiber: Fiber) => {
 
   addHook({
     enter(enter) {
-      delete enter.preEl;
       if (enter === fiber && !enter.child) {
         destroy(enter);
         return false;
@@ -54,7 +53,13 @@ export const commitDeletion = (fiber: Fiber) => {
   });
 
   let indexFiber: Fiber | undefined = fiber;
-  while ((indexFiber = next(indexFiber))) {}
+
+  do {
+    indexFiber.preEl = undefined;
+    indexFiber.dependencies = undefined;
+    indexFiber.attrDiff = undefined;
+  } while ((indexFiber = next(indexFiber)));
+
   remove(fiber);
 };
 
@@ -93,8 +98,7 @@ export const commitEffectList = (effectList: Fiber[]) => {
         graft(effect, effect.alternate!);
         break;
     }
-    delete effect.commitFlag;
-    delete effect.alternate;
+    effect.alternate = undefined;
   }
   comps.forEach((i) => runEffects(i));
 };
