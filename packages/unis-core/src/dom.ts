@@ -1,9 +1,9 @@
 import { getEvName, isEv, isNullish } from "./utils";
 import { Fiber, FiberEl, findEls, isText } from "./fiber";
-import { trigger } from "./schedule";
+import { startWork } from "./reconcile";
 
 export const render = (element: any, container: Element) => {
-  trigger({
+  startWork({
     type: container.tagName.toLocaleLowerCase(),
     el: container,
     index: 0,

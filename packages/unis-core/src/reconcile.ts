@@ -15,7 +15,7 @@ import {
   isPortal,
 } from "./fiber";
 import { formatChildren } from "./h";
-import { nextTick, shouldYield } from "./schedule";
+import { addTask, shouldYield } from "./scheduler";
 import { isFun } from "./utils";
 
 let effectList: Fiber[] = [];
@@ -123,7 +123,7 @@ export const startWork = (rootFiber: Fiber) => {
     rootFiber
   );
 
-  tickWork();
+  addTask(tickWork);
 };
 
 const tickWork = () => {
@@ -131,7 +131,7 @@ const tickWork = () => {
     workingFiber = update(workingFiber);
   }
   if (workingFiber) {
-    nextTick(() => tickWork());
+    addTask(tickWork);
   } else {
     commitEffectList(effectList);
     workingFiber = undefined;

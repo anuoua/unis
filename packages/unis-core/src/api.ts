@@ -1,6 +1,5 @@
 import { Fiber, FLAG } from "./fiber";
-import { getWorkingFiber } from "./reconcile";
-import { triggerDebounce } from "./schedule";
+import { getWorkingFiber, startWork } from "./reconcile";
 import { arraysEqual } from "./utils";
 
 export interface Ref<T> {
@@ -43,6 +42,17 @@ export const reducerHOF = <T extends any, T2 extends any>(
 ) => {
   let state = initial;
   let workingFiber: Fiber;
+
+  let pending = false;
+
+  const triggerDebounce = (rootFiber: Fiber) => {
+    if (pending) return;
+    pending = true;
+    queueMicrotask(() => {
+      pending = false;
+      startWork(rootFiber);
+    });
+  };
 
   const dispatch = (action: T2) => {
     state = reducerFn(state, action);
