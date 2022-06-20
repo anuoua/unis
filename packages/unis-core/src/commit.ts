@@ -58,6 +58,7 @@ export const commitDeletion = (fiber: Fiber) => {
     indexFiber.preEl = undefined;
     indexFiber.dependencies = undefined;
     indexFiber.attrDiff = undefined;
+    indexFiber.globalState = undefined;
   } while ((indexFiber = next(indexFiber)));
 
   remove(fiber);

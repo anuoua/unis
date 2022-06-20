@@ -1,6 +1,5 @@
 import { use, useProps } from "./api";
 import { CONTEXT, Fiber } from "./fiber";
-import { getDependency } from "./reconcile";
 
 export interface Context<T = any> {
   Provider: (props: { value: T; children: any }) => JSX.Element;
@@ -58,7 +57,7 @@ export function createContext<T>(initial: T) {
 
 const contextHOF = (context: Context) => {
   const readContext = (fiber: Fiber) => {
-    const result = getDependency()
+    const result = (fiber?.globalState?.dependencyList ?? [])
       .filter((dependency) => dependency.context === context)
       .pop();
 

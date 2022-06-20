@@ -1,6 +1,6 @@
 import { markFiber, runStateEffects } from "./api";
 import { commitEffectList } from "./commit";
-import { Dependency, createDependency, findDependency } from "./context";
+import { createDependency, findDependency } from "./context";
 import { clone, diff } from "./diff";
 import {
   createNext,
@@ -15,41 +15,42 @@ import {
   isPortal,
 } from "./fiber";
 import { formatChildren } from "./h";
-import { addTask, shouldYield } from "./scheduler";
+import { addMacroTask, addMicroTask, shouldYield } from "./scheduler";
 import { isFun } from "./utils";
 
-let effectList: Fiber[] = [];
-let dependencyList: Dependency[] = [];
+let rootWorkingFiber: Fiber | undefined;
 
-let workingFiber: Fiber | undefined;
-let workingPreEl: FiberEl | undefined;
+export const getWorkingFiber = () => rootWorkingFiber;
+export const setWorkingFiber = (fiber: Fiber | undefined) =>
+  (rootWorkingFiber = fiber);
 
-export const getWorkingFiber = () => workingFiber;
-
-export const getDependency = () => dependencyList;
-
-export const pushEffect = (fiber: Fiber) => effectList.push(fiber);
-
-const setReuseFiberPreEl = (fiber: Fiber) => {
-  if (fiber.commitFlag !== FLAG.REUSE) return;
-  const endEl = findEls([fiber.alternate!]).pop();
-  endEl && (workingPreEl = endEl);
-};
+export const pushEffect = (fiber: Fiber) =>
+  fiber.globalState?.effectList?.push(fiber);
 
 // reconcile walker
 const [next, addHook] = createNext();
 
+const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
+  if (fiber.globalState) fiber.globalState.workingPreEl = workingPreEl;
+};
+
+const setReuseFiberPreEl = (fiber: Fiber) => {
+  if (fiber.commitFlag !== FLAG.REUSE) return;
+  const endEl = findEls([fiber.alternate!]).pop();
+  endEl && setWorkingPreEl(fiber, endEl);
+};
+
 // preEl
 addHook({
   down: (from: Fiber, to?: Fiber) => {
-    isElement(from) && (workingPreEl = undefined);
-    isPortal(from) && (workingPreEl = undefined);
+    isElement(from) && setWorkingPreEl(from, undefined);
+    isPortal(from) && setWorkingPreEl(from, undefined);
   },
 
   up: (from: Fiber, to?: Fiber) => {
     if (to) {
-      isElement(to) && (workingPreEl = to.el);
-      isPortal(to) && (workingPreEl = to.preEl);
+      isElement(to) && setWorkingPreEl(from, to.el);
+      isPortal(to) && setWorkingPreEl(from, to.preEl);
     }
     setReuseFiberPreEl(from);
   },
@@ -58,12 +59,12 @@ addHook({
     if (from.commitFlag === FLAG.REUSE) {
       setReuseFiberPreEl(from);
     } else {
-      isElement(from) && (workingPreEl = from.el);
+      isElement(from) && setWorkingPreEl(from, from.el);
     }
   },
 
   return: (retn?: Fiber) => {
-    if (retn) retn.preEl = workingPreEl;
+    if (retn) retn.preEl = retn.globalState?.workingPreEl;
   },
 });
 
@@ -81,11 +82,12 @@ addHook({
 // context
 addHook({
   down: (from: Fiber, to?: Fiber) => {
-    isContext(from) && dependencyList.push(createDependency(from.parent!));
+    isContext(from) &&
+      from.globalState?.dependencyList?.push(createDependency(from.parent!));
   },
 
   up: (from: Fiber, to?: Fiber) => {
-    isContext(from) && dependencyList.pop();
+    isContext(from) && from.globalState?.dependencyList?.pop();
   },
 
   enter: (enter: Fiber, skipChild: boolean) => {
@@ -114,28 +116,45 @@ addHook({
   },
 });
 
-export const startWork = (rootFiber: Fiber) => {
-  workingFiber = clone(
-    {
-      props: rootFiber.props,
-      type: rootFiber.type,
-    },
-    rootFiber
-  );
-
-  addTask(tickWork);
+export const startWork = (rootCurrentFiber: Fiber) => {
+  addMacroTask(() => performWork(rootCurrentFiber));
 };
 
-const tickWork = () => {
+const performWork = (rootCurrentFiber: Fiber) => {
+  rootWorkingFiber = clone(
+    {
+      props: rootCurrentFiber.props,
+      type: rootCurrentFiber.type,
+    },
+    rootCurrentFiber
+  );
+
+  rootWorkingFiber.globalState = rootCurrentFiber.globalState ?? {};
+
+  Object.assign(rootWorkingFiber.globalState, {
+    rootCurrentFiber,
+    rootWorkingFiber,
+    effectList: [],
+    dependencyList: [],
+  });
+
+  tickWork(rootWorkingFiber!);
+};
+
+const tickWork = (workingFiber: Fiber | undefined) => {
+  let preWorkingFiber = workingFiber;
   while (workingFiber && !shouldYield()) {
+    preWorkingFiber = workingFiber;
     workingFiber = update(workingFiber);
+    setWorkingFiber(workingFiber);
   }
   if (workingFiber) {
-    addTask(tickWork);
+    addMicroTask(() => {
+      setWorkingFiber(workingFiber);
+      tickWork(workingFiber);
+    });
   } else {
-    commitEffectList(effectList);
-    workingFiber = undefined;
-    effectList = [];
+    commitEffectList(preWorkingFiber?.globalState?.effectList ?? []);
   }
 };
 

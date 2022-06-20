@@ -36,6 +36,20 @@ export const markFiber = (workingFiber: Fiber): Fiber => {
   return workingFiber;
 };
 
+let pendingList: Fiber[] = [];
+
+const triggerDebounce = (workingFiber: Fiber) => {
+  if (pendingList.length > 0) {
+    return pendingList.push(workingFiber);
+  }
+  pendingList.push(workingFiber);
+  queueMicrotask(() => {
+    const rootFibers = Array.from(new Set(pendingList.map(markFiber)));
+    pendingList = [];
+    rootFibers.forEach(startWork);
+  });
+};
+
 export const reducerHOF = <T extends any, T2 extends any>(
   reducerFn: Reducer<T, T2>,
   initial: T
@@ -43,20 +57,9 @@ export const reducerHOF = <T extends any, T2 extends any>(
   let state = initial;
   let workingFiber: Fiber;
 
-  let pending = false;
-
-  const triggerDebounce = (rootFiber: Fiber) => {
-    if (pending) return;
-    pending = true;
-    queueMicrotask(() => {
-      pending = false;
-      startWork(rootFiber);
-    });
-  };
-
   const dispatch = (action: T2) => {
     state = reducerFn(state, action);
-    triggerDebounce(markFiber(workingFiber));
+    triggerDebounce(workingFiber);
   };
 
   return (WF: Fiber) => {

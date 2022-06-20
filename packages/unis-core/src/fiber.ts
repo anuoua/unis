@@ -2,6 +2,13 @@ import { Effect } from "./api";
 import { Dependency } from "./context";
 import { AttrDiff } from "./diff";
 
+export interface GlobalState {
+  rootWorkingFiber?: Fiber;
+  effectList?: Fiber[];
+  dependencyList?: Dependency[];
+  workingPreEl?: FiberEl | undefined;
+}
+
 export enum FLAG {
   CREATE = 1,
   INSERT,
@@ -37,6 +44,7 @@ export interface Fiber {
   stateEffects?: Effect[];
   effects?: Effect[];
   dependencies?: Dependency[];
+  globalState?: GlobalState;
 }
 
 export const TEXT = "$$Text";

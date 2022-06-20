@@ -1,14 +1,24 @@
+export type Task = Function & { id?: any };
+
 const INTERVAL = 4;
 
 let lastTime: number = 0;
 let looping = false;
 
-const taskQueue: Function[] = [];
+const macroTaskQueue: Task[] = [];
+const microTaskQueue: Task[] = [];
+
+const pickTask = () => {
+  const microTask = microTaskQueue.shift();
+  if (microTask) return microTask;
+  const macroTask = macroTaskQueue.shift();
+  if (macroTask) return macroTask;
+};
 
 const loop = () => {
   looping = true;
-  let task: Function | undefined;
-  while ((task = taskQueue.shift())) {
+  let task: Task | undefined;
+  while ((task = pickTask())) {
     runTask(task);
     if (shouldYield()) {
       return nextTick(() => loop());
@@ -17,13 +27,18 @@ const loop = () => {
   looping = false;
 };
 
-const runTask = (task: Function) => {
+const runTask = (task: Task) => {
   lastTime = performance.now();
   return task();
 };
 
-export const addTask = (task: Function) => {
-  taskQueue.push(task);
+export const addMacroTask = (task: Task) => {
+  macroTaskQueue.push(task);
+  !looping && loop();
+};
+
+export const addMicroTask = (task: Task) => {
+  microTaskQueue.push(task);
   !looping && loop();
 };
 
