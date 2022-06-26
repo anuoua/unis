@@ -1,6 +1,5 @@
 import { createElement } from "./dom";
-import { Fiber, FLAG, isElement, isMemo, isPortal, isSame } from "./fiber";
-import { pushEffect } from "./reconcile";
+import { Fiber, FLAG, isElement, isMemoWrap, isPortal, isSame } from "./fiber";
 import {
   classes,
   isNullish,
@@ -78,10 +77,7 @@ const handleMemoFiber = (retFiber: Fiber, oldFiber: Fiber) => {
   if (
     !oldFiber.childFlag &&
     retFiber.commitFlag !== FLAG.CREATE &&
-    retFiber.compare?.(
-      retFiber.props.children.props,
-      oldFiber.children![0].props
-    )
+    retFiber.rendered?.[0].compare?.(retFiber.props, oldFiber.props)
   )
     retFiber.commitFlag = FLAG.REUSE;
   return retFiber;
@@ -101,17 +97,20 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
       "index",
       "id",
     ]),
-    commitFlag: flag ?? oldFiber.flag,
+    commitFlag: flag,
     alternate: oldFiber,
   };
   return isElement(retFiber)
     ? handleElementFiber(retFiber, oldFiber)
     : isPortal(retFiber)
     ? handlePortalFiber(retFiber)
-    : isMemo(retFiber)
+    : isMemoWrap(retFiber)
     ? handleMemoFiber(retFiber, oldFiber)
     : retFiber;
 };
+
+export const reuse = (oldFiber: Fiber) =>
+  ({ commitFlag: FLAG.REUSE, alternate: oldFiber } as Fiber);
 
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
   const isSVG = newFiber.type === "svg" || parentFiber.isSVG;
@@ -159,14 +158,14 @@ export const diff = (
 
   const deletion = (fiber: Fiber) => {
     fiber.commitFlag = FLAG.DELETE;
-    pushEffect(fiber);
+    parentFiber.reconcileState!.effectList.push(fiber);
   };
 
   const forward = () => {
     if (preStartFiber) preStartFiber.sibling = newStartFiber;
     newStartFiber.parent = parentFiber;
     newStartFiber.index = newStartIndex;
-    newStartFiber.globalState = parentFiber.globalState;
+    newStartFiber.reconcileState = parentFiber.reconcileState;
     preStartFiber = newStartFiber;
     cloneChildren[newStartIndex] = newStartFiber;
     newStartFiber = newChildren[++newStartIndex];
@@ -176,7 +175,7 @@ export const diff = (
     if (preEndFiber) newEndFiber.sibling = preEndFiber;
     newEndFiber.parent = parentFiber;
     newEndFiber.index = newEndIndex;
-    newEndFiber.globalState = parentFiber.globalState;
+    newEndFiber.reconcileState = parentFiber.reconcileState;
     preEndFiber = newEndFiber;
     cloneChildren[newEndIndex] = newEndFiber;
     newEndFiber = newChildren[--newEndIndex];
@@ -192,15 +191,18 @@ export const diff = (
     } else if (isSame(newStartFiber, oldStartFiber)) {
       // when parent fiber has childFlag and fiber no childFlag, we should reuse it.
 
-      newStartFiber = clone(
-        newStartFiber,
-        oldStartFiber,
-        parentFiber.alternate?.childFlag
-          ? !oldStartFiber.childFlag && !oldStartFiber.flag
-            ? FLAG.REUSE
-            : undefined
-          : FLAG.UPDATE
-      );
+      const flag = parentFiber.alternate?.childFlag
+        ? !oldStartFiber.childFlag && !oldStartFiber.flag
+          ? FLAG.REUSE
+          : oldStartFiber.flag
+        : FLAG.UPDATE;
+
+      if (flag === FLAG.REUSE) {
+        newStartFiber = reuse(oldStartFiber);
+      } else {
+        newStartFiber = clone(newStartFiber, oldStartFiber, flag);
+      }
+
       forward();
       oldStartFiber = oldChildren[++oldStartIndex];
     } else if (isSame(newEndFiber, oldEndFiber)) {

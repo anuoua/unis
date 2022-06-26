@@ -8,6 +8,7 @@ import {
   FiberEl,
   findEls,
   FLAG,
+  ReconcileState,
   isComponent,
   isContext,
   isElement,
@@ -18,20 +19,20 @@ import { formatChildren } from "./h";
 import { addMacroTask, addMicroTask, shouldYield } from "./scheduler";
 import { isFun } from "./utils";
 
-let rootWorkingFiber: Fiber | undefined;
+let workingFiber: Fiber | undefined;
 
-export const getWorkingFiber = () => rootWorkingFiber;
+export const getWorkingFiber = () => workingFiber;
 export const setWorkingFiber = (fiber: Fiber | undefined) =>
-  (rootWorkingFiber = fiber);
+  (workingFiber = fiber);
 
 export const pushEffect = (fiber: Fiber) =>
-  fiber.globalState?.effectList?.push(fiber);
+  fiber.reconcileState!.effectList.push(fiber);
 
 // reconcile walker
 const [next, addHook] = createNext();
 
 const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
-  if (fiber.globalState) fiber.globalState.workingPreEl = workingPreEl;
+  if (fiber.reconcileState) fiber.reconcileState.workingPreEl = workingPreEl;
 };
 
 const setReuseFiberPreEl = (fiber: Fiber) => {
@@ -64,7 +65,7 @@ addHook({
   },
 
   return: (retn?: Fiber) => {
-    if (retn) retn.preEl = retn.globalState?.workingPreEl;
+    if (retn) retn.preEl = retn.reconcileState?.workingPreEl;
   },
 });
 
@@ -83,11 +84,11 @@ addHook({
 addHook({
   down: (from: Fiber, to?: Fiber) => {
     isContext(from) &&
-      from.globalState?.dependencyList?.push(createDependency(from.parent!));
+      from.reconcileState?.dependencyList?.push(createDependency(from.parent!));
   },
 
   up: (from: Fiber, to?: Fiber) => {
-    isContext(from) && from.globalState?.dependencyList?.pop();
+    isContext(from) && from.reconcileState?.dependencyList?.pop();
   },
 
   enter: (enter: Fiber, skipChild: boolean) => {
@@ -121,7 +122,7 @@ export const startWork = (rootCurrentFiber: Fiber) => {
 };
 
 const performWork = (rootCurrentFiber: Fiber) => {
-  rootWorkingFiber = clone(
+  const rootWorkingFiber = clone(
     {
       props: rootCurrentFiber.props,
       type: rootCurrentFiber.type,
@@ -129,20 +130,25 @@ const performWork = (rootCurrentFiber: Fiber) => {
     rootCurrentFiber
   );
 
-  rootWorkingFiber.globalState = rootCurrentFiber.globalState ?? {};
-
-  Object.assign(rootWorkingFiber.globalState, {
+  const initialReconcileState: ReconcileState = {
     rootCurrentFiber,
     rootWorkingFiber,
     effectList: [],
     dependencyList: [],
-  });
+    workingPreEl: undefined,
+  };
 
+  rootWorkingFiber.reconcileState =
+    rootCurrentFiber.reconcileState ?? initialReconcileState;
+
+  Object.assign(rootWorkingFiber.reconcileState, initialReconcileState);
+
+  setWorkingFiber(rootWorkingFiber);
   tickWork(rootWorkingFiber!);
 };
 
 const tickWork = (workingFiber: Fiber | undefined) => {
-  let preWorkingFiber = workingFiber;
+  let preWorkingFiber: Fiber | undefined;
   while (workingFiber && !shouldYield()) {
     preWorkingFiber = workingFiber;
     workingFiber = update(workingFiber);
@@ -154,7 +160,7 @@ const tickWork = (workingFiber: Fiber | undefined) => {
       tickWork(workingFiber);
     });
   } else {
-    commitEffectList(preWorkingFiber?.globalState?.effectList ?? []);
+    commitEffectList(preWorkingFiber?.reconcileState?.effectList ?? []);
   }
 };
 
@@ -189,11 +195,12 @@ const updateComponent = (fiber: Fiber) => {
       fiber.renderFn = rendered;
       rendered = fiber.renderFn!();
     }
-    fiber.rendered = rendered;
+    fiber.rendered = formatChildren(rendered);
   } else {
     runStateEffects(fiber);
-    if (fiber.commitFlag) fiber.rendered = fiber.renderFn(fiber.props);
+    if (fiber.commitFlag)
+      fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
   }
 
-  diff(fiber, fiber.alternate?.children, formatChildren(fiber.rendered));
+  diff(fiber, fiber.alternate?.children, fiber.rendered);
 };

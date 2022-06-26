@@ -55,8 +55,10 @@ export const memo = <T extends (props: any) => JSX.Element>(
   child: T,
   compare: Function = defaultCompare
 ) => {
-  return (props: Parameters<T>[0] extends undefined ? {} : Parameters<T>[0]) =>
-    ({
+  return function memo(
+    props: Parameters<T>[0] extends undefined ? {} : Parameters<T>[0]
+  ) {
+    return {
       type: MEMO,
       props: {
         children: {
@@ -65,7 +67,8 @@ export const memo = <T extends (props: any) => JSX.Element>(
         },
       },
       compare,
-    } as Fiber);
+    } as Fiber;
+  };
 };
 
 export const Fragment = (props: any) => props.children;

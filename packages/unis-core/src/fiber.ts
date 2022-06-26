@@ -2,11 +2,12 @@ import { Effect } from "./api";
 import { Dependency } from "./context";
 import { AttrDiff } from "./diff";
 
-export interface GlobalState {
-  rootWorkingFiber?: Fiber;
-  effectList?: Fiber[];
-  dependencyList?: Dependency[];
-  workingPreEl?: FiberEl | undefined;
+export interface ReconcileState {
+  rootCurrentFiber: Fiber;
+  rootWorkingFiber: Fiber;
+  effectList: Fiber[];
+  dependencyList: Dependency[];
+  workingPreEl: FiberEl | undefined;
 }
 
 export enum FLAG {
@@ -44,7 +45,7 @@ export interface Fiber {
   stateEffects?: Effect[];
   effects?: Effect[];
   dependencies?: Dependency[];
-  globalState?: GlobalState;
+  reconcileState?: ReconcileState;
 }
 
 export const TEXT = "$$Text";
@@ -55,6 +56,7 @@ export const CONTEXT = Symbol("$$Context");
 export const isText = (fiber: Fiber) => fiber.type === TEXT;
 export const isPortal = (fiber: Fiber) => fiber.type === PORTAL;
 export const isMemo = (fiber: Fiber) => fiber.type === MEMO;
+export const isMemoWrap = (fiber: Fiber) => fiber.rendered?.[0]?.type === MEMO;
 export const isContext = (fiber: Fiber) => fiber.type === CONTEXT;
 export const isComponent = (fiber: Fiber) => typeof fiber.type === "function";
 export const isElement = (fiber: Fiber) => typeof fiber.type === "string";

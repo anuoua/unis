@@ -57,7 +57,7 @@ export function createContext<T>(initial: T) {
 
 const contextHOF = (context: Context) => {
   const readContext = (fiber: Fiber) => {
-    const result = (fiber?.globalState?.dependencyList ?? [])
+    const result = (fiber?.reconcileState?.dependencyList ?? [])
       .filter((dependency) => dependency.context === context)
       .pop();
 

@@ -15,13 +15,15 @@ const pickTask = () => {
   if (macroTask) return macroTask;
 };
 
-const loop = () => {
+const startLoop = (pending?: boolean) => nextTick(() => loop(), pending);
+
+const loop = (): void => {
   looping = true;
   let task: Task | undefined;
   while ((task = pickTask())) {
     runTask(task);
     if (shouldYield()) {
-      return nextTick(() => loop());
+      return startLoop();
     }
   }
   looping = false;
@@ -34,18 +36,20 @@ const runTask = (task: Task) => {
 
 export const addMacroTask = (task: Task) => {
   macroTaskQueue.push(task);
-  !looping && loop();
+  !looping && startLoop(true);
 };
 
 export const addMicroTask = (task: Task) => {
   microTaskQueue.push(task);
-  !looping && loop();
+  !looping && startLoop();
 };
 
 export const shouldYield = () => performance.now() - lastTime > INTERVAL;
 
-const nextTick = (cb: Function) => {
-  if (window.MessageChannel) {
+export const nextTick = (cb: VoidFunction, pending = false) => {
+  if (pending) {
+    queueMicrotask(cb);
+  } else if (window.MessageChannel) {
     const { port1, port2 } = new window.MessageChannel();
     port1.postMessage("");
     port2.onmessage = () => cb();

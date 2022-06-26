@@ -1,5 +1,6 @@
 import { Fiber, FLAG } from "./fiber";
 import { getWorkingFiber, startWork } from "./reconcile";
+import { addMacroTask } from "./scheduler";
 import { arraysEqual } from "./utils";
 
 export interface Ref<T> {
@@ -23,17 +24,15 @@ export const getWF = (): Fiber | never => {
   }
 };
 
-export const markFiber = (workingFiber: Fiber): Fiber => {
+export const markFiber = (workingFiber: Fiber) => {
   workingFiber.flag = FLAG.UPDATE;
 
   let indexFiber: Fiber | undefined = workingFiber;
 
   while ((indexFiber = indexFiber.parent)) {
-    if (!indexFiber.childFlag) indexFiber.childFlag = FLAG.UPDATE;
-    if (!indexFiber.parent) return indexFiber;
+    if (indexFiber.childFlag) break;
+    indexFiber.childFlag = FLAG.UPDATE;
   }
-
-  return workingFiber;
 };
 
 let pendingList: Fiber[] = [];
@@ -43,8 +42,15 @@ const triggerDebounce = (workingFiber: Fiber) => {
     return pendingList.push(workingFiber);
   }
   pendingList.push(workingFiber);
-  queueMicrotask(() => {
-    const rootFibers = Array.from(new Set(pendingList.map(markFiber)));
+  addMacroTask(() => {
+    const rootFibers = Array.from(
+      new Set(
+        pendingList.map((fiber) => {
+          markFiber(fiber);
+          return fiber.reconcileState!;
+        })
+      )
+    ).map((i) => i.rootWorkingFiber);
     pendingList = [];
     rootFibers.forEach(startWork);
   });
