@@ -11,14 +11,19 @@ export interface ReconcileState {
 }
 
 export enum FLAG {
-  CREATE = 1,
-  INSERT,
-  UPDATE,
-  DELETE,
-  REUSE,
+  CREATE = 1 << 0,
+  INSERT = 1 << 1,
+  UPDATE = 1 << 2,
+  DELETE = 1 << 3,
+  REUSE = 1 << 4,
 }
 
 export type FiberEl = Element | Text | DocumentFragment | SVGAElement;
+export type FiberType =
+  | string
+  | Function
+  | Symbol
+  | ((...p: any[]) => () => any);
 
 export interface Fiber {
   id?: string;
@@ -34,7 +39,7 @@ export interface Fiber {
   compare?: Function;
   attrDiff?: AttrDiff;
   alternate?: Fiber;
-  type?: string | Function | Symbol | ((...p: any[]) => () => any);
+  type?: FiberType;
   renderFn?: Function;
   rendered?: any;
   flag?: FLAG;
@@ -47,6 +52,36 @@ export interface Fiber {
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
 }
+
+export const createFiber = (type?: FiberType, props?: any) => {
+  return {
+    id: undefined,
+    parent: undefined,
+    child: undefined,
+    sibling: undefined,
+    index: undefined,
+    to: undefined,
+    el: undefined,
+    preEl: undefined,
+    isSVG: undefined,
+    props,
+    compare: undefined,
+    attrDiff: undefined,
+    alternate: undefined,
+    type,
+    renderFn: undefined,
+    rendered: undefined,
+    flag: undefined,
+    childFlag: undefined,
+    commitFlag: undefined,
+    children: undefined,
+    nextEffect: undefined,
+    stateEffects: undefined,
+    effects: undefined,
+    dependencies: undefined,
+    reconcileState: undefined,
+  } as Fiber;
+};
 
 export const TEXT = "$$Text";
 export const PORTAL = Symbol("$$Portal");
@@ -141,18 +176,19 @@ export const graft = (oldFiber: Fiber, newFiber: Fiber) => {
   newFiber.parent = parent;
 };
 
-export const findEls = (fibers: Fiber[]): FiberEl[] =>
-  fibers.reduce(
-    (pre, cur) =>
-      pre.concat(
-        isElement(cur)
-          ? cur.el!
-          : isPortal(cur)
-          ? []
-          : findEls(cur.children ?? [])
-      ),
-    [] as FiberEl[]
-  );
+export const findEls = (fibers: Fiber[] = []) => {
+  const els: FiberEl[] = [];
+
+  for (let fiber of fibers) {
+    isElement(fiber)
+      ? els.push(fiber.el!)
+      : isPortal(fiber)
+      ? false
+      : els.push(...(findEls(fiber.children) ?? []));
+  }
+
+  return els;
+};
 
 export const getContainer = (
   fiber: Fiber | undefined

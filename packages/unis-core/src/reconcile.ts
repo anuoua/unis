@@ -12,7 +12,7 @@ import {
   isComponent,
   isContext,
   isElement,
-  isMemo,
+  // isMemo,
   isPortal,
 } from "./fiber";
 import { formatChildren } from "./h";
@@ -65,7 +65,7 @@ addHook({
   },
 
   return: (retn?: Fiber) => {
-    if (retn) retn.preEl = retn.reconcileState?.workingPreEl;
+    if (retn) retn.preEl = retn.reconcileState!.workingPreEl;
   },
 });
 
@@ -84,11 +84,11 @@ addHook({
 addHook({
   down: (from: Fiber, to?: Fiber) => {
     isContext(from) &&
-      from.reconcileState?.dependencyList?.push(createDependency(from.parent!));
+      from.reconcileState!.dependencyList.push(createDependency(from.parent!));
   },
 
   up: (from: Fiber, to?: Fiber) => {
-    isContext(from) && from.reconcileState?.dependencyList?.pop();
+    isContext(from) && from.reconcileState!.dependencyList.pop();
   },
 
   enter: (enter: Fiber, skipChild: boolean) => {
@@ -147,36 +147,41 @@ const performWork = (rootCurrentFiber: Fiber) => {
   tickWork(rootWorkingFiber!);
 };
 
-const tickWork = (workingFiber: Fiber | undefined) => {
-  let preWorkingFiber: Fiber | undefined;
-  while (workingFiber && !shouldYield()) {
-    preWorkingFiber = workingFiber;
-    workingFiber = update(workingFiber);
-    setWorkingFiber(workingFiber);
+const tickWork = (workingFiber: Fiber) => {
+  let indexFiber: Fiber | undefined = workingFiber;
+  while (indexFiber && !shouldYield()) {
+    indexFiber = update(indexFiber);
+    setWorkingFiber(indexFiber);
   }
-  if (workingFiber) {
+  if (indexFiber) {
     addMicroTask(() => {
-      setWorkingFiber(workingFiber);
-      tickWork(workingFiber);
+      setWorkingFiber(indexFiber);
+      tickWork(indexFiber!);
     });
   } else {
-    commitEffectList(preWorkingFiber?.reconcileState?.effectList ?? []);
+    commitEffectList(workingFiber.reconcileState!.effectList ?? []);
   }
 };
 
 const update = (fiber: Fiber) => {
   if (fiber.commitFlag === FLAG.REUSE) return next(fiber, true);
 
-  if (
-    isElement(fiber) ||
-    isPortal(fiber) ||
-    isContext(fiber) ||
-    isMemo(fiber)
-  ) {
-    updateHost(fiber);
-  } else if (isComponent(fiber)) {
+  if (isComponent(fiber)) {
     updateComponent(fiber);
+  } else {
+    updateHost(fiber);
   }
+
+  // if (
+  //   isElement(fiber) ||
+  //   isPortal(fiber) ||
+  //   isContext(fiber) ||
+  //   isMemo(fiber)
+  // ) {
+  //   updateHost(fiber);
+  // } else if (isComponent(fiber)) {
+  //   updateComponent(fiber);
+  // }
 
   !fiber.commitFlag && delete fiber.alternate;
 

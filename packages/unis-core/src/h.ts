@@ -20,18 +20,21 @@ export const h2 = (type: any, props: any, key?: string | number) => {
 };
 
 export const formatChildren = (children: any) => {
-  children = [].concat(children);
-  return children.reduce(
-    (pre: any, cur: any) =>
-      [null, false, true, undefined].includes(cur)
-        ? pre
-        : pre.concat(
-            isStr(cur) || isNum(cur)
-              ? { type: TEXT, props: { nodeValue: cur } }
-              : cur
-          ),
-    []
-  );
+  const formatChildren: Fiber[] = [];
+
+  for (let child of [].concat(children)) {
+    if ([null, false, true, undefined].includes(child)) {
+      continue;
+    } else {
+      formatChildren.push(
+        isStr(child) || isNum(child)
+          ? { type: TEXT, props: { nodeValue: child } }
+          : child
+      );
+    }
+  }
+
+  return formatChildren;
 };
 
 export const createPortal = (child: JSX.Element, container: Element) => {

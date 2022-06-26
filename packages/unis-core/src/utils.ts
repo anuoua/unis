@@ -76,14 +76,3 @@ export const classes = (cs: CSArray | CSObject): string => {
 
   return isArray(cs) ? arrClasses(cs) : objClasses(cs);
 };
-
-export const picks = <T extends Record<string, any>>(
-  data: T,
-  keys: (keyof T)[]
-) => {
-  const retData: Partial<T> = {};
-  keys.forEach((key) => {
-    if (key in data) retData[key] = data[key];
-  });
-  return retData;
-};
