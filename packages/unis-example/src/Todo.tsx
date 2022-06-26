@@ -6,9 +6,9 @@ let count = 0;
 
 let todos: any[] = [];
 
-for (; count < 0; count++) {
+for (; count < 1000; count++) {
   todos.push({
-    id: ++count,
+    id: count,
     name: "",
     editing: false,
     canceled: false,

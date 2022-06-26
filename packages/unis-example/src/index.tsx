@@ -2,10 +2,21 @@ import { h, render, Fragment, useState, useProps } from "@unis/unis";
 import { ToDo } from "./Todo";
 import "./global.css";
 import s from "./index.module.css";
+import { useEffect } from "@unis/unis";
 
 const Bpp = (props: { time: number; msg: string }) => {
   let { time, msg } = useProps(props);
   let [visible, setVisible] = useState(false);
+
+  useEffect(
+    () => {
+      setVisible(false);
+      setTimeout(() => {
+        setVisible(true);
+      }, time);
+    },
+    () => []
+  );
 
   setTimeout(() => {
     setVisible(true);
@@ -20,11 +31,11 @@ const App = () => {
     return (
       <Fragment>
         <div className={`${s.background_img} absolute h-full w-full`}></div>
-        {/* <>
-          <Bpp time={500} msg="Bpp" />
-          <Bpp time={1000} msg="Bpp2" />
+        <>
+          {/* <Bpp time={0} msg="Bpp" /> */}
+          {/* <Bpp time={1000} msg="Bpp2" /> */}
         </>
-        <Bpp time={1500} msg="Bpp3" /> */}
+        {/* <Bpp time={1500} msg="Bpp3" /> */}
         <div
           className={`flex justify-center flex-col items-center h-full relative backdrop-filter backdrop-blur-lg`}
         >
