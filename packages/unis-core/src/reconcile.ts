@@ -1,7 +1,7 @@
-import { markFiber, runStateEffects } from "./api";
+import { runStateEffects } from "./api";
 import { commitEffectList } from "./commit";
-import { createDependency, findDependency } from "./context";
-import { clone, diff } from "./diff";
+import { contextWalkHook } from "./context";
+import { diff } from "./diff";
 import {
   createNext,
   Fiber,
@@ -10,10 +10,10 @@ import {
   FLAG,
   ReconcileState,
   isComponent,
-  isContext,
-  isElement,
-  // isMemo,
+  isDOM,
   isPortal,
+  createFiber,
+  matchFlag,
 } from "./fiber";
 import { formatChildren } from "./h";
 import { addMacroTask, addMicroTask, shouldYield } from "./scheduler";
@@ -28,39 +28,39 @@ export const setWorkingFiber = (fiber: Fiber | undefined) =>
 export const pushEffect = (fiber: Fiber) =>
   fiber.reconcileState!.effectList.push(fiber);
 
-// reconcile walker
-const [next, addHook] = createNext();
-
 const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
   if (fiber.reconcileState) fiber.reconcileState.workingPreEl = workingPreEl;
 };
 
 const setReuseFiberPreEl = (fiber: Fiber) => {
-  if (fiber.commitFlag !== FLAG.REUSE) return;
+  if (!matchFlag(fiber.commitFlag, FLAG.REUSE)) return;
   const endEl = findEls([fiber.alternate!]).pop();
   endEl && setWorkingPreEl(fiber, endEl);
 };
 
+// reconcile walker
+const [next, addHook] = createNext();
+
 // preEl
 addHook({
   down: (from: Fiber, to?: Fiber) => {
-    isElement(from) && setWorkingPreEl(from, undefined);
+    isDOM(from) && setWorkingPreEl(from, undefined);
     isPortal(from) && setWorkingPreEl(from, undefined);
   },
 
   up: (from: Fiber, to?: Fiber) => {
     if (to) {
-      isElement(to) && setWorkingPreEl(from, to.el);
+      isDOM(to) && setWorkingPreEl(from, to.el);
       isPortal(to) && setWorkingPreEl(from, to.preEl);
     }
     setReuseFiberPreEl(from);
   },
 
   sibling: (from: Fiber, to?: Fiber) => {
-    if (from.commitFlag === FLAG.REUSE) {
+    if (matchFlag(from.commitFlag, FLAG.REUSE)) {
       setReuseFiberPreEl(from);
     } else {
-      isElement(from) && setWorkingPreEl(from, from.el);
+      isDOM(from) && setWorkingPreEl(from, from.el);
     }
   },
 
@@ -81,54 +81,21 @@ addHook({
 });
 
 // context
-addHook({
-  down: (from: Fiber, to?: Fiber) => {
-    isContext(from) &&
-      from.reconcileState!.dependencyList.push(createDependency(from.parent!));
-  },
-
-  up: (from: Fiber, to?: Fiber) => {
-    isContext(from) && from.reconcileState!.dependencyList.pop();
-  },
-
-  enter: (enter: Fiber, skipChild: boolean) => {
-    if (
-      enter.alternate &&
-      isContext(enter.alternate) &&
-      !Object.is(enter.alternate.props.value, enter.props.value)
-    ) {
-      let alternate = enter.alternate;
-      let indexFiber: Fiber | undefined = alternate;
-
-      const [next, addHook] = createNext();
-
-      addHook({ up: (from, to) => to !== alternate });
-
-      do {
-        findDependency(indexFiber, enter) && markFiber(indexFiber);
-        indexFiber = next(
-          indexFiber,
-          indexFiber !== alternate &&
-            isContext(indexFiber) &&
-            indexFiber.parent?.type === enter.parent?.type
-        );
-      } while (indexFiber);
-    }
-  },
-});
+addHook(contextWalkHook);
 
 export const startWork = (rootCurrentFiber: Fiber) => {
   addMacroTask(() => performWork(rootCurrentFiber));
 };
 
 const performWork = (rootCurrentFiber: Fiber) => {
-  const rootWorkingFiber = clone(
-    {
-      props: rootCurrentFiber.props,
-      type: rootCurrentFiber.type,
-    },
-    rootCurrentFiber
-  );
+  const rootWorkingFiber = createFiber({
+    index: rootCurrentFiber.index,
+    tag: rootCurrentFiber.tag,
+    type: rootCurrentFiber.type,
+    props: rootCurrentFiber.props,
+    alternate: rootCurrentFiber,
+    el: rootCurrentFiber.el,
+  });
 
   const initialReconcileState: ReconcileState = {
     rootCurrentFiber,
@@ -164,24 +131,13 @@ const tickWork = (workingFiber: Fiber) => {
 };
 
 const update = (fiber: Fiber) => {
-  if (fiber.commitFlag === FLAG.REUSE) return next(fiber, true);
+  if (matchFlag(fiber.commitFlag, FLAG.REUSE)) return next(fiber, true);
 
   if (isComponent(fiber)) {
     updateComponent(fiber);
   } else {
     updateHost(fiber);
   }
-
-  // if (
-  //   isElement(fiber) ||
-  //   isPortal(fiber) ||
-  //   isContext(fiber) ||
-  //   isMemo(fiber)
-  // ) {
-  //   updateHost(fiber);
-  // } else if (isComponent(fiber)) {
-  //   updateComponent(fiber);
-  // }
 
   !fiber.commitFlag && delete fiber.alternate;
 
@@ -194,7 +150,7 @@ const updateHost = (fiber: Fiber) => {
 
 const updateComponent = (fiber: Fiber) => {
   if (!fiber.renderFn) {
-    fiber.renderFn = fiber.type as Function;
+    fiber.renderFn = fiber.tag as Function;
     let rendered = fiber.renderFn(fiber.props);
     if (isFun(rendered)) {
       fiber.renderFn = rendered;

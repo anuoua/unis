@@ -5,13 +5,13 @@ import { isNullish } from "./utils";
 
 export const renderToString = (element: any) => {
   const root = {
-    type: Fragment,
+    tag: Fragment,
     el: createFragment() as unknown as Element,
     index: 0,
     props: {
       children: [].concat(element),
     },
-  };
+  } as Fiber;
   startWork(root);
   return root;
 };
@@ -50,10 +50,10 @@ export type ServerNode = ElementNode | TextNode;
 export const createFragment = () => new ElementNode("");
 
 export const createElement = (fiber: Fiber) => {
-  const { type } = fiber;
+  const { tag } = fiber;
   return isText(fiber)
     ? new TextNode(fiber.props.nodeValue + "")
-    : new ElementNode(type as string);
+    : new ElementNode(tag as string);
 };
 
 export const insertBefore = (

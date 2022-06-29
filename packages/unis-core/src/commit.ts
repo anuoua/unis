@@ -6,7 +6,8 @@ import {
   insertBefore,
   nextSibling,
   remove,
-  updateProperties,
+  updateElementProperties,
+  updateTextProperties,
 } from "./dom";
 import {
   createNext,
@@ -17,7 +18,9 @@ import {
   graft,
   isComponent,
   isElement,
+  matchFlag,
   isPortal,
+  isText,
 } from "./fiber";
 
 export const commitDeletion = (fiber: Fiber) => {
@@ -64,13 +67,21 @@ export const commitDeletion = (fiber: Fiber) => {
   remove(fiber);
 };
 
-export const commitCommon = (fiber: Fiber) => {
+export const commitUpdate = (fiber: Fiber) => {
+  if (isText(fiber)) updateTextProperties(fiber);
+  if (isElement(fiber)) updateElementProperties(fiber);
+};
+
+export const commitInset = (fiber: Fiber) => {
   const [container, isPortalContainer] = getContainer(fiber)!;
-  if (isElement(fiber)) updateProperties(fiber);
-  if (fiber.commitFlag === FLAG.UPDATE) return;
   if (!container) return;
   const fragment = createFragment();
-  append(fragment, ...findEls([fiber]));
+  append(
+    fragment,
+    ...findEls([
+      matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber,
+    ])
+  );
   insertBefore(
     container,
     fragment,
@@ -85,20 +96,25 @@ export const commitCommon = (fiber: Fiber) => {
 export const commitEffectList = (effectList: Fiber[]) => {
   const comps: Fiber[] = [];
   for (let effect of effectList) {
-    switch (effect.commitFlag) {
-      case FLAG.DELETE:
-        commitDeletion(effect);
-        break;
-      case FLAG.UPDATE:
-      case FLAG.CREATE:
-      case FLAG.INSERT:
-        commitCommon(effect);
-        isComponent(effect) && comps.push(effect);
-        break;
-      case FLAG.REUSE:
-        graft(effect, effect.alternate!);
-        break;
+    if (matchFlag(effect.commitFlag, FLAG.DELETE)) {
+      commitDeletion(effect);
+      continue;
     }
+    if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
+      commitUpdate(effect);
+    }
+    if (
+      matchFlag(effect.commitFlag, FLAG.CREATE) ||
+      matchFlag(effect.commitFlag, FLAG.INSERT)
+    ) {
+      commitInset(effect);
+    }
+    if (matchFlag(effect.commitFlag, FLAG.REUSE)) {
+      graft(effect, effect.alternate!);
+    } else {
+      isComponent(effect) && comps.push(effect);
+    }
+    effect.preEl = undefined;
     effect.alternate = undefined;
   }
   comps.forEach((i) => runEffects(i));

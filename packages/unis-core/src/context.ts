@@ -1,5 +1,5 @@
-import { use, useProps } from "./api";
-import { CONTEXT, Fiber } from "./fiber";
+import { markFiber, use, useProps } from "./api";
+import { CONTEXT, createNext, Fiber, WalkHook, isContext } from "./fiber";
 
 export interface Context<T = any> {
   Provider: (props: { value: T; children: any }) => JSX.Element;
@@ -16,7 +16,7 @@ const providerContextMap = new WeakMap<Function, Context>();
 
 export const createDependency = (fiber: Fiber) => {
   return {
-    context: providerContextMap.get(fiber.type as Function)!,
+    context: providerContextMap.get(fiber.tag as Function)!,
     value: fiber.props.value,
   };
 };
@@ -25,16 +25,17 @@ export const findDependency = (fiber: Fiber, contextFiber: Fiber) =>
   fiber.dependencies?.find(
     (dependency) =>
       dependency.context ===
-      providerContextMap.get(contextFiber.parent?.type as Function)
+      providerContextMap.get(contextFiber.tag as Function)
   );
 
 export function createContext<T>(initial: T): Context<T>;
 export function createContext<T>(initial: T) {
   const Provider = (props: { value: T | undefined; children: any }) =>
-    ({
-      type: CONTEXT,
-      props,
-    } as Fiber);
+    props.children;
+
+  Provider.take = {
+    type: CONTEXT,
+  };
 
   const Consumer = (props: { children: (value: T) => JSX.Element }) => {
     // @ts-ignore
@@ -78,3 +79,39 @@ const contextHOF = (context: Context) => {
 export function useContext(ctx: Context) {
   return use(contextHOF(ctx), arguments[1]);
 }
+
+export const contextWalkHook: WalkHook = {
+  down: (from: Fiber, to?: Fiber) => {
+    isContext(from) &&
+      from.reconcileState!.dependencyList.push(createDependency(from));
+  },
+
+  up: (from: Fiber, to?: Fiber) => {
+    to && isContext(to) && from.reconcileState!.dependencyList.pop();
+  },
+
+  enter: (enter: Fiber, skipChild: boolean) => {
+    if (
+      enter.alternate &&
+      isContext(enter.alternate) &&
+      !Object.is(enter.alternate.props.value, enter.props.value)
+    ) {
+      let alternate = enter.alternate;
+      let indexFiber: Fiber | undefined = alternate;
+
+      const [next, addHook] = createNext();
+
+      addHook({ up: (from, to) => to !== alternate });
+
+      do {
+        findDependency(indexFiber, enter) && markFiber(indexFiber);
+        indexFiber = next(
+          indexFiber,
+          indexFiber !== alternate &&
+            isContext(indexFiber) &&
+            indexFiber.tag === enter.tag
+        );
+      } while (indexFiber);
+    }
+  },
+};

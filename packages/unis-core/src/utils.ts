@@ -2,23 +2,25 @@ import { displayAttrs } from "./svg";
 
 export const keys = Object.keys;
 
-export const isArray = Array.isArray;
-
 export const type = (a: any) =>
   Object.prototype.toString.bind(a)().slice(8, -1);
 
-export const isEv = (a: string) => a.startsWith("on");
-export const isFun = (a: any): a is Function => type(a) === "Function";
-export const isStr = (a: any): a is string => type(a) === "String";
-export const isNum = (a: any): a is number => type(a) === "Number";
-export const isBool = (a: any): a is boolean => type(a) === "Boolean";
-export const isObj = (a: any): a is object => type(a) === "Object";
-export const isNullish = (a: any) => a == null;
+export const isFun = (a: any): a is Function => typeof a === "function";
+export const isStr = (a: any): a is string => typeof a === "string";
+export const isNum = (a: any): a is number => typeof a === "number";
+export const isBool = (a: any): a is boolean => typeof a === "boolean";
+export const isSymbol = (a: any): a is boolean => typeof a === "symbol";
+
+export const isArray = Array.isArray;
+export const isObject = (a: any): a is object => type(a) === "Object";
+
+export const isNullish = (a: any): a is null | undefined => a == null;
+
+export const isEvent = (a: string) => a.startsWith("on");
+export const getEventName = (event: string) => event.slice(2).toLowerCase();
 
 export const camel2kebab = (text: string) =>
   text.replace(/([A-Z])/g, "-$1").toLowerCase();
-
-export const getEvName = (event: string) => event.slice(2).toLowerCase();
 
 export const arraysEqual = (a: any, b: any) => {
   if (a == null || b == null) return false;
@@ -50,12 +52,12 @@ export type CSObject = Record<string, CSValue>;
 export type CSArray = (CSValue | CSObject | CSArray)[];
 
 export const classes = (cs: CSArray | CSObject): string => {
-  const objClasses = (objcs: Record<string, any>) =>
+  const objectClasses = (objcs: Record<string, any>) =>
     keys(objcs)
       .reduce((pre, cur) => pre + " " + (objcs[cur] ? cur : ""), "")
       .trim();
 
-  const arrClasses = (arrcs: CSArray) =>
+  const arrayClasses = (arrcs: CSArray) =>
     arrcs
       .reduce(
         (pre: string, cur) =>
@@ -64,8 +66,8 @@ export const classes = (cs: CSArray | CSObject): string => {
           `${
             isNum(cur) || isStr(cur)
               ? cur
-              : isObj(cur)
-              ? objClasses(cur)
+              : isObject(cur)
+              ? objectClasses(cur)
               : isArray(cur)
               ? classes(cur)
               : ""
@@ -74,5 +76,5 @@ export const classes = (cs: CSArray | CSObject): string => {
       )
       .trim();
 
-  return isArray(cs) ? arrClasses(cs) : objClasses(cs);
+  return isArray(cs) ? arrayClasses(cs) : objectClasses(cs);
 };

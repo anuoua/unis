@@ -1,4 +1,4 @@
-import { Fiber, FLAG } from "./fiber";
+import { Fiber, FLAG, mergeFlag } from "./fiber";
 import { getWorkingFiber, startWork } from "./reconcile";
 import { addMacroTask } from "./scheduler";
 import { arraysEqual } from "./utils";
@@ -25,13 +25,13 @@ export const getWF = (): Fiber | never => {
 };
 
 export const markFiber = (workingFiber: Fiber) => {
-  workingFiber.flag = FLAG.UPDATE;
+  workingFiber.flag = mergeFlag(workingFiber.flag, FLAG.UPDATE);
 
   let indexFiber: Fiber | undefined = workingFiber;
 
   while ((indexFiber = indexFiber.parent)) {
     if (indexFiber.childFlag) break;
-    indexFiber.childFlag = FLAG.UPDATE;
+    indexFiber.childFlag = mergeFlag(indexFiber.childFlag, FLAG.UPDATE);
   }
 };
 

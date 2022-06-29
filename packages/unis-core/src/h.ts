@@ -1,22 +1,34 @@
 import { isNum, isStr, keys } from "./utils";
-import { Fiber, MEMO, PORTAL, TEXT } from "./fiber";
+import {
+  COMPONENT,
+  createFiber,
+  ELEMENT,
+  Fiber,
+  MEMO,
+  PORTAL,
+  TEXT,
+} from "./fiber";
 
-export const h = (type: any, props: any, ...children: any[]) => {
+export const h = (tag: any, props: any, ...children: any[]) => {
   props = { ...props };
   if (children.length === 1) props.children = children[0];
   if (children.length > 1) props.children = children;
-  return {
-    type,
+  return createFiber({
+    tag,
+    type: isStr(tag) ? ELEMENT : COMPONENT,
     props,
-  } as Fiber;
+    ...tag.take,
+  });
 };
 
-export const h2 = (type: any, props: any, key?: string | number) => {
+export const h2 = (tag: any, props: any, key?: string | number) => {
   if (key !== undefined) props.key = key;
-  return {
-    type,
+  return createFiber({
+    tag,
+    type: isStr(tag) ? ELEMENT : COMPONENT,
     props,
-  } as Fiber;
+    ...tag.take,
+  });
 };
 
 export const formatChildren = (children: any) => {
@@ -28,7 +40,10 @@ export const formatChildren = (children: any) => {
     } else {
       formatChildren.push(
         isStr(child) || isNum(child)
-          ? { type: TEXT, props: { nodeValue: child } }
+          ? createFiber({
+              type: TEXT,
+              props: { nodeValue: child },
+            })
           : child
       );
     }
@@ -37,15 +52,12 @@ export const formatChildren = (children: any) => {
   return formatChildren;
 };
 
-export const createPortal = (child: JSX.Element, container: Element) => {
-  return {
+export const createPortal = (child: JSX.Element, container: Element) =>
+  createFiber({
     type: PORTAL,
+    props: { children: child },
     to: container,
-    props: {
-      children: child,
-    },
-  } as Fiber;
-};
+  });
 
 const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
   const newKeys = keys(newProps);
@@ -58,20 +70,21 @@ export const memo = <T extends (props: any) => JSX.Element>(
   child: T,
   compare: Function = defaultCompare
 ) => {
-  return function memo(
+  const memo = (
     props: Parameters<T>[0] extends undefined ? {} : Parameters<T>[0]
-  ) {
-    return {
-      type: MEMO,
-      props: {
-        children: {
-          type: child,
-          props,
-        },
-      },
-      compare,
-    } as Fiber;
-  };
+  ) =>
+    createFiber({
+      tag: child,
+      type: COMPONENT,
+      props,
+    });
+
+  memo.take = {
+    compare,
+    type: MEMO,
+  } as Fiber;
+
+  return memo;
 };
 
 export const Fragment = (props: any) => props.children;

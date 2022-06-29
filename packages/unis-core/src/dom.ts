@@ -1,10 +1,10 @@
-import { getEvName, isEv, isNullish } from "./utils";
+import { getEventName, isEvent, isNullish } from "./utils";
 import { Fiber, FiberEl, findEls, isText } from "./fiber";
 import { startWork } from "./reconcile";
 
 export const render = (element: any, container: Element) => {
   startWork({
-    type: container.tagName.toLocaleLowerCase(),
+    tag: container.tagName.toLocaleLowerCase(),
     el: container,
     index: 0,
     props: {
@@ -16,7 +16,7 @@ export const render = (element: any, container: Element) => {
 export const createFragment = () => document.createDocumentFragment();
 
 export const createElement = (fiber: Fiber) => {
-  const { type, isSVG } = fiber;
+  const { tag: type, isSVG } = fiber;
   return isText(fiber)
     ? document.createTextNode(fiber.props.nodeValue + "")
     : isSVG
@@ -39,15 +39,11 @@ export const firstChild = (node: Node) => node.firstChild;
 export const remove = (fiber: Fiber) =>
   createFragment().append(...findEls([fiber]));
 
-export const updateProperties = (fiber: Fiber) => {
-  isText(fiber) ? updateTextProperties(fiber) : updateElementProperties(fiber);
-};
-
-const updateTextProperties = (fiber: Fiber) => {
+export const updateTextProperties = (fiber: Fiber) => {
   fiber.el!.nodeValue = fiber.props.nodeValue + "";
 };
 
-const updateElementProperties = (fiber: Fiber) => {
+export const updateElementProperties = (fiber: Fiber) => {
   let { el, isSVG, attrDiff: diff } = fiber;
 
   const setAttr = (el: FiberEl) =>
@@ -65,8 +61,8 @@ const updateElementProperties = (fiber: Fiber) => {
     if (key === "ref") {
       oldExist && (oldValue.current = undefined);
       newExist && (newValue.current = el);
-    } else if (isEv(key)) {
-      const eventName = getEvName(key);
+    } else if (isEvent(key)) {
+      const eventName = getEventName(key);
       oldExist && el!.removeEventListener(eventName, oldValue);
       newExist && el!.addEventListener(eventName, newValue);
     } else {
