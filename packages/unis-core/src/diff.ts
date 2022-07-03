@@ -10,6 +10,7 @@ import {
   isPortal,
   isSame,
   mergeFlag,
+  isComponent,
 } from "./fiber";
 import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
 
@@ -62,26 +63,27 @@ export const attrDiff = (
   return diff;
 };
 
-export const clone = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
-  const retFiber = createFiber({
+export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
+  createFiber({
     ...newFiber,
-    commitFlag: flag,
+    commitFlag,
     alternate: oldFiber,
-    renderFn: oldFiber.renderFn,
-    rendered: oldFiber.rendered,
-    stateEffects: oldFiber.stateEffects,
-    effects: oldFiber.effects,
-    to: oldFiber.to,
-    el: oldFiber.el,
-    isSVG: oldFiber.isSVG,
-    index: oldFiber.index,
-    id: oldFiber.id,
+    ...(isComponent(newFiber)
+      ? {
+          renderFn: oldFiber.renderFn,
+          rendered: oldFiber.rendered,
+          stateEffects: oldFiber.stateEffects,
+          effects: oldFiber.effects,
+          id: oldFiber.id,
+        }
+      : undefined),
+    ...(isDOM(newFiber)
+      ? { el: oldFiber.el, isSVG: oldFiber.isSVG }
+      : undefined),
+    ...(isPortal(newFiber) ? { to: oldFiber.to } : undefined),
   });
 
-  return retFiber;
-};
-
-export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag: FLAG) =>
+export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
   createFiber({
     ...newFiber,
     commitFlag,
@@ -89,16 +91,24 @@ export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag: FLAG) =>
   });
 
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
-  const isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
   const retFiber = createFiber({
-    ...newFiber, // fiber.to or some other properties
-    isSVG,
-    el: isDOM(newFiber) ? createElement({ ...newFiber, isSVG }) : undefined,
-    commitFlag: isPortal(newFiber) ? undefined : FLAG.CREATE,
+    ...newFiber,
+    commitFlag: FLAG.CREATE,
   });
-  retFiber.attrDiff = attrDiff(retFiber, { props: {} });
-  if (retFiber.attrDiff.length > 0)
-    retFiber.commitFlag = mergeFlag(retFiber.commitFlag, FLAG.UPDATE);
+
+  if (isDOM(newFiber)) {
+    retFiber.isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
+    retFiber.el = createElement({ ...retFiber });
+    const diff = attrDiff(retFiber, { props: {} });
+    retFiber.attrDiff = diff;
+    if (diff.length > 0)
+      retFiber.commitFlag = mergeFlag(retFiber.commitFlag, FLAG.UPDATE);
+  }
+
+  if (isPortal(newFiber)) {
+    retFiber.commitFlag = undefined;
+  }
+
   return retFiber;
 };
 
@@ -193,7 +203,7 @@ export const diff = (
 
     if (matchFlag(commitFlag, FLAG.REUSE)) {
       commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
-      return reuse(newFiber, oldFiber, commitFlag!);
+      return reuse(newFiber, oldFiber, commitFlag);
     }
 
     return clone(newFiber, oldFiber, commitFlag);
