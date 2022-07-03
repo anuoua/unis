@@ -65,7 +65,8 @@ addHook({
   },
 
   return: (retn?: Fiber) => {
-    if (retn) retn.preEl = retn.reconcileState!.workingPreEl;
+    if (retn && matchFlag(retn.commitFlag, FLAG.INSERT | FLAG.CREATE))
+      retn.preEl = retn.reconcileState!.workingPreEl;
   },
 });
 

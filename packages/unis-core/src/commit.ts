@@ -58,9 +58,7 @@ export const commitDeletion = (fiber: Fiber) => {
   let indexFiber: Fiber | undefined = fiber;
 
   do {
-    indexFiber.preEl = undefined;
     indexFiber.dependencies = undefined;
-    indexFiber.attrDiff = undefined;
     indexFiber.reconcileState = undefined;
   } while ((indexFiber = next(indexFiber)));
 
