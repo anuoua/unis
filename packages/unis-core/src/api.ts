@@ -1,6 +1,6 @@
 import { Fiber, FLAG, mergeFlag } from "./fiber";
 import { getWorkingFiber, startWork } from "./reconcile";
-import { addMacroTask } from "./scheduler";
+import { addTok } from "./toktik";
 import { arraysEqual } from "./utils";
 
 export interface Ref<T> {
@@ -42,7 +42,7 @@ const triggerDebounce = (workingFiber: Fiber) => {
     return pendingList.push(workingFiber);
   }
   pendingList.push(workingFiber);
-  addMacroTask(() => {
+  addTok(() => {
     const rootFibers = Array.from(
       new Set(
         pendingList.map((fiber) => {

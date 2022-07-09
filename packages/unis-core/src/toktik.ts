@@ -1,18 +1,18 @@
-export type Task = Function & { isMacro?: any };
+export type Task = Function & { isTok?: any };
 
 const INTERVAL = 4;
 
 let lastTime: number = 0;
 let looping = false;
 
-const macroTaskQueue: Task[] = [];
-const microTaskQueue: Task[] = [];
+const tokQueue: Task[] = [];
+const tikQueue: Task[] = [];
 
 const pickTask = () => {
-  const microTask = microTaskQueue.shift();
-  if (microTask) return microTask;
-  const macroTask = macroTaskQueue.shift();
-  if (macroTask) return macroTask;
+  const tik = tikQueue.shift();
+  if (tik) return tik;
+  const tok = tokQueue.shift();
+  if (tok) return tok;
 };
 
 const loop = (task: Task): void => {
@@ -20,8 +20,8 @@ const loop = (task: Task): void => {
   runTask(task);
   const nextTask = pickTask();
   if (nextTask) {
-    if (shouldYield() || nextTask.isMacro) {
-      nextTick(() => loop(nextTask), nextTask.isMacro);
+    if (shouldYield() || nextTask.isTok) {
+      nextTick(() => loop(nextTask), nextTask.isTok);
     } else {
       loop(nextTask);
     }
@@ -35,17 +35,17 @@ const runTask = (task: Task) => {
   return task();
 };
 
-export const addMacroTask = (task: Task, pending = false) => {
-  task.isMacro = true;
+export const addTok = (task: Task, pending = false) => {
+  task.isTok = true;
   looping
-    ? macroTaskQueue.push(task)
+    ? tokQueue.push(task)
     : pending
     ? nextTick(() => loop(task))
     : loop(task);
 };
 
-export const addMicroTask = (task: Task) => {
-  looping && microTaskQueue.push(task);
+export const addTik = (task: Task) => {
+  looping && tikQueue.push(task);
 };
 
 export const shouldYield = () => performance.now() - lastTime > INTERVAL;

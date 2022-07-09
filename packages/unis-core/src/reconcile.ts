@@ -1,23 +1,21 @@
 import { runStateEffects } from "./api";
 import { commitEffectList } from "./commit";
+import { preElWalkHook } from "./preEl";
+import { effectWalkHook } from "./effect";
 import { contextWalkHook } from "./context";
-import { diff } from "./diff";
 import {
   createNext,
   Fiber,
-  FiberEl,
-  findEls,
   FLAG,
   ReconcileState,
   isComponent,
-  isDOM,
-  isPortal,
   createFiber,
   matchFlag,
 } from "./fiber";
 import { formatChildren } from "./h";
-import { addMacroTask, addMicroTask, shouldYield } from "./scheduler";
+import { addTok, addTik, shouldYield } from "./toktik";
 import { isFun } from "./utils";
+import { diff } from "./diff";
 
 let workingFiber: Fiber | undefined;
 
@@ -25,67 +23,18 @@ export const getWorkingFiber = () => workingFiber;
 export const setWorkingFiber = (fiber: Fiber | undefined) =>
   (workingFiber = fiber);
 
-export const pushEffect = (fiber: Fiber) =>
-  fiber.reconcileState!.effectList.push(fiber);
-
-const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
-  if (fiber.reconcileState) fiber.reconcileState.workingPreEl = workingPreEl;
-};
-
-const setReuseFiberPreEl = (fiber: Fiber) => {
-  if (!matchFlag(fiber.commitFlag, FLAG.REUSE)) return;
-  const endEl = findEls([fiber.alternate!]).pop();
-  endEl && setWorkingPreEl(fiber, endEl);
-};
-
 // reconcile walker
 const [next, addHook] = createNext();
 
 // preEl
-addHook({
-  down: (from: Fiber, to?: Fiber) => {
-    isDOM(from) && setWorkingPreEl(from, undefined);
-    isPortal(from) && setWorkingPreEl(from, undefined);
-  },
-
-  up: (from: Fiber, to?: Fiber) => {
-    if (to) {
-      isDOM(to) && setWorkingPreEl(from, to.el);
-      isPortal(to) && setWorkingPreEl(from, to.preEl);
-    }
-    setReuseFiberPreEl(from);
-  },
-
-  sibling: (from: Fiber, to?: Fiber) => {
-    if (matchFlag(from.commitFlag, FLAG.REUSE)) {
-      setReuseFiberPreEl(from);
-    } else {
-      isDOM(from) && setWorkingPreEl(from, from.el);
-    }
-  },
-
-  return: (retn?: Fiber) => {
-    if (retn && matchFlag(retn.commitFlag, FLAG.INSERT | FLAG.CREATE))
-      retn.preEl = retn.reconcileState!.workingPreEl;
-  },
-});
-
+addHook(preElWalkHook);
 // effect
-addHook({
-  up: (from: Fiber, to?: Fiber) => {
-    to?.commitFlag && pushEffect(to);
-  },
-
-  enter: (enter: Fiber, skipChild: boolean) => {
-    (!enter.child || skipChild) && enter.commitFlag && pushEffect(enter);
-  },
-});
-
+addHook(effectWalkHook);
 // context
 addHook(contextWalkHook);
 
 export const startWork = (rootCurrentFiber: Fiber) => {
-  addMacroTask(() => performWork(rootCurrentFiber));
+  addTok(() => performWork(rootCurrentFiber));
 };
 
 const performWork = (rootCurrentFiber: Fiber) => {
@@ -122,7 +71,7 @@ const tickWork = (workingFiber: Fiber) => {
     setWorkingFiber(indexFiber);
   }
   if (indexFiber) {
-    addMicroTask(() => {
+    addTik(() => {
       setWorkingFiber(indexFiber);
       tickWork(indexFiber!);
     });
