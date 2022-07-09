@@ -1,4 +1,4 @@
-export type Task = Function & { id?: any };
+export type Task = Function & { isMacro?: any };
 
 const INTERVAL = 4;
 
@@ -15,16 +15,17 @@ const pickTask = () => {
   if (macroTask) return macroTask;
 };
 
-const startLoop = (pending?: boolean) => nextTick(() => loop(), pending);
-
-const loop = (): void => {
+const loop = (task: Task): void => {
   looping = true;
-  let task: Task | undefined;
-  while ((task = pickTask())) {
-    runTask(task);
-    if (shouldYield()) {
-      return startLoop();
+  runTask(task);
+  const nextTask = pickTask();
+  if (nextTask) {
+    if (shouldYield() || nextTask.isMacro) {
+      nextTick(() => loop(nextTask), nextTask.isMacro);
+    } else {
+      loop(nextTask);
     }
+    return;
   }
   looping = false;
 };
@@ -34,14 +35,17 @@ const runTask = (task: Task) => {
   return task();
 };
 
-export const addMacroTask = (task: Task) => {
-  macroTaskQueue.push(task);
-  !looping && startLoop(true);
+export const addMacroTask = (task: Task, pending = false) => {
+  task.isMacro = true;
+  looping
+    ? macroTaskQueue.push(task)
+    : pending
+    ? nextTick(() => loop(task))
+    : loop(task);
 };
 
 export const addMicroTask = (task: Task) => {
-  microTaskQueue.push(task);
-  !looping && startLoop();
+  looping && microTaskQueue.push(task);
 };
 
 export const shouldYield = () => performance.now() - lastTime > INTERVAL;

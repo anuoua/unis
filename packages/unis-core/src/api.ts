@@ -53,7 +53,7 @@ const triggerDebounce = (workingFiber: Fiber) => {
     ).map((i) => i.rootWorkingFiber);
     pendingList = [];
     rootFibers.forEach(startWork);
-  });
+  }, true);
 };
 
 export const reducerHOF = <T extends any, T2 extends any>(

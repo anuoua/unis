@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import { reassign } from "rollup-plugin-reassign";
+import replace from "@rollup/plugin-replace";
 
 export default defineConfig({
   esbuild: {
@@ -19,6 +20,9 @@ export default defineConfig({
           useContext: 1,
         },
       },
+    }),
+    replace({
+      "INTERVAL = 4": "INTERVAL = 100000000",
     }),
   ],
   test: {
