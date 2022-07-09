@@ -87,11 +87,13 @@ let preId = "";
 
 export const idHOF = () => {
   let workingFiber = getWF();
-  if (id === Number.MAX_SAFE_INTEGER) {
-    preId += id.toString(32);
-    id = 0;
+  if (!workingFiber.id) {
+    if (id === Number.MAX_SAFE_INTEGER) {
+      preId += id.toString(32);
+      id = 0;
+    }
+    workingFiber.id = `u:${preId}${(id++).toString(32)}`;
   }
-  workingFiber.id = `u:${preId}${(id++).toString(32)}`;
   return (WF: Fiber) => WF.id;
 };
 
@@ -135,7 +137,7 @@ export function useReducer<T, T2>(reducerFn: Reducer<T, T2>, initial: T) {
 }
 
 export function useId() {
-  return use(idHOF(), arguments[0]);
+  return use(idHOF());
 }
 
 export function useRef<T>(): Ref<T | undefined>;
