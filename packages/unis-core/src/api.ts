@@ -1,6 +1,6 @@
 import { Fiber, FLAG, mergeFlag } from "./fiber";
 import { getWorkingFiber, startWork } from "./reconcile";
-import { addTok } from "./toktik";
+import { addTok, clearTikTaskQueue } from "./toktik";
 import { arraysEqual } from "./utils";
 
 export interface Ref<T> {
@@ -24,6 +24,12 @@ export const getWF = (): Fiber | never => {
   }
 };
 
+export const findRoot = (fiber: Fiber | undefined): Fiber | undefined => {
+  while ((fiber = fiber?.parent)) {
+    if (!fiber.parent) return fiber;
+  }
+};
+
 export const markFiber = (workingFiber: Fiber) => {
   workingFiber.flag = mergeFlag(workingFiber.flag, FLAG.UPDATE);
 
@@ -35,24 +41,21 @@ export const markFiber = (workingFiber: Fiber) => {
   }
 };
 
-let pendingList: Fiber[] = [];
+let pendingFibers: Fiber[] = [];
 
 const triggerDebounce = (workingFiber: Fiber) => {
-  if (pendingList.length > 0) {
-    return pendingList.push(workingFiber);
+  if (pendingFibers.length > 0) {
+    return pendingFibers.push(workingFiber);
   }
-  pendingList.push(workingFiber);
+  pendingFibers = [workingFiber];
   addTok(() => {
-    const rootFibers = Array.from(
-      new Set(
-        pendingList.map((fiber) => {
-          markFiber(fiber);
-          return fiber.reconcileState!;
-        })
-      )
-    ).map((i) => i.rootWorkingFiber);
-    pendingList = [];
-    rootFibers.forEach(startWork);
+    new Set(
+      pendingFibers.map((fiber) => {
+        markFiber(fiber);
+        return findRoot(fiber)!;
+      })
+    ).forEach(startWork);
+    pendingFibers = [];
   }, true);
 };
 
@@ -61,16 +64,27 @@ export const reducerHOF = <T extends any, T2 extends any>(
   initial: T
 ) => {
   let state = initial;
-  let workingFiber: Fiber;
+  let workingFiber: Fiber | undefined;
+  let freshFiber: Fiber | undefined;
 
   const dispatch = (action: T2) => {
+    if (!workingFiber) return console.warn("Component is not created");
     state = reducerFn(state, action);
+    if (freshFiber) {
+      clearTikTaskQueue();
+      freshFiber = undefined;
+    }
     triggerDebounce(workingFiber);
   };
 
+  useEffect(() => {
+    workingFiber = freshFiber;
+    freshFiber = undefined;
+  });
+
   return (WF: Fiber) => {
-    workingFiber = WF;
-    return [state, dispatch] as [T, typeof dispatch];
+    freshFiber = WF;
+    return [state, dispatch] as const;
   };
 };
 

@@ -90,6 +90,11 @@ export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
     alternate: oldFiber,
   });
 
+export const del = (oldFiber: Fiber): Fiber => ({
+  commitFlag: FLAG.DELETE,
+  alternate: oldFiber,
+});
+
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
   const retFiber = createFiber({
     ...newFiber,
@@ -145,8 +150,7 @@ export const diff = (
   let preEndFiber: Fiber | undefined;
 
   const deletion = (fiber: Fiber) => {
-    fiber.commitFlag = FLAG.DELETE;
-    parentFiber.reconcileState!.effectList.push(fiber);
+    parentFiber.reconcileState!.effectList.push(del(fiber));
   };
 
   const forward = () => {

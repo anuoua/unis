@@ -48,17 +48,12 @@ const performWork = (rootCurrentFiber: Fiber) => {
   });
 
   const initialReconcileState: ReconcileState = {
-    rootCurrentFiber,
-    rootWorkingFiber,
     effectList: [],
     dependencyList: [],
     workingPreEl: undefined,
   };
 
-  rootWorkingFiber.reconcileState =
-    rootCurrentFiber.reconcileState ?? initialReconcileState;
-
-  Object.assign(rootWorkingFiber.reconcileState, initialReconcileState);
+  rootWorkingFiber.reconcileState = initialReconcileState;
 
   setWorkingFiber(rootWorkingFiber);
   tickWork(rootWorkingFiber!);
@@ -76,7 +71,12 @@ const tickWork = (workingFiber: Fiber) => {
       tickWork(indexFiber!);
     });
   } else {
-    commitEffectList(workingFiber.reconcileState!.effectList ?? []);
+    const { reconcileState } = workingFiber;
+    const { effectList, dependencyList } = reconcileState!;
+    commitEffectList(effectList);
+    effectList.length = 0;
+    dependencyList.length = 0;
+    reconcileState!.workingPreEl = undefined;
   }
 };
 
@@ -108,9 +108,10 @@ const updateComponent = (fiber: Fiber) => {
     }
     fiber.rendered = formatChildren(rendered);
   } else {
-    runStateEffects(fiber);
-    if (fiber.commitFlag)
+    if (fiber.commitFlag) {
+      runStateEffects(fiber);
       fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
+    }
   }
 
   diff(fiber, fiber.alternate?.children, fiber.rendered);
