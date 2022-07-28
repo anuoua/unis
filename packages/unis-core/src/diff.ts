@@ -74,6 +74,7 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
           rendered: oldFiber.rendered,
           stateEffects: oldFiber.stateEffects,
           effects: oldFiber.effects,
+          dispatchBindEffects: oldFiber.dispatchBindEffects,
           id: oldFiber.id,
         }
       : undefined),
@@ -89,6 +90,11 @@ export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
     commitFlag,
     alternate: oldFiber,
   });
+
+export const del = (oldFiber: Fiber): Fiber => ({
+  commitFlag: FLAG.DELETE,
+  alternate: oldFiber,
+});
 
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
   const retFiber = createFiber({
@@ -145,8 +151,7 @@ export const diff = (
   let preEndFiber: Fiber | undefined;
 
   const deletion = (fiber: Fiber) => {
-    fiber.commitFlag = FLAG.DELETE;
-    parentFiber.reconcileState!.effectList.push(fiber);
+    parentFiber.reconcileState!.effectList.push(del(fiber));
   };
 
   const forward = () => {

@@ -10,10 +10,11 @@ const Bpp = (props: { time: number; msg: string }) => {
 
   useEffect(
     () => {
-      setVisible(false);
+      setVisible(true);
       setTimeout(() => {
-        setVisible(true);
-      }, time);
+        console.log("timeout");
+        setVisible(false);
+      }, 0);
     },
     () => []
   );

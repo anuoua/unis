@@ -1,6 +1,6 @@
-import { Fiber, FLAG, mergeFlag } from "./fiber";
-import { getWorkingFiber, startWork } from "./reconcile";
-import { addTok } from "./toktik";
+import { Fiber, findRoot, FLAG, mergeFlag } from "./fiber";
+import { getWorkingFiber, readyForWork } from "./reconcile";
+import { addTok, clearTikTaskQueue } from "./toktik";
 import { arraysEqual } from "./utils";
 
 export interface Ref<T> {
@@ -35,24 +35,21 @@ export const markFiber = (workingFiber: Fiber) => {
   }
 };
 
-let pendingList: Fiber[] = [];
+const pendingList: (() => Fiber)[] = [];
 
-const triggerDebounce = (workingFiber: Fiber) => {
-  if (pendingList.length > 0) {
-    return pendingList.push(workingFiber);
-  }
-  pendingList.push(workingFiber);
+const triggerDebounce = (getFiber: () => Fiber) => {
+  pendingList.push(getFiber);
+
+  if (pendingList.length > 1) return;
+
   addTok(() => {
-    const rootFibers = Array.from(
-      new Set(
-        pendingList.map((fiber) => {
-          markFiber(fiber);
-          return fiber.reconcileState!;
-        })
-      )
-    ).map((i) => i.rootWorkingFiber);
-    pendingList = [];
-    rootFibers.forEach(startWork);
+    const fibers = new Set(pendingList.map((getFiber) => getFiber()));
+    fibers.forEach(markFiber);
+
+    const rootFibers = new Set(Array.from(fibers).map(findRoot));
+    rootFibers.forEach(readyForWork);
+
+    pendingList.length = 0;
   }, true);
 };
 
@@ -61,16 +58,29 @@ export const reducerHOF = <T extends any, T2 extends any>(
   initial: T
 ) => {
   let state = initial;
-  let workingFiber: Fiber;
+  let workingFiber: Fiber | undefined;
+  let freshFiber: Fiber | undefined;
 
   const dispatch = (action: T2) => {
+    if (!workingFiber) return console.warn("Component is not created");
     state = reducerFn(state, action);
-    triggerDebounce(workingFiber);
+    if (freshFiber) {
+      clearTikTaskQueue();
+    }
+    triggerDebounce(() => workingFiber!);
   };
 
+  const fiber = (workingFiber || getWF())!;
+  const effect = () => {
+    workingFiber = freshFiber;
+    freshFiber = undefined;
+  };
+  fiber.dispatchBindEffects?.push(effect) ??
+    (fiber.dispatchBindEffects = [effect]);
+
   return (WF: Fiber) => {
-    workingFiber = WF;
-    return [state, dispatch] as [T, typeof dispatch];
+    freshFiber = WF;
+    return [state, dispatch] as const;
   };
 };
 
@@ -111,11 +121,8 @@ export function use<T extends (...args: any[]) => any>(
 export function use<T extends (...args: any[]) => any>(fn: T, raFn?: Function) {
   const workingFiber = getWF();
   const effect = () => raFn?.(fn(getWF()));
-  if (workingFiber.stateEffects) {
-    workingFiber.stateEffects.push(effect);
-  } else {
-    workingFiber.stateEffects = [effect];
-  }
+  workingFiber.stateEffects?.push(effect) ??
+    (workingFiber.stateEffects = [effect]);
   return fn(workingFiber) as ReturnType<T>;
 }
 
@@ -149,11 +156,7 @@ export function useRef<T>(value?: T) {
 export const useEffect = (cb: Effect, depsFn?: () => any[]) => {
   const workingFiber = getWF();
   cb.depsFn = depsFn;
-  if (workingFiber.effects) {
-    workingFiber.effects.push(cb);
-  } else {
-    workingFiber.effects = [cb];
-  }
+  workingFiber.effects?.push(cb) ?? (workingFiber.effects = [cb]);
 };
 
 export const runEffects = (fiber: Fiber, leave = false) => {

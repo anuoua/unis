@@ -1,6 +1,6 @@
 import { Fiber, FiberEl, findEls, isText } from "./fiber";
 import { Fragment } from "./h";
-import { startWork } from "./reconcile";
+import { readyForWork } from "./reconcile";
 import { isNullish } from "./utils";
 
 export const renderToString = (element: any) => {
@@ -12,7 +12,7 @@ export const renderToString = (element: any) => {
       children: [].concat(element),
     },
   } as Fiber;
-  startWork(root);
+  readyForWork(root);
   return root;
 };
 

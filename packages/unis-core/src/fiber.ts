@@ -4,19 +4,20 @@ import { AttrDiff } from "./diff";
 import { isFun, isNullish } from "./utils";
 
 export interface ReconcileState {
-  rootCurrentFiber: Fiber;
-  rootWorkingFiber: Fiber;
+  // rootCurrentFiber: Fiber;
+  // rootWorkingFiber: Fiber;
+  dispatchBindList: Fiber[];
   effectList: Fiber[];
   dependencyList: Dependency[];
   workingPreEl: FiberEl | undefined;
 }
 
 export enum FLAG {
-  CREATE = 1 << 0,
-  INSERT = 1 << 1,
-  UPDATE = 1 << 2,
-  DELETE = 1 << 3,
-  REUSE = 1 << 4,
+  CREATE = 1 << 1,
+  INSERT = 1 << 2,
+  UPDATE = 1 << 3,
+  DELETE = 1 << 4,
+  REUSE = 1 << 5,
 }
 
 export type FlagName = "flag" | "childFlag" | "commitFlag";
@@ -61,6 +62,7 @@ export interface Fiber {
   children?: Fiber[];
   nextEffect?: Fiber;
   stateEffects?: Effect[];
+  dispatchBindEffects?: (() => void)[];
   effects?: Effect[];
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
@@ -91,6 +93,7 @@ export const createFiber = (options: Partial<Fiber> = {}) => {
     children: undefined,
     nextEffect: undefined,
     stateEffects: undefined,
+    dispatchBindEffects: undefined,
     effects: undefined,
     dependencies: undefined,
     reconcileState: undefined,
@@ -218,3 +221,9 @@ export const getContainer = (
     if (fiber.el) return [fiber.el, false];
   }
 };
+
+export const findRoot = ((fiber: Fiber | undefined) => {
+  while ((fiber = fiber?.parent)) {
+    if (!fiber.parent) return fiber;
+  }
+}) as (fiber: Fiber) => Fiber;

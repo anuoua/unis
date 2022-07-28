@@ -5,23 +5,20 @@ const INTERVAL = 4;
 let lastTime: number = 0;
 let looping = false;
 
-const tokQueue: Task[] = [];
 const tikQueue: Task[] = [];
+const tokQueue: Task[] = [];
 
-const pickTask = () => {
-  const tik = tikQueue.shift();
-  if (tik) return tik;
-  const tok = tokQueue.shift();
-  if (tok) return tok;
-};
+const next = () => tikQueue.at(-1) ?? tokQueue.at(-1);
+
+const pick = () => tikQueue.shift() ?? tokQueue.shift();
 
 const loop = (task: Task): void => {
   looping = true;
   runTask(task);
-  const nextTask = pickTask();
+  const nextTask = next();
   if (nextTask) {
     if (shouldYield() || nextTask.isTok) {
-      nextTick(() => loop(nextTask), nextTask.isTok);
+      nextTick(() => loop(pick()!), nextTask.isTok);
     } else {
       loop(nextTask);
     }
@@ -40,13 +37,15 @@ export const addTok = (task: Task, pending = false) => {
   looping
     ? tokQueue.push(task)
     : pending
-    ? nextTick(() => loop(task))
+    ? nextTick(() => loop(task), pending)
     : loop(task);
 };
 
 export const addTik = (task: Task) => {
   looping && tikQueue.push(task);
 };
+
+export const clearTikTaskQueue = () => (tikQueue.length = 0);
 
 export const shouldYield = () => performance.now() - lastTime > INTERVAL;
 

@@ -33,7 +33,7 @@ addHook(effectWalkHook);
 // context
 addHook(contextWalkHook);
 
-export const startWork = (rootCurrentFiber: Fiber) => {
+export const readyForWork = (rootCurrentFiber: Fiber) => {
   addTok(() => performWork(rootCurrentFiber));
 };
 
@@ -48,17 +48,13 @@ const performWork = (rootCurrentFiber: Fiber) => {
   });
 
   const initialReconcileState: ReconcileState = {
-    rootCurrentFiber,
-    rootWorkingFiber,
+    dispatchBindList: [],
     effectList: [],
     dependencyList: [],
     workingPreEl: undefined,
   };
 
-  rootWorkingFiber.reconcileState =
-    rootCurrentFiber.reconcileState ?? initialReconcileState;
-
-  Object.assign(rootWorkingFiber.reconcileState, initialReconcileState);
+  rootWorkingFiber.reconcileState = initialReconcileState;
 
   setWorkingFiber(rootWorkingFiber);
   tickWork(rootWorkingFiber!);
@@ -76,7 +72,18 @@ const tickWork = (workingFiber: Fiber) => {
       tickWork(indexFiber!);
     });
   } else {
-    commitEffectList(workingFiber.reconcileState!.effectList ?? []);
+    const { reconcileState } = workingFiber;
+    const { effectList, dependencyList, dispatchBindList } = reconcileState!;
+    // switch dispatch bind fiber
+    for (const fiber of dispatchBindList) {
+      fiber.dispatchBindEffects?.forEach((effect) => effect());
+    }
+    commitEffectList(effectList);
+    // clear reconcileState
+    effectList.length = 0;
+    dependencyList.length = 0;
+    dispatchBindList.length = 0;
+    reconcileState!.workingPreEl = undefined;
   }
 };
 
@@ -84,6 +91,7 @@ const update = (fiber: Fiber) => {
   if (matchFlag(fiber.commitFlag, FLAG.REUSE)) return next(fiber, true);
 
   if (isComponent(fiber)) {
+    fiber.reconcileState!.dispatchBindList.push(fiber);
     updateComponent(fiber);
   } else {
     updateHost(fiber);
@@ -109,8 +117,9 @@ const updateComponent = (fiber: Fiber) => {
     fiber.rendered = formatChildren(rendered);
   } else {
     runStateEffects(fiber);
-    if (fiber.commitFlag)
+    if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
+    }
   }
 
   diff(fiber, fiber.alternate?.children, fiber.rendered);

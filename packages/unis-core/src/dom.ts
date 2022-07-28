@@ -1,9 +1,9 @@
 import { getEventName, isEvent, isNullish } from "./utils";
 import { Fiber, FiberEl, findEls, isText } from "./fiber";
-import { startWork } from "./reconcile";
+import { readyForWork } from "./reconcile";
 
 export const render = (element: any, container: Element) => {
-  startWork({
+  readyForWork({
     tag: container.tagName.toLocaleLowerCase(),
     el: container,
     index: 0,

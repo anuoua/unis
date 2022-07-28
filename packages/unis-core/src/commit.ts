@@ -95,7 +95,7 @@ export const commitEffectList = (effectList: Fiber[]) => {
   const comps: Fiber[] = [];
   for (let effect of effectList) {
     if (matchFlag(effect.commitFlag, FLAG.DELETE)) {
-      commitDeletion(effect);
+      commitDeletion(effect.alternate!);
       continue;
     }
     if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
@@ -111,6 +111,7 @@ export const commitEffectList = (effectList: Fiber[]) => {
     }
     effect.preEl = undefined;
     effect.alternate = undefined;
+    effect.commitFlag = undefined;
   }
   comps.forEach((i) => runEffects(i));
 };
