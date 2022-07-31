@@ -1505,7 +1505,11 @@ declare global {
       | undefined
       | VNode;
 
-    type Element = ElementTypes | ElementTypes[] | (() => JSX.Element);
+    type Element =
+      | ElementTypes
+      | ElementTypes[]
+      | (() => JSX.Element)
+      | (() => JSX.Element[]);
     interface ElementClass {
       props: {};
     }
