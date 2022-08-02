@@ -1,0 +1,37 @@
+{
+  "name": "@unis/transition",
+  "version": "0.0.0",
+  "description": "Unis transition component",
+  "main": "build/index.js",
+  "module": "build/index.mjs",
+  "types": "build/index.d.ts",
+  "typings": "build/index.d.ts",
+  "scripts": {
+    "build": "rollup --config && tsc",
+    "build:dev": "cross-env NODE_ENV=development pnpm build"
+  },
+  "exports": {
+    ".": {
+      "require": "./build/index.js",
+      "import": "./build/index.mjs"
+    }
+  },
+  "keywords": [
+    "transition",
+    "animation",
+    "unis"
+  ],
+  "author": "",
+  "dependencies": {
+    "@unis/unis": "workspace:*"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.13.13",
+    "rollup": "^2.72.0",
+    "rollup-plugin-esbuild": "^4.6.0",
+    "rollup-plugin-reassign": "1.0.1",
+    "typescript": "^4.4.4"
+  }
+}
