@@ -76,9 +76,9 @@ export const commitInset = (fiber: Fiber) => {
   const fragment = createFragment();
   append(
     fragment,
-    ...findEls([
-      matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber,
-    ])
+    ...findEls(
+      matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
+    )
   );
   insertBefore(
     container,

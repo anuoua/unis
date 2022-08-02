@@ -37,7 +37,7 @@ export const nextSibling = (node: Node) => node.nextSibling;
 export const firstChild = (node: Node) => node.firstChild;
 
 export const remove = (fiber: Fiber) =>
-  createFragment().append(...findEls([fiber]));
+  createFragment().append(...findEls(fiber));
 
 export const updateTextProperties = (fiber: Fiber) => {
   fiber.el!.nodeValue = fiber.props.nodeValue + "";

@@ -76,7 +76,7 @@ export const nextSibling = (node: ServerNode) => null;
 export const firstChild = (node: ElementNode) => node.children[0];
 
 export const remove = (fiber: Fiber) =>
-  createFragment().append(...(findEls([fiber]) as unknown as ServerNode[]));
+  createFragment().append(...(findEls(fiber) as unknown as ServerNode[]));
 
 export const updateProperties = (fiber: Fiber) => {
   isText(fiber) ? updateTextProperties(fiber) : updateElementProperties(fiber);
