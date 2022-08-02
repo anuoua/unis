@@ -1,3 +1,4 @@
+import { CSSTransition } from "@unis/transition";
 import { h, useState } from "@unis/unis";
 import { Dialog } from "./Dialog";
 import { Item, TodoItem } from "./TodoItem";
@@ -18,7 +19,15 @@ for (; count < 1000; count++) {
 export function ToDo() {
   let [todoList, setTodoList] = useState<any[]>(todos);
   let [dialogVisible, setDialogVisible] = useState(false);
+  let [titleVisible, setTitleVisible] = useState(true);
   let [currentItem, setCurrentItem] = useState<Item | null>(null);
+
+  const handleToggleTitle = () => {
+    setTitleVisible(!titleVisible);
+    setTimeout(() => {
+      setTitleVisible(true);
+    }, 200);
+  };
 
   const handleAdd = (e: any) => {
     if (e.key !== "Enter") return;
@@ -55,9 +64,19 @@ export function ToDo() {
 
   return () => (
     <div className="w-80">
-      <h1 className="font-mono text-white font-bold text-4xl mb-10 w-full text-center">
-        TODO
-      </h1>
+      <CSSTransition
+        timeout={400}
+        in={titleVisible}
+        classNames="scale"
+        unmountOnExit
+      >
+        <h1
+          className="font-mono text-white font-bold text-4xl mb-10 w-full text-center cursor-pointer"
+          onClick={handleToggleTitle}
+        >
+          TODO
+        </h1>
+      </CSSTransition>
       <input
         type="text"
         placeholder="Input here"
