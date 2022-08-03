@@ -20,7 +20,7 @@ const loop = (task: Task): void => {
     if (shouldYield() || nextTask.isTok) {
       nextTick(() => loop(pick()!), nextTask.isTok);
     } else {
-      loop(nextTask);
+      loop(pick()!);
     }
     return;
   }

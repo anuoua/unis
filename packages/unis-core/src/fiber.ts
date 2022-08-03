@@ -48,6 +48,7 @@ export interface Fiber {
   el?: FiberEl;
   preEl?: FiberEl;
   isSVG?: boolean;
+  isDestroyed?: boolean;
   props?: any;
   compare?: Function;
   attrDiff?: AttrDiff;
@@ -64,6 +65,7 @@ export interface Fiber {
   stateEffects?: Effect[];
   dispatchBindEffects?: (() => void)[];
   effects?: Effect[];
+  layoutEffects?: Effect[];
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
 }
@@ -79,6 +81,7 @@ export const createFiber = (options: Partial<Fiber> = {}) => {
     el: undefined,
     preEl: undefined,
     isSVG: undefined,
+    isDestroyed: undefined,
     props: undefined,
     compare: undefined,
     attrDiff: undefined,
@@ -95,6 +98,7 @@ export const createFiber = (options: Partial<Fiber> = {}) => {
     stateEffects: undefined,
     dispatchBindEffects: undefined,
     effects: undefined,
+    layoutEffects: undefined,
     dependencies: undefined,
     reconcileState: undefined,
     ...options,

@@ -1,4 +1,4 @@
-import { runEffects } from "./api";
+import { clearEffects, runEffects } from "./api";
 import {
   append,
   createFragment,
@@ -22,44 +22,35 @@ import {
   isPortal,
   isText,
 } from "./fiber";
+import { addTik } from "./toktik";
 
-export const commitDeletion = (fiber: Fiber) => {
-  const destroy = (fiber: Fiber) => {
-    if (isElement(fiber)) {
-      fiber.props.ref && (fiber.props.ref.current = undefined);
-    }
-    if (isComponent(fiber)) {
-      runEffects(fiber, true);
-      remove(fiber);
-    }
-    if (isPortal(fiber)) {
-      fiber.child && remove(fiber.child);
-    }
-  };
-
+export const commitDeletion = (fiber: Fiber, effectComps: Fiber[]) => {
   const [next, addHook] = createNext();
 
   addHook({
     enter(enter) {
-      if (enter === fiber && !enter.child) {
-        destroy(enter);
-        return false;
-      }
+      if (enter === fiber && !enter.child) return false;
     },
     up(from, to) {
-      if (to) destroy(to);
       if (to === fiber) return false;
-    },
-    sibling(from, to) {
-      if (to && !to.child) destroy(to);
     },
   });
 
   let indexFiber: Fiber | undefined = fiber;
 
   do {
+    if (isElement(indexFiber)) {
+      indexFiber.props.ref && (indexFiber.props.ref.current = undefined);
+    }
+    if (isComponent(indexFiber)) {
+      effectComps.push(indexFiber);
+    }
+    if (isPortal(indexFiber)) {
+      indexFiber.child && remove(indexFiber.child);
+    }
     indexFiber.dependencies = undefined;
     indexFiber.reconcileState = undefined;
+    indexFiber.isDestroyed = true;
   } while ((indexFiber = next(indexFiber)));
 
   remove(fiber);
@@ -92,10 +83,10 @@ export const commitInset = (fiber: Fiber) => {
 };
 
 export const commitEffectList = (effectList: Fiber[]) => {
-  const comps: Fiber[] = [];
+  const effectComps: Fiber[] = [];
   for (let effect of effectList) {
     if (matchFlag(effect.commitFlag, FLAG.DELETE)) {
-      commitDeletion(effect.alternate!);
+      commitDeletion(effect.alternate!, effectComps);
       continue;
     }
     if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
@@ -107,11 +98,22 @@ export const commitEffectList = (effectList: Fiber[]) => {
     if (matchFlag(effect.commitFlag, FLAG.REUSE)) {
       graft(effect, effect.alternate!);
     } else {
-      isComponent(effect) && comps.push(effect);
+      isComponent(effect) && effectComps.push(effect);
     }
     effect.preEl = undefined;
     effect.alternate = undefined;
     effect.commitFlag = undefined;
   }
-  comps.forEach((i) => runEffects(i));
+
+  const callEffects = (type: "layoutEffects" | "effects") =>
+    effectComps
+      .filter((i) => {
+        clearEffects(i[type]);
+        return !i.isDestroyed;
+      })
+      .forEach((i) => runEffects(i[type]));
+
+  callEffects("layoutEffects");
+
+  addTik(() => callEffects("effects"));
 };
