@@ -30,8 +30,7 @@ export const findDependency = (fiber: Fiber, contextFiber: Fiber) =>
 
 export function createContext<T>(initial: T): Context<T>;
 export function createContext<T>(initial: T) {
-  const Provider = (props: { value: T | undefined; children: any }) =>
-    props.children;
+  const Provider = (props: { value: T; children: any }) => props.children;
 
   Provider.take = {
     type: CONTEXT,
@@ -45,7 +44,7 @@ export function createContext<T>(initial: T) {
     return () => p.children(state);
   };
 
-  const context: Context<T | undefined> = {
+  const context: Context<T> = {
     Provider,
     Consumer,
     initial,
@@ -56,8 +55,8 @@ export function createContext<T>(initial: T) {
   return context;
 }
 
-const contextHOF = (context: Context) => {
-  const readContext = (fiber: Fiber) => {
+const contextHOF = <T extends Context>(context: T) => {
+  const readContext = (fiber: Fiber): T["initial"] => {
     const result = (fiber?.reconcileState?.dependencyList ?? [])
       .filter((dependency) => dependency.context === context)
       .pop();
@@ -76,7 +75,7 @@ const contextHOF = (context: Context) => {
   return (WF: Fiber) => readContext(WF);
 };
 
-export function useContext(ctx: Context) {
+export function useContext<T extends Context>(ctx: T) {
   return use(contextHOF(ctx), arguments[1]);
 }
 
