@@ -1,4 +1,4 @@
-import { Fiber, WalkHook } from "./fiber";
+import { Fiber, WalkHook } from "../fiber";
 
 const pushEffect = (fiber: Fiber) =>
   fiber.reconcileState!.effectList.push(fiber);

@@ -157,6 +157,8 @@ export function useRef<T>(value?: T) {
   return { current: value };
 }
 
+export const useFlush = (cb: () => void) => use(cb, () => {});
+
 export const useEffect = (cb: Effect, depsFn?: () => any[]) => {
   const workingFiber = getWF();
   cb.depsFn = depsFn;
@@ -168,22 +170,6 @@ export const useLayoutEffect = (cb: Effect, depsFn?: () => any[]) => {
   cb.depsFn = depsFn;
   workingFiber.layoutEffects?.push(cb) ?? (workingFiber.layoutEffects = [cb]);
 };
-
-// export const runEffects = (fiber: Fiber, leave = false) => {
-//   if (!fiber.effects) return;
-//   for (const effect of fiber.effects) {
-//     const deps = effect.depsFn?.();
-//     const equal = arraysEqual(deps, effect.deps);
-//     effect.deps = deps;
-//     if (leave) {
-//       effect.clear?.();
-//       continue;
-//     }
-//     if (equal) continue;
-//     effect.clear?.();
-//     effect.clear = effect();
-//   }
-// };
 
 export const clearEffects = (effects?: Effect[]) => {
   if (!effects) return;

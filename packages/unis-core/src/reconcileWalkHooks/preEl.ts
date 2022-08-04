@@ -7,7 +7,7 @@ import {
   isPortal,
   matchFlag,
   WalkHook,
-} from "./fiber";
+} from "../fiber";
 
 const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
   if (fiber.reconcileState) fiber.reconcileState.workingPreEl = workingPreEl;

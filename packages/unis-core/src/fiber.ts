@@ -4,12 +4,11 @@ import { AttrDiff } from "./diff";
 import { isFun, isNullish } from "./utils";
 
 export interface ReconcileState {
-  // rootCurrentFiber: Fiber;
-  // rootWorkingFiber: Fiber;
   dispatchBindList: Fiber[];
   effectList: Fiber[];
   dependencyList: Dependency[];
-  workingPreEl: FiberEl | undefined;
+  workingPreEl?: FiberEl;
+  componentList: Fiber[];
 }
 
 export enum FLAG {

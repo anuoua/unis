@@ -178,11 +178,16 @@ export const diff = (
   // when parent fiber has childFlag and fiber no childFlag, we should reuse it.
   // when memo fiber compare result is true, we should reuse it.
   const getSameNewFiber = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
-    let commitFlag = parentFiber.alternate!.childFlag
-      ? !oldFiber.childFlag && !oldFiber.flag
-        ? FLAG.REUSE
-        : oldFiber.flag
-      : FLAG.UPDATE;
+    let commitFlag =
+      // when diff in an commitFlag FLAG.UPDATE component, it should be FLAG.UPDATE.
+      !matchFlag(
+        parentFiber.reconcileState!.componentList.at(-1)?.commitFlag,
+        FLAG.UPDATE
+      ) && parentFiber.alternate!.childFlag
+        ? !oldFiber.childFlag && !oldFiber.flag
+          ? FLAG.REUSE
+          : oldFiber.flag
+        : FLAG.UPDATE;
 
     if (
       isMemo(oldFiber) &&
