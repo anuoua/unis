@@ -28,9 +28,10 @@
 
 import * as CSS from "csstype";
 
-export interface VNode {
-  type?: any;
-  props?: any;
+export interface FiberNode {
+  tag?: string | Function;
+  type: Symbol;
+  props: any;
 }
 
 export interface CSSProperties
@@ -1503,7 +1504,7 @@ declare global {
       | boolean
       | void
       | undefined
-      | VNode;
+      | FiberNode;
 
     type Element =
       | ElementTypes
