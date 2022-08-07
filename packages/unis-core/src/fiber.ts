@@ -202,18 +202,16 @@ export const graft = (newFiber: Fiber, oldFiber: Fiber) => {
   oldFiber.parent = parent;
 };
 
-export const findEls = (fibers: Fiber[] | Fiber = []) => {
-  fibers = ([] as Fiber[]).concat(fibers);
-
+export const findEls = (fiber: Fiber) => {
   const els: FiberEl[] = [];
 
-  for (let fiber of fibers) {
-    isDOM(fiber)
-      ? els.push(fiber.el!)
-      : isPortal(fiber)
-      ? false
-      : els.push(...findEls(fiber.children));
-  }
+  isDOM(fiber)
+    ? els.push(fiber.el!)
+    : isPortal(fiber)
+    ? false
+    : fiber.children?.forEach((child) => {
+        els.push(...findEls(child));
+      });
 
   return els;
 };

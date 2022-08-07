@@ -30,8 +30,8 @@ import * as CSS from "csstype";
 
 export interface FiberNode {
   tag?: string | Function;
-  type: Symbol;
-  props: any;
+  type?: Symbol;
+  props?: any;
 }
 
 export interface CSSProperties
