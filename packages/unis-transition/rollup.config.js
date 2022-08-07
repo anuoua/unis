@@ -20,7 +20,8 @@ const configGen = (format) => defineConfig({
     esbuild({
       sourceMap: true,
       minify: process.env.NODE_ENV === 'development' ? false : true,
-      target: 'esnext'
+      target: 'esnext',
+      jsxFactory: 'h',
     }),
     reassign({
       include: ["**/*.(t|j)s?(x)"],

@@ -7,7 +7,7 @@
   "types": "build/index.d.ts",
   "typings": "build/index.d.ts",
   "scripts": {
-    "build": "rollup --config && tsc",
+    "build": "rimraf build && rollup --config && tsc",
     "build:dev": "cross-env NODE_ENV=development pnpm build"
   },
   "exports": {
@@ -29,6 +29,7 @@
   "devDependencies": {
     "cross-env": "^7.0.3",
     "esbuild": "^0.13.13",
+    "rimraf": "^3.0.2",
     "rollup": "^2.72.0",
     "rollup-plugin-esbuild": "^4.6.0",
     "rollup-plugin-reassign": "1.0.1",
