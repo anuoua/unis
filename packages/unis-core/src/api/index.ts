@@ -5,6 +5,7 @@ export * from "./useId";
 export * from "./useLayoutEffect";
 export * from "./useProps";
 export * from "./useReducer";
+export * from "./useRef";
 export * from "./useState";
 
 import { Fiber, FLAG, mergeFlag } from "../fiber";
