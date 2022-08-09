@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/anuoua/unis#readme",
   "dependencies": {
-    "@unis/router": "workspace:*",
     "@unis/transition": "workspace:*",
     "@unis/unis": "workspace:*"
   },

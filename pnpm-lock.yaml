@@ -19,11 +19,11 @@ importers:
       rimraf: ^3.0.2
       rollup: ^2.58.3
       rollup-plugin-esbuild: ^4.6.0
-      rollup-plugin-reassign: ^1.0.0
+      rollup-plugin-reassign: ^1.0.2
       tslib: ^2.3.1
       typescript: ^4.4.4
       vite: ^2.9.11
-      vitest: ^0.16.0
+      vitest: ^0.21.0
     dependencies:
       '@unis/unis-types': link:../unis-types
     devDependencies:
@@ -38,11 +38,11 @@ importers:
       rimraf: registry.npmmirror.com/rimraf/3.0.2
       rollup: registry.npmmirror.com/rollup/2.72.0
       rollup-plugin-esbuild: registry.npmmirror.com/rollup-plugin-esbuild/4.9.1_f2n23lx2wtp7oww6ual74djxda
-      rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.0
+      rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.2
       tslib: registry.npmmirror.com/tslib/2.4.0
       typescript: registry.npmmirror.com/typescript/4.7.4
       vite: registry.npmmirror.com/vite/2.9.14
-      vitest: registry.npmmirror.com/vitest/0.16.0_c8@7.12.0+jsdom@19.0.0
+      vitest: registry.npmmirror.com/vitest/0.21.0_c8@7.12.0+jsdom@19.0.0
 
   packages/unis-example:
     specifiers:
@@ -51,7 +51,7 @@ importers:
       '@unis/unis': workspace:*
       autoprefixer: ^10.4.0
       postcss: ^8.3.11
-      rollup-plugin-reassign: ^1.0.0
+      rollup-plugin-reassign: ^1.0.2
       tailwindcss: ^2.2.19
       vite: ^2.6.13
     dependencies:
@@ -61,27 +61,31 @@ importers:
       '@types/lodash': registry.npmmirror.com/@types/lodash/4.14.182
       autoprefixer: registry.npmmirror.com/autoprefixer/10.4.8_postcss@8.4.14
       postcss: registry.npmmirror.com/postcss/8.4.14
-      rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.0
+      rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.2
       tailwindcss: registry.npmmirror.com/tailwindcss/2.2.19_6qxuh3ctkxhae7jnbdaexscv2m
       vite: registry.npmmirror.com/vite/2.9.14
 
   packages/unis-transition:
     specifiers:
+      '@rollup/plugin-node-resolve': ^13.0.6
       '@unis/unis': workspace:*
       cross-env: ^7.0.3
       esbuild: ^0.13.13
+      rimraf: ^3.0.2
       rollup: ^2.72.0
       rollup-plugin-esbuild: ^4.6.0
-      rollup-plugin-reassign: 1.0.1
+      rollup-plugin-reassign: ^1.0.2
       typescript: ^4.4.4
     dependencies:
       '@unis/unis': link:../unis-core
     devDependencies:
+      '@rollup/plugin-node-resolve': registry.npmmirror.com/@rollup/plugin-node-resolve/13.3.0_rollup@2.72.0
       cross-env: registry.npmmirror.com/cross-env/7.0.3
       esbuild: registry.npmmirror.com/esbuild/0.13.15
+      rimraf: registry.npmmirror.com/rimraf/3.0.2
       rollup: registry.npmmirror.com/rollup/2.72.0
       rollup-plugin-esbuild: registry.npmmirror.com/rollup-plugin-esbuild/4.9.1_f2n23lx2wtp7oww6ual74djxda
-      rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.1
+      rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.2
       typescript: registry.npmmirror.com/typescript/4.7.4
 
   packages/unis-types:
@@ -2658,20 +2662,10 @@ packages:
       - supports-color
     dev: true
 
-  registry.npmmirror.com/rollup-plugin-reassign/1.0.0:
-    resolution: {integrity: sha512-1fEfxljWYeoc3ZWfDs46ThnVFcgI7wWxK21KsXNrZuxQwVW5MP6kPAvEyM3aPXs3ZXNzTYRdDDDXGtcfOoxM5w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/rollup-plugin-reassign/-/rollup-plugin-reassign-1.0.0.tgz}
+  registry.npmmirror.com/rollup-plugin-reassign/1.0.2:
+    resolution: {integrity: sha512-B5Udv9JdrUSeG+kLFbTRwPP8W7o/cpXy3WNM4rguB5sMI/VXiOC2adKIWiVYvpWUnLbmAG+sesQKaI0VokXJPw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/rollup-plugin-reassign/-/rollup-plugin-reassign-1.0.2.tgz}
     name: rollup-plugin-reassign
-    version: 1.0.0
-    dependencies:
-      '@rollup/pluginutils': registry.npmmirror.com/@rollup/pluginutils/4.2.1
-      estree-walker: registry.npmmirror.com/estree-walker/2.0.2
-      magic-string: registry.npmmirror.com/magic-string/0.25.9
-    dev: true
-
-  registry.npmmirror.com/rollup-plugin-reassign/1.0.1:
-    resolution: {integrity: sha512-wwAXFGTEfeub3NSWv6c9N2Oa/KTudAEylWhfOMAotAu7qKsr+pvoRI/BF5AUXVQ66NvmXxsTDWVYGXB4VHk64A==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/rollup-plugin-reassign/-/rollup-plugin-reassign-1.0.1.tgz}
-    name: rollup-plugin-reassign
-    version: 1.0.1
+    version: 1.0.2
     dependencies:
       '@rollup/pluginutils': registry.npmmirror.com/@rollup/pluginutils/4.2.1
       estree-walker: registry.npmmirror.com/estree-walker/2.0.2
@@ -2928,10 +2922,10 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: true
 
-  registry.npmmirror.com/tinyspy/0.3.3:
-    resolution: {integrity: sha512-gRiUR8fuhUf0W9lzojPf1N1euJYA30ISebSfgca8z76FOvXtVXqd5ojEIaKLWbDQhAaC3ibxZIjqbyi4ybjcTw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/tinyspy/-/tinyspy-0.3.3.tgz}
+  registry.npmmirror.com/tinyspy/1.0.0:
+    resolution: {integrity: sha512-FI5B2QdODQYDRjfuLF+OrJ8bjWRMCXokQPcwKm0W3IzcbUmBNv536cQc7eXGoAuXphZwgx1DFbqImwzz08Fnhw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/tinyspy/-/tinyspy-1.0.0.tgz}
     name: tinyspy
-    version: 0.3.3
+    version: 1.0.0
     engines: {node: '>=14.0.0'}
     dev: true
 
@@ -3097,19 +3091,25 @@ packages:
       fsevents: registry.npmmirror.com/fsevents/2.3.2
     dev: true
 
-  registry.npmmirror.com/vitest/0.16.0_c8@7.12.0+jsdom@19.0.0:
-    resolution: {integrity: sha512-Ntp6jrM8wf2NMtamMBLkRBBdeqHkgAH/WMh5Xryts1j2ft2D8QZQbiSVFkSl4WmEQzcPP0YM069g/Ga1vtnEtg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vitest/-/vitest-0.16.0.tgz}
-    id: registry.npmmirror.com/vitest/0.16.0
+  registry.npmmirror.com/vitest/0.21.0_c8@7.12.0+jsdom@19.0.0:
+    resolution: {integrity: sha512-+BQB2swk4wQdw5loOoL8esIYh/1ifAliuwj2HWHNE2F8SAl/jF7/aoCJBoXGSf/Ws19k3pH4NrWeVtcSwM0j2w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vitest/-/vitest-0.21.0.tgz}
+    id: registry.npmmirror.com/vitest/0.21.0
     name: vitest
-    version: 0.16.0
+    version: 0.21.0
     engines: {node: '>=v14.16.0'}
     hasBin: true
     peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
       '@vitest/ui': '*'
       c8: '*'
       happy-dom: '*'
       jsdom: '*'
     peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
       '@vitest/ui':
         optional: true
       c8:
@@ -3128,7 +3128,7 @@ packages:
       jsdom: registry.npmmirror.com/jsdom/19.0.0
       local-pkg: registry.npmmirror.com/local-pkg/0.4.2
       tinypool: registry.npmmirror.com/tinypool/0.2.4
-      tinyspy: registry.npmmirror.com/tinyspy/0.3.3
+      tinyspy: registry.npmmirror.com/tinyspy/1.0.0
       vite: registry.npmmirror.com/vite/2.9.14
     transitivePeerDependencies:
       - less

@@ -62,7 +62,7 @@ export function ToDo() {
     // setDialogVisible(true);
   };
 
-  return () => {
+  return () => (
     <div className="w-80">
       <CSSTransition timeout={400} in={titleVisible} classNames="scale">
         <h1
@@ -90,6 +90,6 @@ export function ToDo() {
           onConfirm={handleConfirm}
         />
       )}
-    </div>;
-  };
+    </div>
+  );
 }
