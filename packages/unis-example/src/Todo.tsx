@@ -1,5 +1,5 @@
-import { CSSTransition } from "@unis/transition";
 import { h, useState } from "@unis/unis";
+import { CSSTransition } from "@unis/transition";
 import { Dialog } from "./Dialog";
 import { Item, TodoItem } from "./TodoItem";
 
@@ -62,14 +62,9 @@ export function ToDo() {
     // setDialogVisible(true);
   };
 
-  return () => (
+  return () => {
     <div className="w-80">
-      <CSSTransition
-        timeout={400}
-        in={titleVisible}
-        classNames="scale"
-        unmountOnExit
-      >
+      <CSSTransition timeout={400} in={titleVisible} classNames="scale">
         <h1
           className="font-mono text-white font-bold text-4xl mb-10 w-full text-center cursor-pointer"
           onClick={handleToggleTitle}
@@ -95,6 +90,6 @@ export function ToDo() {
           onConfirm={handleConfirm}
         />
       )}
-    </div>
-  );
+    </div>;
+  };
 }
