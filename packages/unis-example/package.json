@@ -19,14 +19,15 @@
   },
   "homepage": "https://github.com/anuoua/unis#readme",
   "dependencies": {
-    "@unis/unis": "workspace:*",
-    "@unis/transition": "workspace:*"
+    "@unis/router": "workspace:*",
+    "@unis/transition": "workspace:*",
+    "@unis/unis": "workspace:*"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",
     "autoprefixer": "^10.4.0",
     "postcss": "^8.3.11",
-    "rollup-plugin-reassign": "^1.0.0",
+    "rollup-plugin-reassign": "^1.0.2",
     "tailwindcss": "^2.2.19",
     "vite": "^2.6.13"
   }

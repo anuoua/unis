@@ -1,5 +1,4 @@
 import { use, useEffect, useState } from "@unis/unis";
-import { uOpts } from "./uOpts";
 
 export const UNMOUNTED = "unmounted";
 export const APPEARING = "appearing";
@@ -27,17 +26,14 @@ export interface uTransitionProps {
 }
 
 export const uTransition = (optsFn: () => uTransitionProps) => {
-  let { inProp, enter, unmountOnExit, mountOnEnter, timeout, appear } = use(
-    uOpts(
-      {
-        enter: true,
-        unmountOnExit: true,
-        mountOnEnter: true,
-        appear: false,
-      },
-      optsFn
-    )
-  );
+  let {
+    inProp,
+    enter = true,
+    unmountOnExit = true,
+    mountOnEnter = true,
+    timeout,
+    appear = false,
+  } = use(optsFn);
 
   let timer: number;
   let mounted = false;
