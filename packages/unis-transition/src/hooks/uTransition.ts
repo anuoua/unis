@@ -64,7 +64,7 @@ export const uTransition = (optsFn: () => uTransitionProps) => {
 
   {
     if (childrenState) {
-      if (appear && inProp) initialStatus = APPEARING;
+      if (appear && inProp) initialStatus = enter ? APPEARING : ENTERED;
       if (initialStatus === APPEARING) {
         setTimer(timeoutObject.appear!);
       }
