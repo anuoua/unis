@@ -38,27 +38,30 @@ export const TransitionGroup = (p: TransitionGroupProps) => {
     });
 
     const newFlatChildren = flatChildren.map((child) => {
-      if (!transitionMap[child.props.key]) {
-        child.props = {
-          ...child.props,
+      const newChild = { ...child };
+      const originProps = newChild.props;
+      if (!transitionMap[newChild.props.key]) {
+        newChild.props = {
+          ...originProps,
           in: true,
         };
       }
-      const onExited = child.props.onExited;
-      child.props.onExited = (...args: unknown[]) => {
+      const onExited = originProps.onExited;
+      newChild.props.onExited = (...args: unknown[]) => {
         onExited?.(...args);
-        remove(child.props.key);
+        remove(originProps.key);
       };
-      return child;
+      return newChild;
     });
 
     transitionChildren.forEach((child, index) => {
-      if (!flatMap[child.props.key]) {
-        child.props = {
-          ...child.props,
+      const newChild = { ...child };
+      if (!flatMap[newChild.props.key]) {
+        newChild.props = {
+          ...newChild.props,
           in: false,
         };
-        newFlatChildren.splice(index, 0, child);
+        newFlatChildren.splice(index, 0, newChild);
       }
     });
 
