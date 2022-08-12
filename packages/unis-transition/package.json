@@ -21,6 +21,9 @@
     "animation",
     "unis"
   ],
+  "files": [
+    "build"
+  ],
   "author": "",
   "dependencies": {
     "@unis/unis": "workspace:*"
