@@ -43,7 +43,7 @@ jobs:
           pnpm install
           cd packages/unis-core
           pnpm build
-          pnpm publish -r --no-git-checks --access public
+          pnpm publish --no-git-checks --access public
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

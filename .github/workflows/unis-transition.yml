@@ -23,7 +23,9 @@ jobs:
           version: 7.9.0
       - run: |
           pnpm install
-          cd packages/unis-transition
+          cd packages/unis-core
+          pnpm build
+          cd ../packages/unis-transition
           pnpm build
           pnpm publish --no-git-checks --access public
         env:
