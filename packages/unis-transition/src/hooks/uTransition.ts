@@ -17,21 +17,21 @@ export type TimeoutObject = {
 export type TransitionTimeout = number | TimeoutObject;
 
 export interface uTransitionProps {
-  inProp: boolean;
+  in?: boolean;
   enter?: boolean;
   unmountOnExit?: boolean;
   mountOnEnter?: boolean;
   appear?: boolean;
-  timeout: TransitionTimeout;
+  timeout?: TransitionTimeout;
 }
 
 export const uTransition = (optsFn: () => uTransitionProps) => {
   let {
-    inProp,
+    in: inProp = false,
     enter = true,
     unmountOnExit = true,
     mountOnEnter = true,
-    timeout,
+    timeout = 0,
     appear = false,
   } = use(optsFn);
 

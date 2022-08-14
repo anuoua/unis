@@ -38,18 +38,18 @@ export const TransitionGroup = (p: TransitionGroupProps) => {
     });
 
     const newFlatChildren = flatChildren.map((child) => {
+      const existingNode = transitionMap[child.props.key];
+      if (existingNode) return existingNode;
       const newChild = { ...child };
       const originProps = newChild.props;
-      if (!transitionMap[newChild.props.key]) {
-        newChild.props = {
-          ...originProps,
-          in: true,
-        };
-      }
-      const onExited = originProps.onExited;
-      newChild.props.onExited = (...args: unknown[]) => {
-        onExited?.(...args);
-        remove(originProps.key);
+      const onExited = newChild.props.onExited;
+      newChild.props = {
+        ...originProps,
+        in: true,
+        onExited: (...args: unknown[]) => {
+          onExited?.(...args);
+          remove(originProps.key);
+        },
       };
       return newChild;
     });

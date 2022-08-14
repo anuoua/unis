@@ -15,9 +15,8 @@ import { uWatch } from "./hooks/uWatch";
 export interface TransitionProps {
   children: JSX.Element;
   classNames: string;
-  timeout: TransitionTimeout;
-  in: boolean;
-  id?: number | string;
+  timeout?: TransitionTimeout;
+  in?: boolean;
   mountOnEnter?: boolean;
   unmountOnExit?: boolean;
   appear?: boolean;
@@ -52,7 +51,7 @@ export const CSSTransition = (p: TransitionProps) => {
 
   let { childrenState, status } = use(
     uTransition(() => ({
-      inProp,
+      in: inProp,
       timeout,
       enter,
       unmountOnExit,
