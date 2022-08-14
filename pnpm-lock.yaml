@@ -76,10 +76,9 @@ importers:
       rollup-plugin-esbuild: ^4.6.0
       rollup-plugin-reassign: ^1.0.2
       typescript: ^4.4.4
-    dependencies:
-      '@unis/unis': link:../unis-core
     devDependencies:
       '@rollup/plugin-node-resolve': registry.npmmirror.com/@rollup/plugin-node-resolve/13.3.0_rollup@2.72.0
+      '@unis/unis': link:../unis-core
       cross-env: registry.npmmirror.com/cross-env/7.0.3
       esbuild: registry.npmmirror.com/esbuild/0.13.15
       rimraf: registry.npmmirror.com/rimraf/3.0.2
