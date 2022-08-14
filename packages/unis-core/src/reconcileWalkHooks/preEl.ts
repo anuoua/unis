@@ -1,7 +1,7 @@
 import {
   Fiber,
   FiberEl,
-  findEls,
+  findLastEl,
   FLAG,
   isDOM,
   isPortal,
@@ -15,8 +15,9 @@ const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
 
 const setReuseFiberPreEl = (fiber: Fiber) => {
   if (!matchFlag(fiber.commitFlag, FLAG.REUSE)) return;
-  const endEl = findEls(fiber.alternate!).pop();
-  endEl && setWorkingPreEl(fiber, endEl);
+  const lastEl = findLastEl(fiber.alternate!);
+  console.log(lastEl);
+  lastEl && setWorkingPreEl(fiber, lastEl);
 };
 
 export const preElWalkHook: WalkHook = {

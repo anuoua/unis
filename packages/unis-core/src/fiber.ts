@@ -202,18 +202,30 @@ export const graft = (newFiber: Fiber, oldFiber: Fiber) => {
   oldFiber.parent = parent;
 };
 
-export const findEls = (fiber: Fiber) => {
+export const findEls = (fiber: Fiber, findInPortal = false) => {
   const els: FiberEl[] = [];
-
   isDOM(fiber)
     ? els.push(fiber.el!)
-    : isPortal(fiber)
+    : isPortal(fiber) && !findInPortal
     ? false
     : fiber.children?.forEach((child) => {
-        els.push(...findEls(child));
+        els.push(...findEls(child, findInPortal));
       });
 
   return els;
+};
+
+export const findLastEl = (fiber: Fiber): FiberEl | undefined => {
+  if (isDOM(fiber)) {
+    return fiber.el!;
+  } else if (isPortal(fiber)) {
+    return undefined;
+  } else {
+    for (let i = 0; i < (fiber.children?.length ?? 0); i++) {
+      const result = findLastEl(fiber.children!.at(-(i + 1))!);
+      if (result) return result;
+    }
+  }
 };
 
 export const getContainer = (
