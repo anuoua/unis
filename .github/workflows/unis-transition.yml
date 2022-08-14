@@ -20,7 +20,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - uses: pnpm/action-setup@v2.0.1
         with:
-          version: 7.1.2
+          version: 7.9.0
       - run: |
           pnpm install
           cd packages/unis-transition
