@@ -16,7 +16,6 @@ const setWorkingPreEl = (fiber: Fiber, workingPreEl: FiberEl | undefined) => {
 const setReuseFiberPreEl = (fiber: Fiber) => {
   if (!matchFlag(fiber.commitFlag, FLAG.REUSE)) return;
   const lastEl = findLastEl(fiber.alternate!);
-  console.log(lastEl);
   lastEl && setWorkingPreEl(fiber, lastEl);
 };
 
