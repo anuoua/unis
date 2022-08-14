@@ -24,7 +24,7 @@ const App = () => {
   return () => (
     <Fragment>
       <button onClick={handleToggle}>toggle</button>
-      <CSSTransition in={visible} timeout={400} classnames="fade">
+      <CSSTransition in={visible} timeout={400} classNames="fade">
         <div>
           hello
         </div>
