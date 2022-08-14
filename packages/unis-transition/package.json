@@ -1,6 +1,6 @@
 {
   "name": "@unis/transition",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Unis transition component",
   "main": "build/index.js",
   "module": "build/index.mjs",
@@ -24,11 +24,15 @@
   "files": [
     "build"
   ],
-  "author": "",
+  "author": "anuoua",
   "dependencies": {
     "@unis/unis": "workspace:*"
   },
-  "license": "ISC",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anuoua/unis/issues"
+  },
+  "homepage": "https://github.com/anuoua/unis/tree/main/packages/unis-transition",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.6",
     "cross-env": "^7.0.3",

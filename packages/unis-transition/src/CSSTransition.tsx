@@ -27,7 +27,7 @@ export interface TransitionProps {
   onEntered?: (el: HTMLElement) => void;
   onExit?: (el: HTMLElement) => void;
   onExiting?: (el: HTMLElement) => void;
-  onExited?: () => void;
+  onExited?: (el?: HTMLElement) => void;
 }
 
 export const CSSTransition = (p: TransitionProps) => {
@@ -111,7 +111,7 @@ export const CSSTransition = (p: TransitionProps) => {
       clearAll();
       el.classList.add(cls.exitDone);
     }
-    onExited?.();
+    onExited?.(el);
   };
 
   const entering = (reflow = false, apear: boolean) => {
