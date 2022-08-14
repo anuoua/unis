@@ -77,7 +77,7 @@ export const CSSTransition = (p: TransitionProps) => {
   let el: HTMLElement | undefined;
 
   const getElement = () => {
-    const els = findEls(instance).filter(
+    const els = findEls(instance, true).filter(
       (el) => el instanceof HTMLElement
     ) as HTMLElement[];
     return els[0] as HTMLElement | undefined;
