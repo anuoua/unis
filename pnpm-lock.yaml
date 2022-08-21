@@ -11,9 +11,11 @@ importers:
       '@rollup/plugin-node-resolve': ^13.0.6
       '@rollup/plugin-replace': ^4.0.0
       '@types/jsdom': ^16.2.14
-      '@unis/unis-types': workspace:^
+      '@types/prop-types': ^15.7.4
+      '@types/scheduler': ^0.16.2
       c8: ^7.11.2
       cross-env: ^7.0.3
+      csstype: ^3.0.10
       esbuild: ^0.13.13
       jsdom: ^19.0.0
       rimraf: ^3.0.2
@@ -25,7 +27,9 @@ importers:
       vite: ^2.9.11
       vitest: ^0.21.0
     dependencies:
-      '@unis/unis-types': link:../unis-types
+      '@types/prop-types': registry.npmmirror.com/@types/prop-types/15.7.5
+      '@types/scheduler': registry.npmmirror.com/@types/scheduler/0.16.2
+      csstype: registry.npmmirror.com/csstype/3.1.0
     devDependencies:
       '@microsoft/api-extractor': registry.npmmirror.com/@microsoft/api-extractor/7.28.7
       '@rollup/plugin-node-resolve': registry.npmmirror.com/@rollup/plugin-node-resolve/13.3.0_rollup@2.72.0
@@ -86,16 +90,6 @@ importers:
       rollup-plugin-esbuild: registry.npmmirror.com/rollup-plugin-esbuild/4.9.1_f2n23lx2wtp7oww6ual74djxda
       rollup-plugin-reassign: registry.npmmirror.com/rollup-plugin-reassign/1.0.2
       typescript: registry.npmmirror.com/typescript/4.7.4
-
-  packages/unis-types:
-    specifiers:
-      '@types/prop-types': ^15.7.4
-      '@types/scheduler': ^0.16.2
-      csstype: ^3.0.10
-    dependencies:
-      '@types/prop-types': registry.npmmirror.com/@types/prop-types/15.7.5
-      '@types/scheduler': registry.npmmirror.com/@types/scheduler/0.16.2
-      csstype: registry.npmmirror.com/csstype/3.1.0
 
 packages:
 

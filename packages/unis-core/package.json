@@ -4,8 +4,8 @@
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "build/unis.js",
   "module": "build/unis.mjs",
-  "types": "build/unis.d.ts",
-  "typings": "build/unis.d.ts",
+  "types": "index.d.ts",
+  "typings": "index.d.ts",
   "exports": {
     ".": {
       "require": "./build/unis.js",
@@ -32,7 +32,9 @@
   "files": [
     "build",
     "jsx-runtime.d.ts",
-    "jsx-runtime.js"
+    "jsx-runtime.js",
+    "index.d.ts",
+    "jsx.d.ts"
   ],
   "author": "anuoua",
   "license": "MIT",
@@ -41,7 +43,9 @@
   },
   "homepage": "https://github.com/anuoua/unis#readme",
   "dependencies": {
-    "@unis/unis-types": "workspace:^"
+    "@types/prop-types": "^15.7.4",
+    "@types/scheduler": "^0.16.2",
+    "csstype": "^3.0.10"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.18.19",
