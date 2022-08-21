@@ -44,6 +44,13 @@ export const runStateEffects = (fiber: Fiber) => {
   }
 };
 
+export const effectDepsEqual = (effect: Effect) => {
+  const deps = effect.depsFn?.();
+  const equal = arraysEqual(deps, effect.deps);
+  effect.deps = deps;
+  return equal;
+};
+
 export const clearEffects = (effects?: Effect[]) => {
   if (!effects) return;
   for (const effect of effects) {
@@ -54,10 +61,15 @@ export const clearEffects = (effects?: Effect[]) => {
 export const runEffects = (effects?: Effect[]) => {
   if (!effects) return;
   for (const effect of effects) {
-    const deps = effect.depsFn?.();
-    const equal = arraysEqual(deps, effect.deps);
-    effect.deps = deps;
-    if (equal) continue;
+    effect.clear = effect();
+  }
+};
+
+export const clearAndRunEffects = (effects?: Effect[]) => {
+  if (!effects) return;
+  for (const effect of effects) {
+    if (effectDepsEqual(effect)) continue;
+    effect.clear?.();
     effect.clear = effect();
   }
 };

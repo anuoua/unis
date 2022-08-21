@@ -1,4 +1,10 @@
-import { clearEffects, runEffects } from "./api";
+import {
+  clearAndRunEffects,
+  clearEffects,
+  effectDepsEqual,
+  Effect,
+  runEffects,
+} from "./api";
 import {
   append,
   createFragment,
@@ -24,7 +30,7 @@ import {
 } from "./fiber";
 import { addTik } from "./toktik";
 
-export const commitDeletion = (fiber: Fiber, effectComps: Fiber[]) => {
+export const commitDeletion = (fiber: Fiber) => {
   const [next, addHook] = createNext();
 
   addHook({
@@ -43,7 +49,8 @@ export const commitDeletion = (fiber: Fiber, effectComps: Fiber[]) => {
       indexFiber.props.ref && (indexFiber.props.ref.current = undefined);
     }
     if (isComponent(indexFiber)) {
-      effectComps.push(indexFiber);
+      clearEffects(indexFiber.effects);
+      clearEffects(indexFiber.layoutEffects);
     }
     /**
      * remove input element may trigger blur sync event,
@@ -90,7 +97,7 @@ export const commitEffectList = (effectList: Fiber[]) => {
   const effectComps: Fiber[] = [];
   for (let effect of effectList) {
     if (matchFlag(effect.commitFlag, FLAG.DELETE)) {
-      commitDeletion(effect.alternate!, effectComps);
+      commitDeletion(effect.alternate!);
       continue;
     }
     if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
@@ -109,15 +116,25 @@ export const commitEffectList = (effectList: Fiber[]) => {
     effect.commitFlag = undefined;
   }
 
-  const callEffects = (type: "layoutEffects" | "effects") =>
-    effectComps
-      .filter((i) => {
-        clearEffects(i[type]);
-        return !i.isDestroyed;
-      })
-      .forEach((i) => runEffects(i[type]));
+  /**
+   * clear and run layoutEffects
+   */
+  const triggeredLayoutEffects: Effect[] = [];
 
-  callEffects("layoutEffects");
+  effectComps.forEach((comp) =>
+    comp.layoutEffects?.forEach((e) => {
+      const equal = effectDepsEqual(e);
+      if (!equal) {
+        triggeredLayoutEffects.push(e);
+        clearEffects([e]);
+      }
+    })
+  );
 
-  addTik(() => callEffects("effects"));
+  runEffects(triggeredLayoutEffects);
+
+  /**
+   * clear and run effects
+   */
+  addTik(() => effectComps.forEach((i) => clearAndRunEffects(i.effects)));
 };
