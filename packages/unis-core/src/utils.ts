@@ -1,3 +1,4 @@
+import { CSArray, CSObject } from "../types/jsx";
 import { displayAttrs } from "./svg";
 
 export const keys = Object.keys;
@@ -44,12 +45,6 @@ export const svgKey = (key: string) => {
   }
   return displayAttrs.includes(key) ? camel2kebab(key) : key;
 };
-
-export type CSValue = string | number | boolean | undefined | null;
-
-export type CSObject = Record<string, CSValue>;
-
-export type CSArray = (CSValue | CSObject | CSArray)[];
 
 export const classes = (cs: CSArray | CSObject): string => {
   const objectClasses = (objcs: Record<string, any>) =>

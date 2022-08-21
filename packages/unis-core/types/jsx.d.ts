@@ -376,11 +376,14 @@ type AriaRole =
 // Vue's style normalization supports nested arrays
 export type StyleValue = string | CSSProperties | Array<StyleValue>;
 
+export type CSValue = string | number | boolean | undefined | null;
+export type CSObject = Record<string, CSValue>;
+export type CSArray = (CSValue | CSObject | CSArray)[];
+
 export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
   // Standard HTML Attributes
   accessKey?: string | undefined;
-  class?: any;
-  className?: string | undefined;
+  className?: string | CSObject | CSArray | undefined;
   contentEditable?: Booleanish | "inherit" | undefined;
   contextMenu?: string | undefined;
   dir?: string | undefined;
