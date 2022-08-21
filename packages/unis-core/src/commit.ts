@@ -45,12 +45,16 @@ export const commitDeletion = (fiber: Fiber, effectComps: Fiber[]) => {
     if (isComponent(indexFiber)) {
       effectComps.push(indexFiber);
     }
+    /**
+     * remove input element may trigger blur sync event,
+     * so isDestroyed must be true before remove to prevent dispatch in useReducer.
+     */
+    indexFiber.isDestroyed = true;
     if (isPortal(indexFiber)) {
       indexFiber.child && remove(indexFiber.child);
     }
     indexFiber.dependencies = undefined;
     indexFiber.reconcileState = undefined;
-    indexFiber.isDestroyed = true;
   } while ((indexFiber = next(indexFiber)));
 
   remove(fiber);
