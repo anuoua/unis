@@ -18,7 +18,10 @@ export const isObject = (a: any): a is object => type(a) === "Object";
 export const isNullish = (a: any): a is null | undefined => a == null;
 
 export const isEvent = (a: string) => a.startsWith("on");
-export const getEventName = (event: string) => event.slice(2).toLowerCase();
+export const getEventName = (event: string) => {
+  const [, eventName, capture] = event.match(/^on(.*)(Capture)?$/)!;
+  return [eventName.toLowerCase(), !!capture] as const;
+};
 
 export const camel2kebab = (text: string) =>
   text.replace(/([A-Z])/g, "-$1").toLowerCase();

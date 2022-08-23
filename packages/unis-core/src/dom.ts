@@ -62,9 +62,9 @@ export const updateElementProperties = (fiber: Fiber) => {
       oldExist && (oldValue.current = undefined);
       newExist && (newValue.current = el);
     } else if (isEvent(key)) {
-      const eventName = getEventName(key);
+      const [eventName, capture] = getEventName(key);
       oldExist && el!.removeEventListener(eventName, oldValue);
-      newExist && el!.addEventListener(eventName, newValue);
+      newExist && el!.addEventListener(eventName, newValue, capture);
     } else {
       newExist ? setAttr(el!)(key, newValue) : removeAttr(el!)(key);
     }
