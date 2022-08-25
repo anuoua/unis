@@ -123,6 +123,11 @@ const updateComponent = (fiber: Fiber) => {
     runStateEffects(fiber);
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
+    } else {
+      /**
+       * this condition, means `fiber.alternate` is on childFlag marked chain, and `fiber.commitFlag` is undefined.
+       * diff will keep going on.
+       */
     }
   }
 

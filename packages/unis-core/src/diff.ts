@@ -175,9 +175,11 @@ export const diff = (
     newEndFiber = newChildren[--newEndIndex];
   };
 
-  // when parent fiber has childFlag and fiber no childFlag, we should reuse it.
-  // when memo fiber compare result is true, we should reuse it.
-  const getSameNewFiber = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
+  const determineCommitFlag = (
+    newFiber: Fiber,
+    oldFiber: Fiber,
+    flag?: FLAG
+  ) => {
     let commitFlag =
       // when diff in an commitFlag FLAG.UPDATE component, it should be FLAG.UPDATE.
       !matchFlag(
@@ -189,6 +191,7 @@ export const diff = (
           : oldFiber.flag
         : FLAG.UPDATE;
 
+    // when memo fiber compare result is true, it should be FLAG.REUSE.
     if (
       isMemo(oldFiber) &&
       !oldFiber.childFlag &&
@@ -206,18 +209,27 @@ export const diff = (
       newFiber.attrDiff = diff;
     }
 
+    flag && (commitFlag = mergeFlag(commitFlag, flag));
+
+    /**
+     * portal don't need commitFlag
+     */
     if (isPortal(newFiber)) {
       commitFlag = undefined;
     }
 
-    flag && (commitFlag = mergeFlag(commitFlag, flag));
-
     if (matchFlag(commitFlag, FLAG.REUSE)) {
       commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
-      return reuse(newFiber, oldFiber, commitFlag);
     }
 
-    return clone(newFiber, oldFiber, commitFlag);
+    return commitFlag;
+  };
+
+  const getSameNewFiber = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
+    const commitFlag = determineCommitFlag(newFiber, oldFiber, flag);
+    return matchFlag(commitFlag, FLAG.REUSE)
+      ? reuse(newFiber, oldFiber, commitFlag)
+      : clone(newFiber, oldFiber, commitFlag);
   };
 
   let keyIndexMap: any;
