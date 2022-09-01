@@ -1,18 +1,26 @@
 import { FiberNode, use, useProps } from "@unis/unis";
-import { uRouter } from "./hooks/uRouter";
+import { uRouter } from "../hooks/uRouter";
 import { Route } from "./Route";
-import { RouteData } from "./types";
+import { RouteData } from "../types";
 
-export interface RoutesProps {
+export type RoutesProps = Omit<RouteData, "children"> & {
   children?: JSX.Element | JSX.Element[];
-}
+};
 
 export const Routes = (p: RoutesProps) => {
-  let { children } = useProps(p);
+  let { children, path, element: incomeElement } = useProps(p);
 
   let realChildren = use(() => flatChildren(children));
   let routes = use(() => realChildren.map((node) => pick(node)));
-  let element = use(uRouter(() => routes));
+  let element = use(
+    uRouter(() => [
+      {
+        path,
+        element: incomeElement,
+        children: routes,
+      } as RouteData,
+    ])
+  );
 
   function pick(node: FiberNode): RouteData {
     return {
@@ -26,8 +34,6 @@ export const Routes = (p: RoutesProps) => {
       .concat(children as FiberNode[])
       .filter((child) => child?.tag === Route);
   }
-
-  console.log("routes", routes, "matchRoutes", element);
 
   return () => element;
 };

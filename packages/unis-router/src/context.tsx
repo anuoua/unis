@@ -3,19 +3,21 @@ import { BrowserHistory } from "history";
 import { MatchRoute } from "./types";
 
 export interface RouteContextValue {
-  outlet?: JSX.Element;
+  route?: MatchRoute;
   matches: MatchRoute[];
 }
 
 export const RouteContext = createContext<RouteContextValue>({
-  outlet: undefined,
+  route: undefined,
   matches: [],
 });
 
 export interface RouterContextValue {
   history?: BrowserHistory;
+  basename?: string;
 }
 
 export const RouterContext = createContext<RouterContextValue>({
   history: undefined,
+  basename: undefined,
 });

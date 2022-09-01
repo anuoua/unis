@@ -1,6 +1,6 @@
 import { h, useProps, useLayoutEffect, useState } from "@unis/unis";
 import { createBrowserHistory, BrowserHistory } from "history";
-import { RouterContext } from "./context";
+import { RouterContext } from "../context";
 
 export interface BrowserRouterProps {
   children?: JSX.Element | JSX.Element[];

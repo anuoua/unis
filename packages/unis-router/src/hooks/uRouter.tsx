@@ -1,27 +1,34 @@
 import { h, use, useContext } from "@unis/unis";
 import { RouteContext, RouterContext } from "../context";
-import { Outlet } from "../Outlet";
+import { Outlet } from "../components/Outlet";
 import { RouteData } from "../types";
 import { matchRoutes } from "../utils";
 
 export const uRouter = (configFn: () => RouteData[]) => {
   let routerData = use(configFn);
-  let { matches: parentRouteChain, outlet } = useContext(RouteContext);
-  let { history } = useContext(RouterContext);
+  let { history, basename } = useContext(RouterContext);
+  let { matches: parentRouteChain } = useContext(RouteContext);
 
   let location = use(() => history?.location!);
 
-  let matches = use(() =>
-    matchRoutes(location.pathname, routerData, parentRouteChain)
-  );
+  let wrapedRouterData = use(() => [
+    {
+      path: basename,
+      element: <Outlet />,
+      children: routerData,
+    } as RouteData,
+  ]);
 
-  console.log("matches", [...matches]);
+  let matches = use(() =>
+    matchRoutes(location.pathname, wrapedRouterData, parentRouteChain)
+  );
+  console.log(wrapedRouterData, matches.at(0));
 
   return () => (
     <RouteContext.Provider
-      value={{ outlet: matches.shift()?.element, matches: [...matches] }}
+      value={{ route: matches.at(0), matches: matches.slice(1) }}
     >
-      {outlet ?? <Outlet />}
+      <Outlet />
     </RouteContext.Provider>
   );
 };

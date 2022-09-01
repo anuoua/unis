@@ -1,4 +1,4 @@
-import { RouteData } from "./types";
+import { RouteData } from "../types";
 
 export type RouteProps = Omit<RouteData, "children"> & {
   children?: JSX.Element | JSX.Element[];

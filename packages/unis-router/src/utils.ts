@@ -88,6 +88,9 @@ const resolveRoutesPath = (routes: RouteData[]) =>
     return `${pre}${path ? SLASH + path : ""}`;
   }, "") || "/";
 
+export const resolvePath = (a: string, b: string) =>
+  trimSlash(a) + SLASH + trimSlash(b);
+
 const isLocationEnd = (locationPathname: string, routePath: string) => {
   return split(locationPathname).length === split(routePath).length;
 };

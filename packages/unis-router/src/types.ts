@@ -1,5 +1,4 @@
 export interface RouteData {
-  caseSensitive?: boolean;
   path?: string;
   element?: JSX.Element;
   children?: RouteData[];
