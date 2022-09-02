@@ -7,7 +7,6 @@ import { matchRoutes } from "../utils";
 export const uRouter = (configFn: () => RouteData[]) => {
   let routerData = use(configFn);
   let { history, basename } = useContext(RouterContext);
-  let { matches: parentRouteChain } = useContext(RouteContext);
 
   let location = use(() => history?.location!);
 
@@ -19,15 +18,10 @@ export const uRouter = (configFn: () => RouteData[]) => {
     } as RouteData,
   ]);
 
-  let matches = use(() =>
-    matchRoutes(location.pathname, wrapedRouterData, parentRouteChain)
-  );
-  console.log(wrapedRouterData, matches.at(0));
+  let matches = use(() => matchRoutes(location.pathname, wrapedRouterData));
 
   return () => (
-    <RouteContext.Provider
-      value={{ route: matches.at(0), matches: matches.slice(1) }}
-    >
+    <RouteContext.Provider value={{ route: matches.at(0), matches }}>
       <Outlet />
     </RouteContext.Provider>
   );
