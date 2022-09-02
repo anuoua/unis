@@ -1,6 +1,6 @@
 import { getWF, markFiber } from ".";
 import { use } from "./use";
-import { Fiber, findRoot } from "../fiber";
+import { Fiber, findRoot, MemorizeState } from "../fiber";
 import { readyForWork } from "../reconcile";
 import { addTok, clearTikTaskQueue } from "../toktik";
 
@@ -28,34 +28,59 @@ export const reducerHOF = <T extends any, T2 extends any>(
   reducerFn: Reducer<T, T2>,
   initial: T
 ) => {
-  let state = initial;
-  let workingFiber: Fiber | undefined;
+  let workingFiber = getWF();
   let freshFiber: Fiber | undefined;
 
   const dispatch = (action: T2) => {
     if (!workingFiber) return console.warn("Component is not created");
     if (workingFiber.isDestroyed)
       return console.warn("Component has been destroyed");
-    const newState = reducerFn(state, action);
-    if (Object.is(newState, state)) return;
-    state = reducerFn(state, action);
+    const newState = reducerFn(memorizeState.value, action);
+    if (Object.is(newState, memorizeState.value)) return;
+    // state = reducerFn(state, action);
+    memorizeState.dispatchValue = newState;
     if (freshFiber) {
       clearTikTaskQueue();
     }
     triggerDebounce(() => workingFiber!);
   };
 
-  const fiber = (workingFiber || getWF())!;
-  const effect = () => {
-    workingFiber = freshFiber;
-    freshFiber = undefined;
+  {
+    const effect = () => {
+      workingFiber = freshFiber!;
+      memorizeState = freshMemorizeState!;
+      freshFiber = undefined;
+      freshMemorizeState = undefined;
+    };
+    workingFiber.dispatchBindEffects?.push(effect) ??
+      (workingFiber.dispatchBindEffects = [effect]);
+  }
+
+  let memorizeState: MemorizeState = {
+    value: undefined,
+    dispatchValue: initial,
+    deps: [],
   };
-  fiber.dispatchBindEffects?.push(effect) ??
-    (fiber.dispatchBindEffects = [effect]);
+  let freshMemorizeState: MemorizeState | undefined;
 
   return (WF: Fiber) => {
     freshFiber = WF;
-    return [state, dispatch] as const;
+
+    freshMemorizeState = {
+      value: memorizeState?.dispatchValue ?? memorizeState.value,
+      deps: memorizeState?.deps,
+    };
+
+    if (freshFiber.memorizeState) {
+      const first = freshFiber.memorizeState.next;
+      freshFiber.memorizeState.next = freshMemorizeState;
+      freshMemorizeState.next = first;
+    } else {
+      freshFiber.memorizeState = freshMemorizeState;
+      freshMemorizeState.next = freshMemorizeState;
+    }
+
+    return [freshMemorizeState.value, dispatch] as const;
   };
 };
 

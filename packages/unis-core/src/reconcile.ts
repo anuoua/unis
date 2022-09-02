@@ -110,6 +110,12 @@ const updateHost = (fiber: Fiber) => {
   diff(fiber, fiber.alternate?.children, formatChildren(fiber.props.children));
 };
 
+const cutMemorizeState = (fiber: Fiber) => {
+  const first = fiber.memorizeState?.next;
+  fiber.memorizeState && (fiber.memorizeState.next = undefined);
+  fiber.memorizeState = first;
+};
+
 const updateComponent = (fiber: Fiber) => {
   if (!fiber.renderFn) {
     fiber.renderFn = fiber.tag as Function;
@@ -118,9 +124,11 @@ const updateComponent = (fiber: Fiber) => {
       fiber.renderFn = rendered;
       rendered = fiber.renderFn!();
     }
+    cutMemorizeState(fiber);
     fiber.rendered = formatChildren(rendered);
   } else {
     runStateEffects(fiber);
+    cutMemorizeState(fiber);
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
     } else {

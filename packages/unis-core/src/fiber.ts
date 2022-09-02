@@ -37,6 +37,13 @@ export type FiberType =
   | Symbol
   | ((...p: any[]) => () => any);
 
+export interface MemorizeState {
+  value: any;
+  dispatchValue?: any;
+  deps?: any[];
+  next?: MemorizeState;
+}
+
 export interface Fiber {
   id?: string;
   parent?: Fiber;
@@ -67,6 +74,7 @@ export interface Fiber {
   layoutEffects?: Effect[];
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
+  memorizeState?: MemorizeState;
 }
 
 export const createFiber = (options: Partial<Fiber> = {}) => {
@@ -100,6 +108,7 @@ export const createFiber = (options: Partial<Fiber> = {}) => {
     layoutEffects: undefined,
     dependencies: undefined,
     reconcileState: undefined,
+    memorizeState: undefined,
     ...options,
   } as Fiber;
 };
