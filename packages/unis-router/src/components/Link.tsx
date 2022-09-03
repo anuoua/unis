@@ -31,9 +31,9 @@ export const Link = (p: LinkProps) => {
       !(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey)
     ) {
       if (history.location.pathname !== targetPath) {
-        history.replace(targetPath);
-      } else {
         history.push(targetPath);
+      } else {
+        history.replace(targetPath);
       }
       e.preventDefault();
     }
