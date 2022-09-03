@@ -1,37 +1,33 @@
-import { getWF } from ".";
 import { use } from "./use";
 import { Fiber, MemorizeState } from "../fiber";
 import { arraysEqual } from "../utils";
+import { addDispatchBindEffect, linkMemorizeState } from "./useReducer";
 
 export const memoHOF = <T extends unknown>(
   handler: () => T,
   depsFn?: () => any[]
 ) => {
-  let workingFiber = getWF();
   let freshFiber: Fiber | undefined;
   let freshDeps: any[];
-
-  {
-    const effect = () => {
-      workingFiber = freshFiber!;
-      memorizeState = freshMemorizeState!;
-      memorizeState.deps = freshDeps;
-      freshFiber = undefined;
-      freshMemorizeState = undefined;
-    };
-    workingFiber.dispatchBindEffects?.push(effect) ??
-      (workingFiber.dispatchBindEffects = [effect]);
-  }
+  let freshMemorizeState: MemorizeState | undefined;
 
   let memorizeState: MemorizeState = {
     value: undefined,
-    deps: undefined,
+    deps: undefined!,
   };
-  let freshMemorizeState: MemorizeState | undefined;
+
+  const effect = () => {
+    memorizeState = freshMemorizeState!;
+    memorizeState.deps = freshDeps;
+    freshFiber = undefined;
+    freshMemorizeState = undefined;
+  };
 
   return (WF: Fiber) => {
     freshFiber = WF;
     freshDeps = depsFn?.() ?? freshDeps;
+
+    addDispatchBindEffect(freshFiber, effect);
 
     freshMemorizeState = {
       value:
@@ -41,14 +37,7 @@ export const memoHOF = <T extends unknown>(
       deps: memorizeState?.deps,
     };
 
-    if (freshFiber.memorizeState) {
-      const first = freshFiber.memorizeState.next;
-      freshFiber.memorizeState.next = freshMemorizeState;
-      freshMemorizeState.next = first;
-    } else {
-      freshFiber.memorizeState = freshMemorizeState;
-      freshMemorizeState.next = freshMemorizeState;
-    }
+    linkMemorizeState(freshFiber, freshMemorizeState);
 
     return freshMemorizeState.value as T;
   };

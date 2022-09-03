@@ -40,7 +40,7 @@ export type FiberType =
 export interface MemorizeState {
   value: any;
   dispatchValue?: any;
-  deps?: any[];
+  deps: any[];
   next?: MemorizeState;
 }
 

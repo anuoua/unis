@@ -1,4 +1,4 @@
-import { getWF, markFiber } from ".";
+import { markFiber } from ".";
 import { use } from "./use";
 import { Fiber, findRoot, MemorizeState } from "../fiber";
 import { readyForWork } from "../reconcile";
@@ -28,57 +28,51 @@ export const reducerHOF = <T extends any, T2 extends any>(
   reducerFn: Reducer<T, T2>,
   initial: T
 ) => {
-  let workingFiber = getWF();
+  let currentFiber: Fiber; // do not getWF here, workingFiber should be assigned in effect.
   let freshFiber: Fiber | undefined;
-
-  const dispatch = (action: T2) => {
-    if (!workingFiber) return console.warn("Component is not created");
-    if (workingFiber.isDestroyed)
-      return console.warn("Component has been destroyed");
-    const newState = reducerFn(memorizeState.value, action);
-    if (Object.is(newState, memorizeState.value)) return;
-    // state = reducerFn(state, action);
-    memorizeState.dispatchValue = newState;
-    if (freshFiber) {
-      clearTikTaskQueue();
-    }
-    triggerDebounce(() => workingFiber!);
-  };
-
-  {
-    const effect = () => {
-      workingFiber = freshFiber!;
-      memorizeState = freshMemorizeState!;
-      freshFiber = undefined;
-      freshMemorizeState = undefined;
-    };
-    workingFiber.dispatchBindEffects?.push(effect) ??
-      (workingFiber.dispatchBindEffects = [effect]);
-  }
+  let freshMemorizeState: MemorizeState | undefined;
 
   let memorizeState: MemorizeState = {
     value: undefined,
     dispatchValue: initial,
-    deps: [],
+    deps: [initial],
   };
-  let freshMemorizeState: MemorizeState | undefined;
+
+  const dispatch = (action: T2) => {
+    if (!currentFiber) return console.warn("Component is not created");
+    if (currentFiber.isDestroyed)
+      return console.warn("Component has been destroyed");
+    const newState = reducerFn(memorizeState.value, action);
+    if (Object.is(newState, memorizeState.value)) return;
+    memorizeState.dispatchValue = newState;
+    memorizeState.deps = [newState];
+    if (freshFiber) {
+      clearTikTaskQueue();
+    }
+    triggerDebounce(() => currentFiber);
+  };
+
+  const effect = () => {
+    currentFiber = freshFiber!;
+    memorizeState = freshMemorizeState!;
+    freshFiber = undefined;
+    freshMemorizeState = undefined;
+  };
 
   return (WF: Fiber) => {
     freshFiber = WF;
 
+    addDispatchBindEffect(freshFiber, effect);
+
     freshMemorizeState = {
-      value: memorizeState?.dispatchValue ?? memorizeState.value,
-      deps: memorizeState?.deps,
+      value:
+        memorizeState.deps.length > 0
+          ? memorizeState.dispatchValue
+          : memorizeState.value,
+      deps: [],
     };
 
-    if (freshFiber.memorizeState) {
-      const first = freshFiber.memorizeState.next;
-      freshFiber.memorizeState.next = freshMemorizeState;
-      freshMemorizeState.next = first;
-    } else {
-      freshFiber.memorizeState = freshMemorizeState;
-      freshMemorizeState.next = freshMemorizeState;
-    }
+    linkMemorizeState(freshFiber, freshMemorizeState);
 
     return [freshMemorizeState.value, dispatch] as const;
   };
@@ -87,3 +81,25 @@ export const reducerHOF = <T extends any, T2 extends any>(
 export function useReducer<T, T2>(reducerFn: Reducer<T, T2>, initial: T) {
   return use(reducerHOF(reducerFn, initial), arguments[2]);
 }
+
+export const addDispatchBindEffect = (
+  freshFiber: Fiber,
+  effect: () => unknown
+) => {
+  freshFiber.dispatchBindEffects?.push(effect) ??
+    (freshFiber.dispatchBindEffects = [effect]);
+};
+
+export const linkMemorizeState = (
+  freshFiber: Fiber,
+  freshMemorizeState: MemorizeState
+) => {
+  if (freshFiber.memorizeState) {
+    const first = freshFiber.memorizeState.next;
+    freshFiber.memorizeState.next = freshMemorizeState;
+    freshMemorizeState.next = first;
+  } else {
+    freshFiber.memorizeState = freshMemorizeState;
+    freshMemorizeState.next = freshMemorizeState;
+  }
+};

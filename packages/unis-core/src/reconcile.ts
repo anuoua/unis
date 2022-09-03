@@ -124,11 +124,9 @@ const updateComponent = (fiber: Fiber) => {
       fiber.renderFn = rendered;
       rendered = fiber.renderFn!();
     }
-    cutMemorizeState(fiber);
     fiber.rendered = formatChildren(rendered);
   } else {
     runStateEffects(fiber);
-    cutMemorizeState(fiber);
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
     } else {
@@ -138,6 +136,8 @@ const updateComponent = (fiber: Fiber) => {
        */
     }
   }
+
+  cutMemorizeState(fiber);
 
   diff(fiber, fiber.alternate?.children, fiber.rendered);
 };

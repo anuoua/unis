@@ -75,7 +75,6 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
           stateEffects: oldFiber.stateEffects,
           effects: oldFiber.effects,
           layoutEffects: oldFiber.layoutEffects,
-          dispatchBindEffects: oldFiber.dispatchBindEffects,
           id: oldFiber.id,
         }
       : undefined),
