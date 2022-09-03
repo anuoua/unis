@@ -179,8 +179,7 @@ export const CSSTransition = (p: TransitionProps) => {
           break;
       }
     },
-    () => [status],
-    { immediately: true, layout: true }
+    () => [status]
   );
 
   return () => currentChildren;

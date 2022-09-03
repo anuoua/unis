@@ -1,27 +1,15 @@
-import { use, useEffect, useLayoutEffect } from "@unis/unis";
-import { uMounted } from "./uMounted";
+import { use, useLayoutEffect } from "@unis/unis";
 
 export const uWatch = <T extends any>(
   handler: (currentValue: T, previousValue: T | undefined) => void,
-  depsFn: () => [T],
-  {
-    immediately = false,
-    layout = false,
-  }: {
-    immediately?: boolean;
-    layout?: boolean;
-  }
+  depsFn: () => [T]
 ) => {
-  let [mounted] = use(uMounted());
   let [value] = use(depsFn);
 
-  let preValue = immediately ? undefined : value;
+  let preValue: T | undefined = undefined;
 
-  const finalEffect = layout ? useLayoutEffect : useEffect;
-
-  finalEffect(
+  useLayoutEffect(
     () => {
-      if (!mounted && !immediately) return;
       handler(value, preValue);
       preValue = value;
     },
