@@ -1,23 +1,26 @@
 import { createContext } from "@unis/unis";
-import { BrowserHistory } from "history";
+import { BrowserHistory, Location } from "history";
 import { MatchRoute } from "./types";
 
 export interface RouteContextValue {
-  route?: MatchRoute;
+  route: MatchRoute;
   matches: MatchRoute[];
 }
 
 export const RouteContext = createContext<RouteContextValue>({
-  route: undefined,
+  route: undefined!,
   matches: [],
 });
 
 export interface RouterContextValue {
-  history?: BrowserHistory;
-  basename?: string;
+  history: BrowserHistory;
+  basename: string;
 }
 
-export const RouterContext = createContext<RouterContextValue>({
-  history: undefined,
-  basename: undefined,
-});
+export const RouterContext = createContext<RouterContextValue>(undefined!);
+
+export interface LocationContextValue {
+  location: Location;
+}
+
+export const LocationContext = createContext<LocationContextValue>(undefined!);

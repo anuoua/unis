@@ -1,6 +1,6 @@
-import { h, useProps, useLayoutEffect, useState } from "@unis/unis";
+import { h, useProps, useLayoutEffect, useState, useMemo } from "@unis/unis";
 import { createBrowserHistory, BrowserHistory } from "history";
-import { RouterContext } from "../context";
+import { LocationContext, RouterContext } from "../context";
 
 export interface BrowserRouterProps {
   children?: JSX.Element | JSX.Element[];
@@ -13,16 +13,22 @@ export const BrowserRouter = (p: BrowserRouterProps) => {
 
   const historyInstance = history ?? createBrowserHistory();
 
-  let [providerValue, setProviderValue] = useState({
+  let [location, setLocation] = useState(historyInstance.location);
+
+  const navigationContextValue = {
+    basename: basename ?? "",
     history: historyInstance,
-    basename,
-  });
+  };
+
+  let locationContextValue = useMemo(
+    () => ({ location }),
+    () => [location]
+  );
 
   useLayoutEffect(
     () => {
-      const unlisten = historyInstance.listen(({ action, location }) => {
-        console.log(action, location);
-        setProviderValue({ ...providerValue });
+      const unlisten = historyInstance.listen(({ location }) => {
+        setLocation(location);
       });
       return () => unlisten();
     },
@@ -30,8 +36,10 @@ export const BrowserRouter = (p: BrowserRouterProps) => {
   );
 
   return () => (
-    <RouterContext.Provider value={providerValue}>
-      {children}
+    <RouterContext.Provider value={navigationContextValue}>
+      <LocationContext.Provider value={locationContextValue}>
+        {children}
+      </LocationContext.Provider>
     </RouterContext.Provider>
   );
 };

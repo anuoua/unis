@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { RouteData } from "./types";
-import { matchRoutes } from "./utils";
+import { matchRoutes, resolvePath } from "./utils";
 
 const getRoutes = (): RouteData[] => [
   {
@@ -148,4 +148,13 @@ it("match test6", () => {
       pathname: "/app/home/www/post/1/x",
     },
   ]);
+});
+
+it("resolvePath", () => {
+  const path = resolvePath("/home/c", "../a");
+  expect(path).toBe("/a");
+  const path2 = resolvePath("/home/c", "./a");
+  expect(path2).toBe("/home/a");
+  const path3 = resolvePath("/home/c", "/a");
+  expect(path3).toBe("/a");
 });

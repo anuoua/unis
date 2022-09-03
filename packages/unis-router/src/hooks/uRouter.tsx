@@ -21,7 +21,7 @@ export const uRouter = (configFn: () => RouteData[]) => {
   let matches = use(() => matchRoutes(location.pathname, wrapedRouterData));
 
   return () => (
-    <RouteContext.Provider value={{ route: matches.at(0), matches }}>
+    <RouteContext.Provider value={{ route: matches.at(0)!, matches }}>
       <Outlet />
     </RouteContext.Provider>
   );
