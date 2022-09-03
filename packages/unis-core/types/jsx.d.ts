@@ -469,7 +469,7 @@ type HTMLAttributeAnchorTarget =
   | "_top"
   | (string & {});
 
-interface AnchorHTMLAttributes extends HTMLAttributes {
+export interface AnchorHTMLAttributes extends HTMLAttributes {
   download?: any;
   href?: string | undefined;
   hrefLang?: string | undefined;
@@ -481,9 +481,9 @@ interface AnchorHTMLAttributes extends HTMLAttributes {
   referrerPolicy?: HTMLAttributeReferrerPolicy | undefined;
 }
 
-interface AudioHTMLAttributes extends MediaHTMLAttributes {}
+export interface AudioHTMLAttributes extends MediaHTMLAttributes {}
 
-interface AreaHTMLAttributes extends HTMLAttributes {
+export interface AreaHTMLAttributes extends HTMLAttributes {
   alt?: string | undefined;
   coords?: string | undefined;
   download?: any;
@@ -496,16 +496,16 @@ interface AreaHTMLAttributes extends HTMLAttributes {
   target?: string | undefined;
 }
 
-interface BaseHTMLAttributes extends HTMLAttributes {
+export interface BaseHTMLAttributes extends HTMLAttributes {
   href?: string | undefined;
   target?: string | undefined;
 }
 
-interface BlockquoteHTMLAttributes extends HTMLAttributes {
+export interface BlockquoteHTMLAttributes extends HTMLAttributes {
   cite?: string | undefined;
 }
 
-interface ButtonHTMLAttributes extends HTMLAttributes {
+export interface ButtonHTMLAttributes extends HTMLAttributes {
   autoFocus?: boolean | undefined;
   disabled?: boolean | undefined;
   form?: string | undefined;
@@ -519,51 +519,51 @@ interface ButtonHTMLAttributes extends HTMLAttributes {
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface CanvasHTMLAttributes extends HTMLAttributes {
+export interface CanvasHTMLAttributes extends HTMLAttributes {
   height?: number | string | undefined;
   width?: number | string | undefined;
 }
 
-interface ColHTMLAttributes extends HTMLAttributes {
+export interface ColHTMLAttributes extends HTMLAttributes {
   span?: number | undefined;
   width?: number | string | undefined;
 }
 
-interface ColgroupHTMLAttributes extends HTMLAttributes {
+export interface ColgroupHTMLAttributes extends HTMLAttributes {
   span?: number | undefined;
 }
 
-interface DataHTMLAttributes extends HTMLAttributes {
+export interface DataHTMLAttributes extends HTMLAttributes {
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface DetailsHTMLAttributes extends HTMLAttributes {
+export interface DetailsHTMLAttributes extends HTMLAttributes {
   open?: boolean | undefined;
 }
 
-interface DelHTMLAttributes extends HTMLAttributes {
+export interface DelHTMLAttributes extends HTMLAttributes {
   cite?: string | undefined;
   dateTime?: string | undefined;
 }
 
-interface DialogHTMLAttributes extends HTMLAttributes {
+export interface DialogHTMLAttributes extends HTMLAttributes {
   open?: boolean | undefined;
 }
 
-interface EmbedHTMLAttributes extends HTMLAttributes {
+export interface EmbedHTMLAttributes extends HTMLAttributes {
   height?: number | string | undefined;
   src?: string | undefined;
   type?: string | undefined;
   width?: number | string | undefined;
 }
 
-interface FieldsetHTMLAttributes extends HTMLAttributes {
+export interface FieldsetHTMLAttributes extends HTMLAttributes {
   disabled?: boolean | undefined;
   form?: string | undefined;
   name?: string | undefined;
 }
 
-interface FormHTMLAttributes extends HTMLAttributes {
+export interface FormHTMLAttributes extends HTMLAttributes {
   acceptCharset?: string | undefined;
   action?: string | undefined;
   autoComplete?: string | undefined;
@@ -574,11 +574,11 @@ interface FormHTMLAttributes extends HTMLAttributes {
   target?: string | undefined;
 }
 
-interface HtmlHTMLAttributes extends HTMLAttributes {
+export interface HtmlHTMLAttributes extends HTMLAttributes {
   manifest?: string | undefined;
 }
 
-interface IframeHTMLAttributes extends HTMLAttributes {
+export interface IframeHTMLAttributes extends HTMLAttributes {
   allow?: string | undefined;
   allowFullScreen?: boolean | undefined;
   allowTransparency?: boolean | undefined;
@@ -601,7 +601,7 @@ interface IframeHTMLAttributes extends HTMLAttributes {
   width?: number | string | undefined;
 }
 
-interface ImgHTMLAttributes extends HTMLAttributes {
+export interface ImgHTMLAttributes extends HTMLAttributes {
   alt?: string | undefined;
   crossOrigin?: "anonymous" | "use-credentials" | "" | undefined;
   decoding?: "async" | "auto" | "sync" | undefined;
@@ -615,7 +615,7 @@ interface ImgHTMLAttributes extends HTMLAttributes {
   width?: number | string | undefined;
 }
 
-interface InsHTMLAttributes extends HTMLAttributes {
+export interface InsHTMLAttributes extends HTMLAttributes {
   cite?: string | undefined;
   dateTime?: string | undefined;
 }
@@ -645,7 +645,7 @@ type HTMLInputTypeAttribute =
   | "week"
   | (string & {});
 
-interface InputHTMLAttributes extends HTMLAttributes {
+export interface InputHTMLAttributes extends HTMLAttributes {
   accept?: string | undefined;
   alt?: string | undefined;
   autoComplete?: string | undefined;
@@ -689,7 +689,7 @@ interface InputHTMLAttributes extends HTMLAttributes {
   width?: number | string | undefined;
 }
 
-interface KeygenHTMLAttributes extends HTMLAttributes {
+export interface KeygenHTMLAttributes extends HTMLAttributes {
   autoFocus?: boolean | undefined;
   challenge?: string | undefined;
   disabled?: boolean | undefined;
@@ -699,16 +699,16 @@ interface KeygenHTMLAttributes extends HTMLAttributes {
   name?: string | undefined;
 }
 
-interface LabelHTMLAttributes extends HTMLAttributes {
+export interface LabelHTMLAttributes extends HTMLAttributes {
   form?: string | undefined;
   htmlFor?: string | undefined;
 }
 
-interface LiHTMLAttributes extends HTMLAttributes {
+export interface LiHTMLAttributes extends HTMLAttributes {
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface LinkHTMLAttributes extends HTMLAttributes {
+export interface LinkHTMLAttributes extends HTMLAttributes {
   as?: string | undefined;
   crossOrigin?: string | undefined;
   href?: string | undefined;
@@ -723,15 +723,15 @@ interface LinkHTMLAttributes extends HTMLAttributes {
   charSet?: string | undefined;
 }
 
-interface MapHTMLAttributes extends HTMLAttributes {
+export interface MapHTMLAttributes extends HTMLAttributes {
   name?: string | undefined;
 }
 
-interface MenuHTMLAttributes extends HTMLAttributes {
+export interface MenuHTMLAttributes extends HTMLAttributes {
   type?: string | undefined;
 }
 
-interface MediaHTMLAttributes extends HTMLAttributes {
+export interface MediaHTMLAttributes extends HTMLAttributes {
   autoPlay?: boolean | undefined;
   controls?: boolean | undefined;
   controlsList?: string | undefined;
@@ -744,7 +744,7 @@ interface MediaHTMLAttributes extends HTMLAttributes {
   src?: string | undefined;
 }
 
-interface MetaHTMLAttributes extends HTMLAttributes {
+export interface MetaHTMLAttributes extends HTMLAttributes {
   charSet?: string | undefined;
   content?: string | undefined;
   httpEquiv?: string | undefined;
@@ -752,7 +752,7 @@ interface MetaHTMLAttributes extends HTMLAttributes {
   media?: string | undefined;
 }
 
-interface MeterHTMLAttributes extends HTMLAttributes {
+export interface MeterHTMLAttributes extends HTMLAttributes {
   form?: string | undefined;
   high?: number | undefined;
   low?: number | undefined;
@@ -762,11 +762,11 @@ interface MeterHTMLAttributes extends HTMLAttributes {
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface QuoteHTMLAttributes extends HTMLAttributes {
+export interface QuoteHTMLAttributes extends HTMLAttributes {
   cite?: string | undefined;
 }
 
-interface ObjectHTMLAttributes extends HTMLAttributes {
+export interface ObjectHTMLAttributes extends HTMLAttributes {
   classID?: string | undefined;
   data?: string | undefined;
   form?: string | undefined;
@@ -778,45 +778,45 @@ interface ObjectHTMLAttributes extends HTMLAttributes {
   wmode?: string | undefined;
 }
 
-interface OlHTMLAttributes extends HTMLAttributes {
+export interface OlHTMLAttributes extends HTMLAttributes {
   reversed?: boolean | undefined;
   start?: number | undefined;
   type?: "1" | "a" | "A" | "i" | "I" | undefined;
 }
 
-interface OptgroupHTMLAttributes extends HTMLAttributes {
+export interface OptgroupHTMLAttributes extends HTMLAttributes {
   disabled?: boolean | undefined;
   label?: string | undefined;
 }
 
-interface OptionHTMLAttributes extends HTMLAttributes {
+export interface OptionHTMLAttributes extends HTMLAttributes {
   disabled?: boolean | undefined;
   label?: string | undefined;
   selected?: boolean | undefined;
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface OutputHTMLAttributes extends HTMLAttributes {
+export interface OutputHTMLAttributes extends HTMLAttributes {
   form?: string | undefined;
   htmlFor?: string | undefined;
   name?: string | undefined;
 }
 
-interface ParamHTMLAttributes extends HTMLAttributes {
+export interface ParamHTMLAttributes extends HTMLAttributes {
   name?: string | undefined;
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface ProgressHTMLAttributes extends HTMLAttributes {
+export interface ProgressHTMLAttributes extends HTMLAttributes {
   max?: number | string | undefined;
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface SlotHTMLAttributes extends HTMLAttributes {
+export interface SlotHTMLAttributes extends HTMLAttributes {
   name?: string | undefined;
 }
 
-interface ScriptHTMLAttributes extends HTMLAttributes {
+export interface ScriptHTMLAttributes extends HTMLAttributes {
   async?: boolean | undefined;
   /** @deprecated */
   charSet?: string | undefined;
@@ -830,7 +830,7 @@ interface ScriptHTMLAttributes extends HTMLAttributes {
   type?: string | undefined;
 }
 
-interface SelectHTMLAttributes extends HTMLAttributes {
+export interface SelectHTMLAttributes extends HTMLAttributes {
   autoComplete?: string | undefined;
   autoFocus?: boolean | undefined;
   disabled?: boolean | undefined;
@@ -842,7 +842,7 @@ interface SelectHTMLAttributes extends HTMLAttributes {
   value?: string | ReadonlyArray<string> | number | undefined;
 }
 
-interface SourceHTMLAttributes extends HTMLAttributes {
+export interface SourceHTMLAttributes extends HTMLAttributes {
   height?: number | string | undefined;
   media?: string | undefined;
   sizes?: string | undefined;
@@ -1238,7 +1238,7 @@ export interface SVGAttributes extends AriaAttributes, EventHandlers<Events> {
   zoomAndPan?: string | undefined;
 }
 
-interface IntrinsicElementAttributes {
+export interface IntrinsicElementAttributes {
   a: AnchorHTMLAttributes;
   abbr: HTMLAttributes;
   address: HTMLAttributes;
@@ -1541,7 +1541,7 @@ type ReservedProps = {
   ref?: { current: any } | ((ref: Element | null) => void);
 };
 
-type ElementAttrs<T> = T & ReservedProps;
+export type ElementAttrs<T> = T & ReservedProps;
 
 type NativeElements = {
   [K in keyof IntrinsicElementAttributes]: ElementAttrs<
