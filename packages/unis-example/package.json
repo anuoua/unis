@@ -29,6 +29,7 @@
     "postcss": "^8.3.11",
     "rollup-plugin-reassign": "^1.0.2",
     "tailwindcss": "^2.2.19",
-    "vite": "^2.6.13"
+    "vite": "^2.6.13",
+    "@unis/vite-preset": "workspace:*"
   }
 }

@@ -1,5 +1,4 @@
 import { Link } from "@unis/router";
-import { h } from "@unis/unis";
 import s from "./index.module.css";
 
 export const Welcome = () => {

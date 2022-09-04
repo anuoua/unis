@@ -1,4 +1,4 @@
-import { h, useState } from "@unis/unis";
+import { useState } from "@unis/unis";
 import { CSSTransition, TransitionGroup } from "@unis/transition";
 import { Dialog } from "./Dialog";
 import { Item, TodoItem } from "./TodoItem";

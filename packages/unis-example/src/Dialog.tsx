@@ -1,4 +1,4 @@
-import { h, createPortal, useProps, useRef } from "@unis/unis";
+import { createPortal, useProps, useRef } from "@unis/unis";
 import { Item } from "./TodoItem";
 
 interface DialogProps {

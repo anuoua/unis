@@ -1,4 +1,10 @@
-import { h, render, Fragment, useProps, useState, useEffect } from "@unis/unis";
+import {
+  render,
+  Fragment,
+  // useProps,
+  // useState,
+  // useEffect
+} from "@unis/unis";
 import { ToDo } from "./Todo";
 import "./global.css";
 import s from "./index.module.css";

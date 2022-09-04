@@ -1,4 +1,4 @@
-import { h, use, memo, useEffect, useProps, useRef } from "@unis/unis";
+import { use, memo, useEffect, useProps, useRef } from "@unis/unis";
 import { Update } from "../hooks/update";
 import s from "./index.module.css";
 
