@@ -1,0 +1,53 @@
+name: "@unis/router CI/CD"
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'packages/unis-router/**'
+
+jobs:
+  "test":
+    runs-on: ubuntu-latest
+    if: ${{contains(github.event.head_commit.message, '(router):')}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          registry-url: "https://registry.npmjs.org"
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7.9.0
+      - run: |
+          pnpm install
+          cd packages/unis-router
+          pnpm build
+          cd packages/unis-router
+          pnpm test
+
+  "publish":
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{startsWith(github.event.head_commit.message, 'release(router):')}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          registry-url: "https://registry.npmjs.org"
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7.9.0
+      - run: |
+          pnpm install
+          cd packages/unis-router
+          pnpm build
+          cd ../unis-router
+          pnpm build
+          pnpm publish --no-git-checks --access public
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
