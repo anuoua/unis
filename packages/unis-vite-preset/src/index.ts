@@ -13,8 +13,8 @@ export function unisPreset(): PluginOption[] {
         return {
           esbuild: {
             jsxFactory: "h",
-            jsxFragment: "Fragment",
-            jsxInject: `import { h } from "@unis/unis"`,
+            jsxFragment: "FGMT",
+            jsxInject: `import { h, FGMT } from "@unis/unis"`,
           },
         };
       },
