@@ -22,9 +22,9 @@ jobs:
           version: 7.9.0
       - run: |
           pnpm install
-          cd packages/unis-router
+          cd packages/unis-core
           pnpm build
-          cd packages/unis-router
+          cd ../unis-router
           pnpm test
 
   "publish":
@@ -42,7 +42,7 @@ jobs:
           version: 7.9.0
       - run: |
           pnpm install
-          cd packages/unis-router
+          cd packages/unis-core
           pnpm build
           cd ../unis-router
           pnpm build
