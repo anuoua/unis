@@ -1,5 +1,5 @@
 import { h, useState } from "@unis/unis";
-import { CSSTransition } from "@unis/transition";
+import { CSSTransition, TransitionGroup } from "@unis/transition";
 import { Dialog } from "./Dialog";
 import { Item, TodoItem } from "./TodoItem";
 
@@ -7,7 +7,7 @@ let count = 0;
 
 let todos: any[] = [];
 
-for (; count < 1000; count++) {
+for (; count < 0; count++) {
   todos.push({
     id: count,
     name: "",
@@ -79,9 +79,13 @@ export function ToDo() {
         onKeyPress={handleAdd}
       />
       <ul className="h-80 w-full flex flex-col gap-5 overflow-auto">
-        {todoList.map((i: any) => (
-          <TodoItem key={i.id} item={i} onDelete={handleDelete} />
-        ))}
+        <TransitionGroup>
+          {todoList.map((i: any) => (
+            <CSSTransition key={i.id} timeout={400} classNames="scale" appear>
+              <TodoItem item={i} onDelete={handleDelete} />
+            </CSSTransition>
+          ))}
+        </TransitionGroup>
       </ul>
       {dialogVisible && (
         <Dialog

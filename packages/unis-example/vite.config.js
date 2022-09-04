@@ -20,6 +20,7 @@ export default defineConfig({
           useProps: 1,
           useContext: 1,
           useReducer: 2,
+          useMemo: 2
         },
       },
     }),

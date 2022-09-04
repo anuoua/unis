@@ -1,6 +1,6 @@
 import { h, use, memo, useEffect, useProps, useRef } from "@unis/unis";
-import s from "./TodoItem.module.css";
-import { Update } from "./hooks/update";
+import { Update } from "../hooks/update";
+import s from "./index.module.css";
 
 export interface Item {
   id: number;

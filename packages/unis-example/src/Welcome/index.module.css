@@ -1,0 +1,18 @@
+.msg {
+  font-size: 50px;
+  font-weight: bold;
+  background: -webkit-linear-gradient(0deg,#e339bc 25%,#4f5b94);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all .3s ease;
+}
+
+.msg:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+  background: -webkit-linear-gradient(0deg,#4f5b94 25%,#e339bc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
