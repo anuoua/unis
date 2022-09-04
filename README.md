@@ -2,7 +2,7 @@
   <img height="300" src="logo.svg">
 </p>
 
-# Unis [中文](README-zh_CN.md)
+# Unis
 
 Unis is a simpler and easier to use front-end framework than React
 
@@ -10,39 +10,24 @@ Unis is a simpler and easier to use front-end framework than React
 
 ```bash
 npm i @unis/unis
-```
+````
 
-## Vite dev
+## Vite development
 
 ```jsx
-npm i vite rollup-plugin-reassign -D
-```
+npm i vite @unis/vite-preset -D
+````
 
 vite.config.js
 
 ```jsx
 import { defineConfig } from "vite";
-import { reassign } from "rollup-plugin-reassign";
+import { unisPreset } from "@unis/vite-preset";
 
 export default defineConfig({
-  esbuild: {
-    jsxFactory: 'h',
-    jsxFragment: 'Fragment'
-  },
-  reassign({
-    include: ["**/*.(t|j)s?(x)"],
-    targetFns: {
-      "@unis/unis": {
-        use: 1,
-        useState: 1,
-        useProps: 1,
-        useContext: 1,
-        useReducer: 2,
-      },
-    },
-  })
+  plugins: [unisPreset()]
 });
-```
+````
 
 index.html
 
@@ -51,16 +36,14 @@ index.html
   ...
   <body>
     <div id="root"></div>
-    <script type="module" src="./index.jsx"></script>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>
-```
+````
 
-index.jsx
+index.tsx
 
-```jsx
-import { h } from '@unis/unis'
-
+```tsx
 function App() {
   return () => (
     <div>
@@ -70,18 +53,18 @@ function App() {
 }
 
 render(<App />, document.querySelector('#root'))
-```
+````
 
 ## Usage
 
-Unis is not a fork of React, but a brand new framework that retains the experience of using React. Unis is very simple to use, and those who are familiar with React can get started quickly.
+Unis is not a fork of React, but a brand-new framework that retains the experience of using React. The usage of Unis is very simple, and those familiar with React can get started quickly.
 
 ### Components
 
-A component in Unis is a higher-order function.
+A component in unis is a higher-order function.
 
 ```jsx
-import { h, render } from '@unis/unis'
+import { render } from '@unis/unis'
 
 const App = () => {
   return () => ( // return a function
@@ -92,11 +75,11 @@ const App = () => {
 }
 
 render(<App />, document.querySelector('#root'))
-```
+````
 
 ### Component State
 
-The usage of useState in Unis is similar to that of React, but it should be noted that for the `use` series methods in Unis, the definition type must be `let` , because Unis uses the Callback Reassign compilation strategy, and rollup-plugin-reassign helps us complete the Callback Reassign code.
+The usage of `useState` in Unis is similar to that of React, but it should be noted that for the `use` series methods in unis, the definition type must be `let`, because unis uses the Callback Reassign compilation strategy, and rollup-plugin-reassign helps us complete it Callback Reassign code.
 
 ```jsx
 const App = () => {
@@ -104,17 +87,17 @@ const App = () => {
   /**
    * Compile to:
    *
-   * let [msg, setMsg] = useState('hello', ([$0, $1]) => { msg = $0, setMsg = $1 });
+   * let [msg, setMsg] = useState('hello', ([$0, $1]) => { msg = $0; setMsg = $1 });
    */
   return () => (
     <div>{msg}</div>
   )
 }
-```
+````
 
 ### Props
 
-Unis will not be able to get the latest value when using props directly, so Unis provides useProps.
+Unis will not be able to get the latest value when using props directly, so unis provides useProps.
 
 ```jsx
 const App = (p) => {
@@ -128,11 +111,11 @@ const App = (p) => {
     <div>{some}</div>
   )
 }
-```
+````
 
-### Side Effect
+### Side effect
 
-Unis retains useEffect which is basically the same as React, but deps is a function that returns an array.
+Unis keeps `useEffect` and `useLayoutEffect` basically the same as React, but deps is a function that returns an array.
 
 ```jsx
 const App = () => {
@@ -151,15 +134,15 @@ const App = () => {
     <div>hello</div>
   )
 }
-```
+````
 
-### Custom Hook
+### Custom hook
 
-The custom hook of Unis needs to be used with the `use` method in scenarios with return values, because of the Callback Reassign compilation strategy mentioned above.
+The custom hook of Unis needs to be used with the `use` method in scenarios with return values, because of the Callback Reassign compilation strategy mentioned above. The naming convention of custom hooks starts with a lowercase letter `u`, which is used to distinguish other functions, and at the same time, it is more convenient to import at the prompt of IDE.
 
 ```jsx
-// Create hook, hook is a higher-order function
-const Count = () => {
+// Create custom hook higher-order function
+const uCount = () => {
   let [count, setCount] = useState(0);
   const add = () => setCount(count + 1);
   return () => [count, add]
@@ -167,24 +150,24 @@ const Count = () => {
 
 // use hook via `use`
 function App() {
-  let [count, add] = use(Count());
+  let [count, add] = use(uCount());
   /**
    * Compile to:
    *
-   * let [count, add] = use(Count(), ([$0, $1]) => { count = $0; add = $1 });
+   * let [count, add] = use(uCount(), ([$0, $1]) => { count = $0; add = $1 });
    */
   return () => (
     <div onClick={add}>{count}</div>
   )
 }
-```
+````
 
 ## Features
 
 ### Fragment
 
 ```jsx
-import { h, Fragment } from '@unis/unis'
+import { Fragment } from '@unis/unis'
 
 function App() {
   return () => (
@@ -194,12 +177,12 @@ function App() {
     </Fragment>
   )
 }
-```
+````
 
 ### Portal
 
 ```jsx
-import { h, createPortal } from '@unis/unis'
+import { createPortal } from '@unis/unis'
 
 function App() {
   return () => createPortal(
@@ -207,12 +190,12 @@ function App() {
     document.body
   )
 }
-```
+````
 
 ### Context
 
 ```jsx
-import { h, createContext, render } from '@unis/unis'
+import { createContext, render } from '@unis/unis'
 
 const ThemeContext = createContext('light')
 
@@ -230,7 +213,7 @@ render(
   </ThemeContext.Provider>,
   document.querySelector('#root')
 )
-```
+````
 
 ## Todo Project
 
@@ -239,12 +222,13 @@ Check out the full project
 - [packages/unis-example](packages/unis-example) Todo example
 - [stackbliz](https://stackblitz.com/edit/vitejs-vite-4cfy2b) Trial
 
-## API
+##API
 
 - Core
   - h
   - h2 (for jsx2)
   - Fragment
+  - FGMT: it is Fragment alias, will be removed when vite support `jsxImportSource`
   - createPortal
   - createContext
   - render
@@ -256,6 +240,7 @@ Check out the full project
   - useState
   - useReducer
   - useContext
+  - useMemo
   - useEffect
   - useRef
   - useId
