@@ -5,7 +5,6 @@ const configGen = (format) => ({
   input: "src/unis.ts",
   output: [
     {
-      name: "unis",
       dir: "build",
       entryFileNames: `unis.${format === "esm" ? "mjs" : "js"}`,
       format,
@@ -22,6 +21,6 @@ const configGen = (format) => ({
   ],
 });
 
-const config = [configGen("umd"), configGen("esm")];
+const config = [configGen("cjs"), configGen("esm")];
 
 export default config;

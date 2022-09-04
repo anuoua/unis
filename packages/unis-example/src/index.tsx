@@ -8,7 +8,7 @@ import {
 import { ToDo } from "./Todo";
 import "./global.css";
 import s from "./index.module.css";
-import { BrowserRouter, Navigation, Outlet, Route, Routes } from "@unis/router";
+import { BrowserRouter, Redirect, Outlet, Route, Routes } from "@unis/router";
 import { Welcome } from "./Welcome";
 
 // const Bpp = (props: { time: number; msg: string }) => {
@@ -56,7 +56,7 @@ render(
     <Routes path="/" element={<App />}>
       <Route element={<Welcome />} />
       <Route path="main" element={<ToDo />} />
-      <Route path="*" element={<Navigation to="main" />} />
+      <Route path="*" element={<Redirect to="main" />} />
     </Routes>
   </BrowserRouter>,
   document.querySelector("#root")!

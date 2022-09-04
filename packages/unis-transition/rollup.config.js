@@ -2,13 +2,13 @@ import { defineConfig } from 'rollup'
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import esbuild from "rollup-plugin-esbuild"
 import { reassign } from 'rollup-plugin-reassign'
+import { unisFns } from '@unis/unis';
 
 const configGen = (format) => defineConfig({
   input: "src/index.ts",
   external: ['@unis/unis'],
   output: [
     {
-      name: "transition",
       dir: "build",
       entryFileNames: `index.${format === "esm" ? "mjs" : "js"}`,
       format,
@@ -26,18 +26,12 @@ const configGen = (format) => defineConfig({
     reassign({
       include: ["**/*.(t|j)s?(x)"],
       targetFns: {
-        "@unis/unis": {
-          use: 1,
-          useState: 1,
-          useProps: 1,
-          useContext: 1,
-          useReducer: 2,
-        },
+        "@unis/unis": unisFns,
       },
     }),
   ],
 });
 
-const config = [configGen("umd"), configGen("esm")];
+const config = [configGen("cjs"), configGen("esm")];
 
 export default config;

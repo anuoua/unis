@@ -88,3 +88,5 @@ export const memo = <T extends (props: any) => JSX.Element>(
 };
 
 export const Fragment = (props: any) => props.children;
+
+export const Fragment2 = Fragment;

@@ -3,7 +3,10 @@
   "compilerOptions": {
     "emitDeclarationOnly": true,
     "declarationMap": false,
-    "outDir": "build"
+    "outDir": "build",
+    "jsx": "preserve",
+    "jsxFactory": "h",
+    "jsxImportSource": ""
   },
   "include": ["src"]
 }
