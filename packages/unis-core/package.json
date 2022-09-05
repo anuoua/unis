@@ -1,6 +1,6 @@
 {
   "name": "@unis/unis",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "build/unis.js",
   "module": "build/unis.mjs",
@@ -34,7 +34,7 @@
     "jsx-runtime.d.ts",
     "jsx-runtime.js",
     "index.d.ts",
-    "jsx.d.ts"
+    "types"
   ],
   "author": "anuoua",
   "license": "MIT",
