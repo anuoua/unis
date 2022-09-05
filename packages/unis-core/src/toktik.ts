@@ -8,7 +8,7 @@ let looping = false;
 const tikQueue: Task[] = [];
 const tokQueue: Task[] = [];
 
-const next = () => tikQueue.at(-1) ?? tokQueue.at(-1);
+const next = () => tikQueue[0] ?? tokQueue[0];
 
 const pick = () => tikQueue.shift() ?? tokQueue.shift();
 
