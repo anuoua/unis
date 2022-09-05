@@ -26,7 +26,7 @@
   ],
   "author": "anuoua",
   "peerDependencies": {
-    "@unis/unis": "workspace:*"
+    "@unis/unis": "workspace:^"
   },
   "license": "MIT",
   "bugs": {
@@ -42,6 +42,6 @@
     "rollup-plugin-esbuild": "^4.6.0",
     "rollup-plugin-reassign": "^1.0.2",
     "typescript": "^4.4.4",
-    "@unis/unis": "workspace:*"
+    "@unis/unis": "workspace:^"
   }
 }

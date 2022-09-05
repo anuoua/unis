@@ -27,7 +27,7 @@
   ],
   "author": "anuoua",
   "peerDependencies": {
-    "@unis/unis": "workspace:*"
+    "@unis/unis": "workspace:^"
   },
   "license": "MIT",
   "bugs": {
@@ -36,7 +36,7 @@
   "homepage": "https://github.com/anuoua/unis/tree/main/packages/unis-router",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.6",
-    "@unis/unis": "workspace:*",
+    "@unis/unis": "workspace:^",
     "cross-env": "^7.0.3",
     "esbuild": "^0.13.13",
     "rimraf": "^3.0.2",
