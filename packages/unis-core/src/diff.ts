@@ -24,12 +24,12 @@ export const attrDiff = (
   const newProps = newFiber.props;
   const oldProps = oldFiber.props;
 
-  const getRealAttr = (attr: string) =>
-    attr === "className"
-      ? "class"
-      : newFiber.isSVG
-      ? svgKey(attr)
-      : attr.toLowerCase();
+  const getRealAttr = (attr: string) => {
+    if (attr === "className") return "class";
+    if (attr === "htmlFor") return "for";
+    if (newFiber.isSVG) return svgKey(attr);
+    return attr.toLowerCase();
+  };
 
   const getRealValue = (newValue: any, key: string) => {
     if (isNullish(newValue)) return;
