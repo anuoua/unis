@@ -6,8 +6,8 @@ import {
   useContext,
   useProps,
 } from "@unis/unis";
-import { RouteContext, RouterContext } from "../context";
-import { resolvePath } from "../utils";
+import { RouterContext } from "../context";
+import { uTargetPath } from "../hooks/uTargetPath";
 
 export type LinkProps = Partial<
   Omit<ElementAttrs<AnchorHTMLAttributes>, "href"> & {
@@ -19,9 +19,8 @@ export const Link = (p: LinkProps) => {
   let { to, children, onClick, ...rest } = useProps(p);
 
   let { history } = useContext(RouterContext);
-  let { route } = useContext(RouteContext);
 
-  let targetPath = use(() => resolvePath(route.pathname ?? "", to ?? ""));
+  let targetPath = use(uTargetPath(() => ({ to })));
 
   const handleJump = (e: MouseEvent) => {
     const target = (e.target as HTMLAnchorElement).target;

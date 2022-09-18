@@ -1,5 +1,6 @@
 import { h, HTMLAttributes, use, useContext, useProps } from "@unis/unis";
 import { RouteContext } from "../context";
+import { uTargetPath } from "../hooks/uTargetPath";
 import { Link, LinkProps } from "./Link";
 
 export type LinkStyle = (isActive: boolean) => HTMLAttributes["style"];
@@ -11,17 +12,16 @@ export type NavLinkProps = Omit<LinkProps, "style" | "className"> & {
 };
 
 export const NavLink = (p: NavLinkProps) => {
-  let { style, className, ...rest } = useProps(p);
-
+  let { style, className, to, ...rest } = useProps(p);
   let { matches } = useContext(RouteContext);
+  let targetPath = use(uTargetPath(() => ({ to })));
 
-  let isActive = use(
-    () => !!matches.find((i) => i.pathname === location.pathname)
-  );
+  let isActive = use(() => !!matches.find((i) => i.pathname === targetPath));
 
   return () => (
     <Link
       {...rest}
+      to={to}
       style={style?.(isActive)}
       className={className?.(isActive)}
     />
