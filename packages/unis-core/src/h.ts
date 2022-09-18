@@ -32,24 +32,26 @@ export const h2 = (tag: any, props: any, key?: string | number) => {
 };
 
 export const formatChildren = (children: any) => {
-  const formatChildren: Fiber[] = [];
+  const formatedChildren: Fiber[] = [];
 
   for (let child of [].concat(children)) {
     if ([null, false, true, undefined].includes(child)) {
       continue;
     } else {
-      formatChildren.push(
-        isStr(child) || isNum(child)
-          ? createFiber({
-              type: TEXT,
-              props: { nodeValue: child },
-            })
-          : child
-      );
+      Array.isArray(child)
+        ? formatedChildren.push(...formatChildren(child))
+        : formatedChildren.push(
+            isStr(child) || isNum(child)
+              ? createFiber({
+                  type: TEXT,
+                  props: { nodeValue: child },
+                })
+              : child
+          );
     }
   }
 
-  return formatChildren;
+  return formatedChildren;
 };
 
 export const createPortal = (child: JSX.Element, container: Element) =>
