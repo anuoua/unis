@@ -27,7 +27,18 @@ import { unisPreset } from "@unis/vite-preset";
 export default defineConfig({
   plugins: [unisPreset()]
 });
-````
+```
+
+tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@unis/unis"
+  }
+}
+```
 
 index.html
 
