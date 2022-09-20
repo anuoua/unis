@@ -29,6 +29,17 @@ export default defineConfig({
 });
 ```
 
+tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@unis/unis"
+  }
+}
+```
+
 index.html
 
 ```jsx
