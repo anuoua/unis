@@ -1,4 +1,9 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxImportSource": ""
+  },
   "include": ["src", "test", "types/jsx.d.ts"]
 }
