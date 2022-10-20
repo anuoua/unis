@@ -1561,10 +1561,11 @@ declare global {
       | FiberNode;
 
     type Element =
+      | Element[]
       | ElementTypes
       | ElementTypes[]
-      | (() => JSX.Element)
-      | (() => JSX.Element[]);
+      | (() => Element)
+      | (() => Element[]);
     interface ElementClass {
       props: {};
     }
