@@ -11,6 +11,7 @@ import {
   isSame,
   mergeFlag,
   isComponent,
+  ReconcileState,
 } from "./fiber";
 import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
 
@@ -136,6 +137,8 @@ export const diff = (
   oldChildren: Fiber[] = [],
   newChildren: Fiber[] = []
 ) => {
+  const { reconcileState } = parentFiber as { reconcileState: ReconcileState };
+
   let cloneChildren: Fiber[] = [];
   let newStartIndex = 0;
   let newEndIndex = newChildren.length - 1;
@@ -151,14 +154,14 @@ export const diff = (
   let preEndFiber: Fiber | undefined;
 
   const deletion = (fiber: Fiber) => {
-    parentFiber.reconcileState!.effectList.push(del(fiber));
+    reconcileState.effectList.push(del(fiber));
   };
 
   const forward = () => {
     if (preStartFiber) preStartFiber.sibling = newStartFiber;
     newStartFiber.parent = parentFiber;
     newStartFiber.index = newStartIndex;
-    newStartFiber.reconcileState = parentFiber.reconcileState;
+    newStartFiber.reconcileState = reconcileState;
     preStartFiber = newStartFiber;
     cloneChildren[newStartIndex] = newStartFiber;
     newStartFiber = newChildren[++newStartIndex];
@@ -168,7 +171,7 @@ export const diff = (
     if (preEndFiber) newEndFiber.sibling = preEndFiber;
     newEndFiber.parent = parentFiber;
     newEndFiber.index = newEndIndex;
-    newEndFiber.reconcileState = parentFiber.reconcileState;
+    newEndFiber.reconcileState = reconcileState;
     preEndFiber = newEndFiber;
     cloneChildren[newEndIndex] = newEndFiber;
     newEndFiber = newChildren[--newEndIndex];
@@ -179,18 +182,27 @@ export const diff = (
     oldFiber: Fiber,
     flag?: FLAG
   ) => {
+    /**
+     * the nearest parent component fiber
+     */
+    const nearestComponent = isComponent(parentFiber)
+      ? parentFiber
+      : reconcileState.componentList.at(-1);
+
+    /**
+     * when nearest parent component fiber with FLAG.UPDATE commitFlag, it should be FLAG.UPDATE.
+     */
     let commitFlag =
-      // when diff in an commitFlag FLAG.UPDATE component, it should be FLAG.UPDATE.
-      !matchFlag(
-        parentFiber.reconcileState!.componentList.at(-1)?.commitFlag,
-        FLAG.UPDATE
-      ) && parentFiber.alternate!.childFlag
+      !matchFlag(nearestComponent?.commitFlag, FLAG.UPDATE) &&
+      parentFiber.alternate!.childFlag
         ? !oldFiber.childFlag && !oldFiber.flag
           ? FLAG.REUSE
           : oldFiber.flag
         : FLAG.UPDATE;
 
-    // when memo fiber compare result is true, it should be FLAG.REUSE.
+    /**
+     * when memo fiber compare result is true, it should be FLAG.REUSE.
+     */
     if (
       isMemo(oldFiber) &&
       !oldFiber.childFlag &&

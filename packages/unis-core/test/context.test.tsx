@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { useEffect, useState } from "../src/api";
+import { useEffect, useProps, useState } from "../src/api";
 import { createContext, useContext } from "../src/context";
 import { Fragment, h, memo } from "../src/h";
 import { render } from "../src/dom";
@@ -90,4 +90,48 @@ it("context", async () => {
   expect(root.innerHTML).toBe(
     "<div>App</div><div>Bpp: dark<div>Cpp: gray</div></div><div>Dpp: dark</div><div>Epp: initial</div>"
   );
+});
+
+it("context pass through", async () => {
+  const AppContext = createContext({} as any);
+
+  const App = () => {
+    let [hello, setHello] = useState("hello");
+
+    return () => (
+      <AppContext.Provider value={{ hello, setHello }}>
+        <div>
+          <Bpp />
+        </div>
+      </AppContext.Provider>
+    );
+  };
+
+  const Bpp = () => {
+    let { hello, setHello } = useContext(AppContext);
+    return () => <Cpp msg={hello} setMsg={setHello} />;
+  };
+
+  const Cpp = (p: { msg: string; setMsg: (msg: string) => void }) => {
+    let { msg, setMsg } = useProps(p);
+    let [count, setCount] = useState(0);
+
+    useEffect(
+      () => {
+        setMsg("world");
+        setCount(count + 1);
+      },
+      () => []
+    );
+
+    return () => msg;
+  };
+
+  render(<App />, root);
+
+  expect(root.innerHTML).toBe("<div>hello</div>");
+
+  await sleep(1);
+
+  expect(root.innerHTML).toBe("<div>world</div>");
 });
