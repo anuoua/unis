@@ -1,5 +1,5 @@
 import { markFiber, use, useProps } from "./api";
-import { CONTEXT, createNext, Fiber, WalkHook, isContext } from "./fiber";
+import { PROVIDER, createNext, Fiber, WalkHook, isProvider } from "./fiber";
 
 export interface Context<T = any> {
   Provider: (props: { value: T; children: any }) => JSX.Element;
@@ -33,7 +33,7 @@ export function createContext<T>(initial: T) {
   const Provider = (props: { value: T; children: any }) => props.children;
 
   Provider.take = {
-    type: CONTEXT,
+    type: PROVIDER,
   };
 
   const Consumer = (props: { children: (value: T) => JSX.Element }) => {
@@ -57,13 +57,14 @@ export function createContext<T>(initial: T) {
 
 const contextHOF = <T extends Context>(context: T) => {
   const readContext = (fiber: Fiber): T["initial"] => {
-    const result = (fiber?.reconcileState?.dependencyList ?? [])
-      .filter((dependency) => dependency.context === context)
-      .pop();
+    const { dependencyList = [] } = fiber.reconcileState!;
+    const result = [...dependencyList]
+      .reverse()
+      .find((d) => d.context === context);
 
     if (result) {
       if (fiber.dependencies) {
-        fiber.dependencies.push(result);
+        !fiber.dependencies.includes(result) && fiber.dependencies.push(result);
       } else {
         fiber.dependencies = [result];
       }
@@ -81,18 +82,18 @@ export function useContext<T extends Context>(ctx: T) {
 
 export const contextWalkHook: WalkHook = {
   down: (from: Fiber, to?: Fiber) => {
-    isContext(from) &&
+    isProvider(from) &&
       from.reconcileState!.dependencyList.push(createDependency(from));
   },
 
   up: (from: Fiber, to?: Fiber) => {
-    to && isContext(to) && from.reconcileState!.dependencyList.pop();
+    to && isProvider(to) && from.reconcileState!.dependencyList.pop();
   },
 
   enter: (enter: Fiber, skipChild: boolean) => {
     if (
       enter.alternate &&
-      isContext(enter.alternate) &&
+      isProvider(enter.alternate) &&
       !Object.is(enter.alternate.props.value, enter.props.value)
     ) {
       let alternate = enter.alternate;
@@ -107,7 +108,7 @@ export const contextWalkHook: WalkHook = {
         indexFiber = next(
           indexFiber,
           indexFiber !== alternate &&
-            isContext(indexFiber) &&
+            isProvider(indexFiber) &&
             indexFiber.tag === enter.tag
         );
       } while (indexFiber);
