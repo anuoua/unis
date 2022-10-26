@@ -954,7 +954,7 @@ export interface SVGAttributes extends AriaAttributes, EventHandlers<Events> {
    * @see https://www.w3.org/TR/SVG/styling.html#ElementSpecificStyling
    */
   class?: any;
-  className?: string | undefined;
+  className?: string | CSObject | CSArray | undefined;
   color?: string | undefined;
   height?: number | string | undefined;
   id?: string | undefined;
