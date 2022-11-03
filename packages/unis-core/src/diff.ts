@@ -46,7 +46,7 @@ export const attrDiff = (
     }
   };
 
-  for (const key of new Set([...keys(newProps), ...keys(oldProps)])) {
+  for (const key of keys({ ...newProps, ...oldProps })) {
     if (["xmlns", "children"].includes(key)) continue;
     const newValue = newProps[key];
     const oldValue = oldProps[key];

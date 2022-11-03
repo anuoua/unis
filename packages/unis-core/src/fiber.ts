@@ -237,12 +237,14 @@ export const findLastEl = (fiber: Fiber): FiberEl | undefined => {
   }
 };
 
+export type ContainerElement = Exclude<FiberEl, Text>;
+
 export const getContainer = (
   fiber: Fiber | undefined
-): [FiberEl | undefined, boolean] | undefined => {
+): [ContainerElement, boolean] | undefined => {
   while ((fiber = fiber?.parent)) {
-    if (fiber.to) return [fiber.to, true];
-    if (fiber.el) return [fiber.el, false];
+    if (fiber.to) return [fiber.to as ContainerElement, true];
+    if (fiber.el) return [fiber.el as ContainerElement, false];
   }
 };
 

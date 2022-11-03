@@ -26,6 +26,8 @@ export const getEventName = (event: string) => {
 export const camel2kebab = (text: string) =>
   text.replace(/([A-Z])/g, "-$1").toLowerCase();
 
+export const toArray = <T extends any>(a: T) => (Array.isArray(a) ? a : [a]);
+
 export const arraysEqual = (a: any, b: any) => {
   if (a == null || b == null) return false;
   if (a.length !== b.length) return false;

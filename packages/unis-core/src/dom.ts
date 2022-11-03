@@ -1,4 +1,4 @@
-import { getEventName, isEvent, isNullish } from "./utils";
+import { getEventName, isEvent, isNullish, toArray } from "./utils";
 import { Fiber, FiberEl, findEls, isText } from "./fiber";
 import { readyForWork } from "./reconcile";
 
@@ -8,7 +8,7 @@ export const render = (element: any, container: Element) => {
     el: container,
     index: 0,
     props: {
-      children: [].concat(element),
+      children: toArray(element),
     },
   });
 };
@@ -30,14 +30,25 @@ export const insertBefore = (container: Node, node: Node, child: Node | null) =>
 export const append = (
   container: Element | DocumentFragment,
   ...nodes: (DocumentFragment | Element | Text)[]
-) => container.append(...nodes);
+) => {
+  for (const node of nodes) {
+    container.appendChild(node);
+  }
+};
 
 export const nextSibling = (node: Node) => node.nextSibling;
 
 export const firstChild = (node: Node) => node.firstChild;
 
-export const remove = (fiber: Fiber) =>
-  createFragment().append(...findEls(fiber));
+export const remove = (fiber: Fiber) => {
+  const [first, ...rest] = findEls(fiber);
+  const parentNode = first?.parentNode;
+  if (parentNode) {
+    for (const el of [first, ...rest]) {
+      parentNode.removeChild(el);
+    }
+  }
+};
 
 export const updateTextProperties = (fiber: Fiber) => {
   fiber.el!.nodeValue = fiber.props.nodeValue + "";

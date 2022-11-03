@@ -1,7 +1,7 @@
 import { Fiber, FiberEl, findEls, isText } from "./fiber";
 import { Fragment } from "./h";
 import { readyForWork } from "./reconcile";
-import { isNullish } from "./utils";
+import { isNullish, toArray } from "./utils";
 
 export const renderToString = (element: any) => {
   const root = {
@@ -9,7 +9,7 @@ export const renderToString = (element: any) => {
     el: createFragment() as unknown as Element,
     index: 0,
     props: {
-      children: [].concat(element),
+      children: toArray(element),
     },
   } as Fiber;
   readyForWork(root);

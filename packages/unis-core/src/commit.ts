@@ -16,7 +16,6 @@ import {
   updateTextProperties,
 } from "./dom";
 import {
-  createNext,
   Fiber,
   findEls,
   FLAG,
@@ -27,24 +26,14 @@ import {
   matchFlag,
   isPortal,
   isText,
+  isDOM,
 } from "./fiber";
 import { addTik } from "./toktik";
 
 export const commitDeletion = (fiber: Fiber) => {
-  const [next, addHook] = createNext();
-
-  addHook({
-    enter(enter) {
-      if (enter === fiber && !enter.child) return false;
-    },
-    up(from, to) {
-      if (to === fiber) return false;
-    },
-  });
-
   let indexFiber: Fiber | undefined = fiber;
 
-  do {
+  while (indexFiber) {
     if (isElement(indexFiber)) {
       indexFiber.props.ref && (indexFiber.props.ref.current = undefined);
     }
@@ -62,7 +51,29 @@ export const commitDeletion = (fiber: Fiber) => {
     }
     indexFiber.dependencies = undefined;
     indexFiber.reconcileState = undefined;
-  } while ((indexFiber = next(indexFiber)));
+
+    if (indexFiber.child) {
+      indexFiber = indexFiber.child;
+      continue;
+    } else if (indexFiber === fiber) {
+      indexFiber = undefined;
+      continue;
+    }
+
+    while (indexFiber) {
+      if (indexFiber.sibling) {
+        indexFiber = indexFiber.sibling;
+        break;
+      }
+
+      if (indexFiber.parent !== fiber) {
+        indexFiber = indexFiber.parent;
+      } else {
+        indexFiber = undefined;
+        break;
+      }
+    }
+  }
 
   remove(fiber);
 };
@@ -72,19 +83,22 @@ export const commitUpdate = (fiber: Fiber) => {
   if (isElement(fiber)) updateElementProperties(fiber);
 };
 
-export const commitInset = (fiber: Fiber) => {
+export const commitInsert = (fiber: Fiber) => {
   const [container, isPortalContainer] = getContainer(fiber)!;
-  if (!container) return;
-  const fragment = createFragment();
-  append(
-    fragment,
-    ...findEls(
+
+  let insertElement = isDOM(fiber) ? fiber.el : undefined;
+
+  if (!insertElement) {
+    insertElement = createFragment();
+    const els = findEls(
       matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
-    )
-  );
+    );
+    append(insertElement, ...els);
+  }
+
   insertBefore(
     container,
-    fragment,
+    insertElement,
     isPortalContainer
       ? null
       : fiber.preEl
@@ -103,8 +117,8 @@ export const commitEffectList = (effectList: Fiber[]) => {
     if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
       commitUpdate(effect);
     }
-    if (matchFlag(effect.commitFlag, FLAG.CREATE | FLAG.INSERT)) {
-      commitInset(effect);
+    if (matchFlag(effect.commitFlag, FLAG.INSERT | FLAG.CREATE)) {
+      commitInsert(effect);
     }
     if (matchFlag(effect.commitFlag, FLAG.REUSE)) {
       graft(effect, effect.alternate!);

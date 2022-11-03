@@ -1,4 +1,4 @@
-import { isNum, isStr, keys } from "./utils";
+import { isNum, isStr, keys, toArray } from "./utils";
 import {
   COMPONENT,
   createFiber,
@@ -34,7 +34,7 @@ export const h2 = (tag: any, props: any, key?: string | number) => {
 export const formatChildren = (children: any) => {
   const formatedChildren: Fiber[] = [];
 
-  for (let child of [].concat(children)) {
+  for (let child of toArray(children)) {
     if ([null, false, true, undefined].includes(child)) {
       continue;
     } else {
