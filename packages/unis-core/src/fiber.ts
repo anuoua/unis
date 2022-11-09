@@ -116,7 +116,6 @@ export const createFiber = (options: Partial<Fiber> = {}) => {
 export const TEXT = Symbol("$$Text");
 export const ELEMENT = Symbol("$$Element");
 export const PORTAL = Symbol("$$Portal");
-export const MEMO = Symbol("$$Memo");
 export const PROVIDER = Symbol("$$Provider");
 export const COMPONENT = Symbol("$$Component");
 
@@ -125,7 +124,6 @@ export const isElement = (fiber: Fiber) => fiber.type === ELEMENT;
 export const isDOM = (fiber: Fiber) => isElement(fiber) || isText(fiber);
 
 export const isPortal = (fiber: Fiber) => fiber.type === PORTAL;
-export const isMemo = (fiber: Fiber) => fiber.type === MEMO;
 export const isProvider = (fiber: Fiber) => fiber.type === PROVIDER;
 export const isCustomComponent = (fiber: Fiber) => fiber.type === COMPONENT;
 export const isComponent = (fiber: Fiber) => isFun(fiber.tag);

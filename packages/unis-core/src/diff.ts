@@ -6,7 +6,6 @@ import {
   FLAG,
   isDOM,
   matchFlag,
-  isMemo,
   isPortal,
   isSame,
   mergeFlag,
@@ -204,9 +203,13 @@ export const diff = (
      * when memo fiber compare result is true, it should be FLAG.REUSE.
      */
     if (
-      isMemo(oldFiber) &&
+      isComponent(oldFiber) &&
       !oldFiber.childFlag &&
-      oldFiber.compare?.(newFiber.props, oldFiber.props)
+      !oldFiber.flag &&
+      (oldFiber.tag as Function & { compare?: Function }).compare?.(
+        newFiber.props,
+        oldFiber.props
+      )
     ) {
       commitFlag = mergeFlag(commitFlag, FLAG.REUSE);
     }

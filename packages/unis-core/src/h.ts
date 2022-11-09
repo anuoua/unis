@@ -1,13 +1,5 @@
 import { isNum, isStr, keys, toArray } from "./utils";
-import {
-  COMPONENT,
-  createFiber,
-  ELEMENT,
-  Fiber,
-  MEMO,
-  PORTAL,
-  TEXT,
-} from "./fiber";
+import { COMPONENT, createFiber, ELEMENT, Fiber, PORTAL, TEXT } from "./fiber";
 
 export const h = (tag: any, props: any, ...children: any[]) => {
   props = { ...props };
@@ -68,25 +60,14 @@ const defaultCompare = (newProps: any = {}, oldProps: any = {}) => {
   return newKeys.every((key) => Object.is(newProps[key], oldProps[key]));
 };
 
-export const memo = <T extends (props: any) => JSX.Element>(
+export const memo = <
+  T extends ((props: any) => JSX.Element) & { compare?: Function }
+>(
   child: T,
   compare: Function = defaultCompare
 ) => {
-  const memo = (
-    props: Parameters<T>[0] extends undefined ? {} : Parameters<T>[0]
-  ) =>
-    createFiber({
-      tag: child,
-      type: COMPONENT,
-      props,
-    });
-
-  memo.take = {
-    compare,
-    type: MEMO,
-  } as Fiber;
-
-  return memo;
+  child.compare = compare;
+  return child;
 };
 
 export const cloneElement = (
