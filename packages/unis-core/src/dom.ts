@@ -13,9 +13,9 @@ export const render = (element: any, container: Element) => {
   });
 };
 
-export const createFragment = () => document.createDocumentFragment();
+export const createDOMFragment = () => document.createDocumentFragment();
 
-export const createElement = (fiber: Fiber) => {
+export const createDOMElement = (fiber: Fiber) => {
   const { tag: type, isSVG } = fiber;
   return isText(fiber)
     ? document.createTextNode(fiber.props.nodeValue + "")

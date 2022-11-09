@@ -7,7 +7,7 @@ import {
 } from "./api";
 import {
   append,
-  createFragment,
+  createDOMFragment,
   firstChild,
   insertBefore,
   nextSibling,
@@ -89,7 +89,7 @@ export const commitInsert = (fiber: Fiber) => {
   let insertElement = isDOM(fiber) ? fiber.el : undefined;
 
   if (!insertElement) {
-    insertElement = createFragment();
+    insertElement = createDOMFragment();
     const els = findEls(
       matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
     );

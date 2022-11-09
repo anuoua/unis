@@ -89,6 +89,14 @@ export const memo = <T extends (props: any) => JSX.Element>(
   return memo;
 };
 
+export const cloneElement = (
+  element: Fiber,
+  props = {},
+  ...children: JSX.Element[]
+) => h(element.tag, { ...props, ...props }, ...children);
+
+export const createElement = h;
+
 export const Fragment = (props: any) => props.children;
 
 export const FGMT = Fragment;
