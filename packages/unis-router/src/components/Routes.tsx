@@ -1,4 +1,4 @@
-import { FiberNode, use, useProps } from "@unis/unis";
+import { cloneElement, FiberNode, use, useProps } from "@unis/unis";
 import { uRouter } from "../hooks/uRouter";
 import { Route } from "./Route";
 import { RouteData } from "../types";
@@ -25,6 +25,8 @@ export const Routes = (p: RoutesProps) => {
   function pick(node: FiberNode): RouteData {
     return {
       ...node.props,
+      path: node.props.path,
+      element: cloneElement(node.props.element),
       children: flatChildren(node.props.children).map(pick),
     };
   }
