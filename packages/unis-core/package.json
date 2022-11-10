@@ -1,6 +1,6 @@
 {
   "name": "@unis/unis",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "build/unis.js",
   "module": "build/unis.mjs",
