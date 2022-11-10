@@ -1,7 +1,6 @@
 import { createDOMElement } from "./dom";
 import {
   clearFlag,
-  createFiber,
   Fiber,
   FLAG,
   isDOM,
@@ -11,6 +10,7 @@ import {
   mergeFlag,
   isComponent,
   ReconcileState,
+  isText,
 } from "./fiber";
 import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
 
@@ -63,33 +63,29 @@ export const attrDiff = (
   return diff;
 };
 
-export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
-  createFiber({
-    ...newFiber,
-    commitFlag,
-    alternate: oldFiber,
-    ...(isComponent(newFiber)
-      ? {
-          renderFn: oldFiber.renderFn,
-          rendered: oldFiber.rendered,
-          stateEffects: oldFiber.stateEffects,
-          effects: oldFiber.effects,
-          layoutEffects: oldFiber.layoutEffects,
-          id: oldFiber.id,
-        }
-      : undefined),
-    ...(isDOM(newFiber)
-      ? { el: oldFiber.el, isSVG: oldFiber.isSVG }
-      : undefined),
-    ...(isPortal(newFiber) ? { to: oldFiber.to } : undefined),
-  });
+export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) => ({
+  ...newFiber,
+  commitFlag,
+  alternate: oldFiber,
+  ...(isComponent(newFiber)
+    ? {
+        renderFn: oldFiber.renderFn,
+        rendered: oldFiber.rendered,
+        stateEffects: oldFiber.stateEffects,
+        effects: oldFiber.effects,
+        layoutEffects: oldFiber.layoutEffects,
+        id: oldFiber.id,
+      }
+    : undefined),
+  ...(isDOM(newFiber) ? { el: oldFiber.el, isSVG: oldFiber.isSVG } : undefined),
+  ...(isPortal(newFiber) ? { to: oldFiber.to } : undefined),
+});
 
-export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
-  createFiber({
-    ...newFiber,
-    commitFlag,
-    alternate: oldFiber,
-  });
+export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) => ({
+  ...newFiber,
+  commitFlag,
+  alternate: oldFiber,
+});
 
 export const del = (oldFiber: Fiber): Fiber => ({
   commitFlag: FLAG.DELETE,
@@ -97,17 +93,19 @@ export const del = (oldFiber: Fiber): Fiber => ({
 });
 
 export const create = (newFiber: Fiber, parentFiber: Fiber) => {
-  const retFiber = createFiber({
+  const retFiber = {
     ...newFiber,
     commitFlag: FLAG.CREATE,
-  });
+  } as Fiber;
 
   if (isDOM(newFiber)) {
     retFiber.isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
     retFiber.el = createDOMElement({ ...retFiber });
-    const diff = attrDiff(retFiber, { props: {} });
+    const diff = isText(retFiber)
+      ? undefined
+      : attrDiff(retFiber, { props: {} });
     retFiber.attrDiff = diff;
-    if (diff.length > 0)
+    if (diff?.length)
       retFiber.commitFlag = mergeFlag(retFiber.commitFlag, FLAG.UPDATE);
   }
 
