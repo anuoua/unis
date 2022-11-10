@@ -31,14 +31,16 @@ export function ToDo() {
 
   const handleAdd = (e: any) => {
     if (e.key !== "Enter") return;
-    todoList.push({
-      id: ++count,
-      name: e.target.value,
-      editing: false,
-      canceled: false,
-    });
+    setTodoList([
+      ...todoList,
+      {
+        id: ++count,
+        name: e.target.value,
+        editing: false,
+        canceled: false,
+      },
+    ]);
     e.target.value = "";
-    setTodoList([...todoList]);
   };
 
   const handleClose = () => {
@@ -47,18 +49,12 @@ export function ToDo() {
 
   const handleConfirm = (item: Item) => {
     setDialogVisible(false);
-    const index = todoList.findIndex((i) => i === item);
-    if (index === -1) return;
-    todoList.splice(index, 1);
-    setTodoList([...todoList]);
+    setTodoList(todoList.filter((i) => i !== item));
   };
 
   const handleDelete = (item: Item) => {
     setCurrentItem(item);
-    const index = todoList.findIndex((i) => i === item);
-    if (index === -1) return;
-    todoList.splice(index, 1);
-    setTodoList([...todoList]);
+    setTodoList(todoList.filter((i) => i !== item));
     // setDialogVisible(true);
   };
 
