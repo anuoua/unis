@@ -117,7 +117,10 @@ export const commitEffectList = (effectList: Fiber[]) => {
     if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
       commitUpdate(effect);
     }
-    if (matchFlag(effect.commitFlag, FLAG.INSERT | FLAG.CREATE)) {
+    if (matchFlag(effect.commitFlag, FLAG.CREATE) && isDOM(effect)) {
+      commitInsert(effect);
+    }
+    if (matchFlag(effect.commitFlag, FLAG.INSERT)) {
       commitInsert(effect);
     }
     if (matchFlag(effect.commitFlag, FLAG.REUSE)) {
