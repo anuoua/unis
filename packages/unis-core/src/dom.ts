@@ -1,10 +1,11 @@
 import { getEventName, isEvent, isNullish, toArray } from "./utils";
-import { Fiber, FiberEl, findEls, isText } from "./fiber";
+import { ELEMENT, Fiber, FiberEl, findEls, isText } from "./fiber";
 import { readyForWork } from "./reconcile";
 
 export const render = (element: any, container: Element) => {
   readyForWork({
     tag: container.tagName.toLocaleLowerCase(),
+    type: ELEMENT,
     el: container,
     index: 0,
     props: {

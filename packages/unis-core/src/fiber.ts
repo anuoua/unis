@@ -241,8 +241,8 @@ export const getContainer = (
   fiber: Fiber | undefined
 ): [ContainerElement, boolean] | undefined => {
   while ((fiber = fiber?.parent)) {
-    if (fiber.to) return [fiber.to as ContainerElement, true];
-    if (fiber.el) return [fiber.el as ContainerElement, false];
+    if (isPortal(fiber)) return [fiber.to as ContainerElement, true];
+    if (isDOM(fiber)) return [fiber.el as ContainerElement, false];
   }
 };
 
