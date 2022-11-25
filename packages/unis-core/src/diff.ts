@@ -1,4 +1,4 @@
-import { createDOMElement } from "./dom";
+// import { createDOMElement } from "./dom";
 import {
   clearFlag,
   Fiber,
@@ -100,7 +100,7 @@ export const create = (newFiber: Fiber, parentFiber: Fiber) => {
 
   if (isDOM(newFiber)) {
     retFiber.isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
-    retFiber.el = createDOMElement({ ...retFiber });
+    // retFiber.el = createDOMElement({ ...retFiber });
     const diff = isText(retFiber)
       ? undefined
       : attrDiff(retFiber, { props: {} });

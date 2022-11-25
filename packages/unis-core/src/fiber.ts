@@ -8,6 +8,7 @@ export interface ReconcileState {
   effectList: Fiber[];
   dependencyList: Dependency[];
   workingPreEl?: FiberEl;
+  workingPreDOMFiber?: Fiber;
   componentList: Fiber[];
 }
 
@@ -53,6 +54,7 @@ export interface Fiber {
   to?: Element;
   el?: FiberEl;
   preEl?: FiberEl;
+  preDOMFiber?: Fiber;
   isSVG?: boolean;
   isDestroyed?: boolean;
   props?: any;
@@ -87,6 +89,7 @@ export const createFiber = (options: Partial<Fiber> = {}) => {
     to: undefined,
     el: undefined,
     preEl: undefined,
+    preDOMFiber: undefined,
     isSVG: undefined,
     isDestroyed: undefined,
     props: undefined,
@@ -235,16 +238,20 @@ export const findLastEl = (fiber: Fiber): FiberEl | undefined => {
   }
 };
 
-export type ContainerElement = Exclude<FiberEl, Text>;
-
-export const getContainer = (
-  fiber: Fiber | undefined
-): [ContainerElement, boolean] | undefined => {
-  while ((fiber = fiber?.parent)) {
-    if (isPortal(fiber)) return [fiber.to as ContainerElement, true];
-    if (isDOM(fiber)) return [fiber.el as ContainerElement, false];
+export const findLastDOMFiber = (fiber: Fiber): Fiber | undefined => {
+  if (isDOM(fiber)) {
+    return fiber;
+  } else if (isPortal(fiber)) {
+    return undefined;
+  } else {
+    for (let i = 0; i < (fiber.children?.length ?? 0); i++) {
+      const result = findLastDOMFiber(fiber.children!.at(-(i + 1))!);
+      if (result) return result;
+    }
   }
 };
+
+export type ContainerElement = Exclude<FiberEl, Text>;
 
 export const findRoot = ((fiber: Fiber | undefined) => {
   while ((fiber = fiber?.parent)) {

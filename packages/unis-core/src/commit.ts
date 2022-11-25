@@ -17,9 +17,7 @@ import {
 } from "./dom";
 import {
   Fiber,
-  findEls,
   FLAG,
-  getContainer,
   graft,
   isComponent,
   isElement,
@@ -27,8 +25,11 @@ import {
   isPortal,
   isText,
   isDOM,
+  ContainerElement,
+  FiberEl,
 } from "./fiber";
 import { addTik } from "./toktik";
+import { createDOMElement } from "./dom";
 
 export const commitDeletion = (fiber: Fiber) => {
   let indexFiber: Fiber | undefined = fiber;
@@ -79,30 +80,65 @@ export const commitDeletion = (fiber: Fiber) => {
 };
 
 export const commitUpdate = (fiber: Fiber) => {
+  if (isDOM(fiber) && !fiber.el) fiber.el = createDOMElement(fiber);
   if (isText(fiber)) updateTextProperties(fiber);
   if (isElement(fiber)) updateElementProperties(fiber);
 };
 
+const getContainerWithCreate = (
+  fiber: Fiber | undefined
+): [ContainerElement, boolean] | undefined => {
+  while ((fiber = fiber?.parent)) {
+    if (isPortal(fiber)) return [fiber.to as ContainerElement, true];
+    if (isDOM(fiber))
+      return [
+        (fiber.el ?? (fiber.el = createDOMElement(fiber))) as ContainerElement,
+        false,
+      ];
+  }
+};
+
+const findElsWithCreate = (fiber: Fiber, findInPortal = false) => {
+  const els: FiberEl[] = [];
+  isDOM(fiber)
+    ? els.push(fiber.el ?? (fiber.el = createDOMElement(fiber)))
+    : isPortal(fiber) && !findInPortal
+    ? false
+    : fiber.children?.forEach((child) => {
+        els.push(...findElsWithCreate(child, findInPortal));
+      });
+
+  return els;
+};
+
 export const commitInsert = (fiber: Fiber) => {
-  const [container, isPortalContainer] = getContainer(fiber)!;
+  const [container, isPortalContainer] = getContainerWithCreate(fiber)!;
 
   let insertElement = isDOM(fiber) ? fiber.el : undefined;
 
   if (!insertElement) {
     insertElement = createDOMFragment();
-    const els = findEls(
+    const els = findElsWithCreate(
       matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
     );
     append(insertElement, ...els);
   }
+
+  if (fiber.preDOMFiber) {
+    if (!fiber.preDOMFiber.el) {
+      fiber.preDOMFiber.el = createDOMElement(fiber.preDOMFiber);
+    }
+  }
+
+  const preEl = fiber.preDOMFiber?.el;
 
   insertBefore(
     container,
     insertElement,
     isPortalContainer
       ? null
-      : fiber.preEl
-      ? nextSibling(fiber.preEl)
+      : preEl
+      ? nextSibling(preEl)
       : firstChild(container)
   );
 };
@@ -128,7 +164,7 @@ export const commitEffectList = (effectList: Fiber[]) => {
     } else {
       isComponent(effect) && effectComps.push(effect);
     }
-    effect.preEl = undefined;
+    effect.preDOMFiber = undefined;
     effect.alternate = undefined;
     effect.commitFlag = undefined;
   }
