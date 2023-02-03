@@ -101,7 +101,7 @@ const update = (fiber: Fiber) => {
     updateHost(fiber);
   }
 
-  !fiber.commitFlag && delete fiber.alternate;
+  !fiber.commitFlag && (fiber.alternate = undefined);
 
   return next(fiber);
 };
@@ -119,7 +119,7 @@ const cutMemorizeState = (fiber: Fiber) => {
 const updateComponent = (fiber: Fiber) => {
   if (!fiber.renderFn) {
     fiber.renderFn = fiber.tag as Function;
-    let rendered = fiber.renderFn(fiber.props);
+    let rendered = fiber.renderFn({ ...fiber.props });
     if (isFun(rendered)) {
       fiber.renderFn = rendered;
       rendered = fiber.renderFn!();
@@ -128,7 +128,7 @@ const updateComponent = (fiber: Fiber) => {
   } else {
     runStateEffects(fiber);
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
-      fiber.rendered = formatChildren(fiber.renderFn(fiber.props));
+      fiber.rendered = formatChildren(fiber.renderFn({ ...fiber.props }));
     } else {
       /**
        * this condition, means `fiber.alternate` is on childFlag marked chain, and `fiber.commitFlag` is undefined.
