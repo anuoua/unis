@@ -1,4 +1,4 @@
-import { createDOMElement } from "./dom";
+import { createDOMElement, updateElementProperties } from "./dom";
 import {
   clearFlag,
   Fiber,
@@ -63,23 +63,28 @@ export const attrDiff = (
   return diff;
 };
 
-export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) => ({
-  ...newFiber,
-  commitFlag,
-  alternate: oldFiber,
-  ...(isComponent(newFiber)
-    ? {
-        renderFn: oldFiber.renderFn,
-        rendered: oldFiber.rendered,
-        stateEffects: oldFiber.stateEffects,
-        effects: oldFiber.effects,
-        layoutEffects: oldFiber.layoutEffects,
-        id: oldFiber.id,
-      }
-    : undefined),
-  ...(isDOM(newFiber) ? { el: oldFiber.el, isSVG: oldFiber.isSVG } : undefined),
-  ...(isPortal(newFiber) ? { to: oldFiber.to } : undefined),
-});
+export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
+  Object.assign(
+    {
+      ...newFiber,
+      commitFlag,
+      alternate: oldFiber,
+    },
+    isComponent(newFiber)
+      ? {
+          renderFn: oldFiber.renderFn,
+          rendered: oldFiber.rendered,
+          stateEffects: oldFiber.stateEffects,
+          effects: oldFiber.effects,
+          layoutEffects: oldFiber.layoutEffects,
+          id: oldFiber.id,
+        }
+      : isDOM(newFiber)
+      ? { el: oldFiber.el, isSVG: oldFiber.isSVG }
+      : isPortal(newFiber)
+      ? { to: oldFiber.to }
+      : undefined
+  );
 
 export const reuse = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) => ({
   ...newFiber,
@@ -100,13 +105,12 @@ export const create = (newFiber: Fiber, parentFiber: Fiber) => {
 
   if (isDOM(newFiber)) {
     retFiber.isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
-    retFiber.el = createDOMElement({ ...retFiber });
+    retFiber.el = createDOMElement(retFiber);
     const diff = isText(retFiber)
       ? undefined
       : attrDiff(retFiber, { props: {} });
     retFiber.attrDiff = diff;
-    if (diff?.length)
-      retFiber.commitFlag = mergeFlag(retFiber.commitFlag, FLAG.UPDATE);
+    if (diff?.length) updateElementProperties(retFiber);
   }
 
   if (isPortal(newFiber)) {
@@ -127,6 +131,82 @@ export const keyIndexMapGen = (
     if (key) map[key] = i;
   }
   return map;
+};
+
+const determineCommitFlag = (
+  parentFiber: Fiber,
+  newFiber: Fiber,
+  oldFiber: Fiber,
+  flag?: FLAG
+) => {
+  /**
+   * the nearest parent component fiber
+   */
+  const nearestComponent = isComponent(parentFiber)
+    ? parentFiber
+    : parentFiber.reconcileState!.componentList.at(-1);
+
+  /**
+   * when nearest parent component fiber with FLAG.UPDATE commitFlag, it should be FLAG.UPDATE.
+   */
+  let commitFlag =
+    !matchFlag(nearestComponent?.commitFlag, FLAG.UPDATE) &&
+    parentFiber.alternate!.childFlag
+      ? !oldFiber.childFlag && !oldFiber.flag
+        ? FLAG.REUSE
+        : oldFiber.flag
+      : FLAG.UPDATE;
+
+  /**
+   * when memo fiber compare result is true, it should be FLAG.REUSE.
+   */
+  if (
+    isComponent(oldFiber) &&
+    !oldFiber.childFlag &&
+    !oldFiber.flag &&
+    (oldFiber.tag as Function & { compare?: Function }).compare?.(
+      newFiber.props,
+      oldFiber.props
+    )
+  ) {
+    commitFlag = mergeFlag(commitFlag, FLAG.REUSE);
+  }
+
+  if (isDOM(newFiber)) {
+    let diff: AttrDiff = [];
+    if (matchFlag(commitFlag, FLAG.UPDATE)) {
+      diff = attrDiff(newFiber, oldFiber);
+      if (diff.length === 0) commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
+    }
+    newFiber.attrDiff = diff;
+  }
+
+  flag && (commitFlag = mergeFlag(commitFlag, flag));
+
+  /**
+   * portal don't need commitFlag
+   */
+  if (isPortal(newFiber)) {
+    commitFlag = undefined;
+  }
+
+  if (matchFlag(commitFlag, FLAG.REUSE)) {
+    commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
+  }
+
+  return commitFlag;
+};
+
+const getSameNewFiber = (
+  parentFiber: Fiber,
+  newFiber: Fiber,
+  oldFiber: Fiber,
+  flag?: FLAG
+) => {
+  const commitFlag = determineCommitFlag(parentFiber, newFiber, oldFiber, flag);
+  return matchFlag(commitFlag, FLAG.REUSE)
+    ? reuse(newFiber, oldFiber, commitFlag)
+    : clone(newFiber, oldFiber, commitFlag);
 };
 
 export const diff = (
@@ -174,76 +254,6 @@ export const diff = (
     newEndFiber = newChildren[--newEndIndex];
   };
 
-  const determineCommitFlag = (
-    newFiber: Fiber,
-    oldFiber: Fiber,
-    flag?: FLAG
-  ) => {
-    /**
-     * the nearest parent component fiber
-     */
-    const nearestComponent = isComponent(parentFiber)
-      ? parentFiber
-      : reconcileState.componentList.at(-1);
-
-    /**
-     * when nearest parent component fiber with FLAG.UPDATE commitFlag, it should be FLAG.UPDATE.
-     */
-    let commitFlag =
-      !matchFlag(nearestComponent?.commitFlag, FLAG.UPDATE) &&
-      parentFiber.alternate!.childFlag
-        ? !oldFiber.childFlag && !oldFiber.flag
-          ? FLAG.REUSE
-          : oldFiber.flag
-        : FLAG.UPDATE;
-
-    /**
-     * when memo fiber compare result is true, it should be FLAG.REUSE.
-     */
-    if (
-      isComponent(oldFiber) &&
-      !oldFiber.childFlag &&
-      !oldFiber.flag &&
-      (oldFiber.tag as Function & { compare?: Function }).compare?.(
-        newFiber.props,
-        oldFiber.props
-      )
-    ) {
-      commitFlag = mergeFlag(commitFlag, FLAG.REUSE);
-    }
-
-    if (isDOM(newFiber)) {
-      let diff: AttrDiff = [];
-      if (matchFlag(commitFlag, FLAG.UPDATE)) {
-        diff = attrDiff(newFiber, oldFiber);
-        if (diff.length === 0) commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
-      }
-      newFiber.attrDiff = diff;
-    }
-
-    flag && (commitFlag = mergeFlag(commitFlag, flag));
-
-    /**
-     * portal don't need commitFlag
-     */
-    if (isPortal(newFiber)) {
-      commitFlag = undefined;
-    }
-
-    if (matchFlag(commitFlag, FLAG.REUSE)) {
-      commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
-    }
-
-    return commitFlag;
-  };
-
-  const getSameNewFiber = (newFiber: Fiber, oldFiber: Fiber, flag?: FLAG) => {
-    const commitFlag = determineCommitFlag(newFiber, oldFiber, flag);
-    return matchFlag(commitFlag, FLAG.REUSE)
-      ? reuse(newFiber, oldFiber, commitFlag)
-      : clone(newFiber, oldFiber, commitFlag);
-  };
-
   let keyIndexMap: any;
 
   while (newStartIndex <= newEndIndex && oldStartIndex <= oldEndIndex) {
@@ -252,19 +262,33 @@ export const diff = (
     } else if (oldEndFiber === undefined) {
       oldStartFiber = oldChildren[--oldEndIndex];
     } else if (isSame(newStartFiber, oldStartFiber)) {
-      newStartFiber = getSameNewFiber(newStartFiber, oldStartFiber);
+      newStartFiber = getSameNewFiber(
+        parentFiber,
+        newStartFiber,
+        oldStartFiber
+      );
       forward();
       oldStartFiber = oldChildren[++oldStartIndex];
     } else if (isSame(newEndFiber, oldEndFiber)) {
-      newEndFiber = getSameNewFiber(newEndFiber, oldEndFiber);
+      newEndFiber = getSameNewFiber(parentFiber, newEndFiber, oldEndFiber);
       forwardEnd();
       oldEndFiber = oldChildren[--oldEndIndex];
     } else if (isSame(newStartFiber, oldEndFiber)) {
-      newStartFiber = getSameNewFiber(newStartFiber, oldEndFiber, FLAG.INSERT);
+      newStartFiber = getSameNewFiber(
+        parentFiber,
+        newStartFiber,
+        oldEndFiber,
+        FLAG.INSERT
+      );
       forward();
       oldEndFiber = oldChildren[--oldEndIndex];
     } else if (isSame(newEndFiber, oldStartFiber)) {
-      newEndFiber = getSameNewFiber(newEndFiber, oldStartFiber, FLAG.INSERT);
+      newEndFiber = getSameNewFiber(
+        parentFiber,
+        newEndFiber,
+        oldStartFiber,
+        FLAG.INSERT
+      );
       forwardEnd();
       oldStartFiber = oldChildren[++oldStartIndex];
     } else {
@@ -278,7 +302,12 @@ export const diff = (
         const targetFiber = oldChildren[index];
         const same = isSame(newStartFiber, targetFiber);
         newStartFiber = same
-          ? getSameNewFiber(newStartFiber, targetFiber, FLAG.INSERT)
+          ? getSameNewFiber(
+              parentFiber,
+              newStartFiber,
+              targetFiber,
+              FLAG.INSERT
+            )
           : create(newStartFiber, parentFiber);
         !same && deletion(targetFiber);
         oldChildren[index] = undefined as unknown as Fiber;

@@ -1,5 +1,5 @@
 import { getEventName, isEvent, isNullish, toArray } from "./utils";
-import { ELEMENT, Fiber, FiberEl, findEls, isText } from "./fiber";
+import { ELEMENT, Fiber, findEls, isText } from "./fiber";
 import { readyForWork } from "./reconcile";
 
 export const render = (element: any, container: Element) => {
@@ -55,17 +55,27 @@ export const updateTextProperties = (fiber: Fiber) => {
   fiber.el!.nodeValue = fiber.props.nodeValue + "";
 };
 
+const setAttr = (
+  el: SVGAElement | HTMLElement,
+  isSVG: boolean,
+  key: string,
+  value: string
+) =>
+  isSVG
+    ? (el as SVGAElement).setAttributeNS(null, key, value)
+    : (el as HTMLElement).setAttribute(key, value);
+
+const removeAttr = (
+  el: SVGAElement | HTMLElement,
+  isSVG: boolean,
+  key: string
+) =>
+  isSVG
+    ? (el as SVGAElement).removeAttributeNS(null, key)
+    : (el as HTMLElement).removeAttribute(key);
+
 export const updateElementProperties = (fiber: Fiber) => {
   let { el, isSVG, attrDiff: diff } = fiber;
-
-  const setAttr = (el: FiberEl) =>
-    isSVG
-      ? (el as SVGAElement).setAttributeNS.bind(el, null)
-      : (el as HTMLElement).setAttribute.bind(el);
-  const removeAttr = (el: FiberEl) =>
-    isSVG
-      ? (el as SVGAElement).removeAttributeNS.bind(el, null)
-      : (el as HTMLElement).removeAttribute.bind(el);
 
   for (const [key, newValue, oldValue] of diff || []) {
     const newExist = !isNullish(newValue);
@@ -78,7 +88,9 @@ export const updateElementProperties = (fiber: Fiber) => {
       oldExist && el!.removeEventListener(eventName, oldValue);
       newExist && el!.addEventListener(eventName, newValue, capture);
     } else {
-      newExist ? setAttr(el!)(key, newValue) : removeAttr(el!)(key);
+      newExist
+        ? setAttr(el as SVGAElement | HTMLElement, isSVG!, key, newValue)
+        : removeAttr(el as SVGAElement | HTMLElement, isSVG!, key);
     }
   }
 };

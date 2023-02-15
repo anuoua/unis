@@ -77,41 +77,42 @@ export interface Fiber {
   memorizeState?: MemorizeState;
 }
 
-export const createFiber = (options: Partial<Fiber> = {}) => {
-  return {
-    id: undefined,
-    parent: undefined,
-    child: undefined,
-    sibling: undefined,
-    index: undefined,
-    to: undefined,
-    el: undefined,
-    preEl: undefined,
-    isSVG: undefined,
-    isDestroyed: undefined,
-    props: undefined,
-    compare: undefined,
-    attrDiff: undefined,
-    alternate: undefined,
-    tag: undefined,
-    type: undefined,
-    renderFn: undefined,
-    rendered: undefined,
-    flag: undefined,
-    childFlag: undefined,
-    commitFlag: undefined,
-    children: undefined,
-    nextEffect: undefined,
-    stateEffects: undefined,
-    dispatchBindEffects: undefined,
-    effects: undefined,
-    layoutEffects: undefined,
-    dependencies: undefined,
-    reconcileState: undefined,
-    memorizeState: undefined,
-    ...options,
-  } as Fiber;
-};
+export const createFiber = (options: Partial<Fiber> = {}) =>
+  Object.assign(
+    {
+      id: undefined,
+      parent: undefined,
+      child: undefined,
+      sibling: undefined,
+      index: undefined,
+      to: undefined,
+      el: undefined,
+      preEl: undefined,
+      isSVG: undefined,
+      isDestroyed: undefined,
+      props: undefined,
+      compare: undefined,
+      attrDiff: undefined,
+      alternate: undefined,
+      tag: undefined,
+      type: undefined,
+      renderFn: undefined,
+      rendered: undefined,
+      flag: undefined,
+      childFlag: undefined,
+      commitFlag: undefined,
+      children: undefined,
+      nextEffect: undefined,
+      stateEffects: undefined,
+      dispatchBindEffects: undefined,
+      effects: undefined,
+      layoutEffects: undefined,
+      dependencies: undefined,
+      reconcileState: undefined,
+      memorizeState: undefined,
+    },
+    options
+  ) as Fiber;
 
 export const TEXT = Symbol("$$Text");
 export const ELEMENT = Symbol("$$Element");
