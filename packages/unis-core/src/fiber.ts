@@ -102,7 +102,6 @@ export const createFiber = (options: Partial<Fiber> = {}) =>
       childFlag: undefined,
       commitFlag: undefined,
       children: undefined,
-      nextEffect: undefined,
       stateEffects: undefined,
       dispatchBindEffects: undefined,
       effects: undefined,
