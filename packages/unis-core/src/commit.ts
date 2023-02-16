@@ -1,10 +1,4 @@
-import {
-  clearAndRunEffects,
-  clearEffects,
-  effectDepsEqual,
-  Effect,
-  runEffects,
-} from "./api";
+import { clearEffects } from "./api";
 import {
   append,
   createDOMFragment,
@@ -27,8 +21,8 @@ import {
   isPortal,
   isText,
   isDOM,
+  ReconcileState,
 } from "./fiber";
-import { addTik } from "./toktik";
 
 export const commitDeletion = (fiber: Fiber) => {
   let indexFiber: Fiber | undefined = fiber;
@@ -39,7 +33,6 @@ export const commitDeletion = (fiber: Fiber) => {
     }
     if (isComponent(indexFiber)) {
       clearEffects(indexFiber.effects);
-      clearEffects(indexFiber.layoutEffects);
     }
     /**
      * remove input element may trigger blur sync event,
@@ -107,51 +100,26 @@ export const commitInsert = (fiber: Fiber) => {
   );
 };
 
-export const commitEffectList = (effectList: Fiber[]) => {
-  const effectComps: Fiber[] = [];
-  for (let effect of effectList) {
-    if (matchFlag(effect.commitFlag, FLAG.DELETE)) {
-      commitDeletion(effect.alternate!);
+export const commit = (reconcileState: ReconcileState) => {
+  for (let fiber of reconcileState.commitList) {
+    if (matchFlag(fiber.commitFlag, FLAG.DELETE)) {
+      commitDeletion(fiber.alternate!);
       continue;
     }
-    if (matchFlag(effect.commitFlag, FLAG.UPDATE)) {
-      commitUpdate(effect);
+    if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
+      commitUpdate(fiber);
     }
-    if (matchFlag(effect.commitFlag, FLAG.CREATE) && isDOM(effect)) {
-      commitInsert(effect);
+    if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isDOM(fiber)) {
+      commitInsert(fiber);
     }
-    if (matchFlag(effect.commitFlag, FLAG.INSERT)) {
-      commitInsert(effect);
+    if (matchFlag(fiber.commitFlag, FLAG.INSERT)) {
+      commitInsert(fiber);
     }
-    if (matchFlag(effect.commitFlag, FLAG.REUSE)) {
-      graft(effect, effect.alternate!);
-    } else {
-      isComponent(effect) && effectComps.push(effect);
+    if (matchFlag(fiber.commitFlag, FLAG.REUSE)) {
+      graft(fiber, fiber.alternate!);
     }
-    effect.preEl = undefined;
-    effect.alternate = undefined;
-    effect.commitFlag = undefined;
+    fiber.preEl = undefined;
+    fiber.alternate = undefined;
+    fiber.commitFlag = undefined;
   }
-
-  /**
-   * clear and run layoutEffects
-   */
-  const triggeredLayoutEffects: Effect[] = [];
-
-  effectComps.forEach((comp) =>
-    comp.layoutEffects?.forEach((e) => {
-      const equal = effectDepsEqual(e);
-      if (!equal) {
-        triggeredLayoutEffects.push(e);
-        clearEffects([e]);
-      }
-    })
-  );
-
-  runEffects(triggeredLayoutEffects);
-
-  /**
-   * clear and run effects
-   */
-  addTik(() => effectComps.forEach((i) => clearAndRunEffects(i.effects)));
 };

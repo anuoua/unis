@@ -5,7 +5,9 @@ import { isFun, isNullish } from "./utils";
 
 export interface ReconcileState {
   dispatchBindList: Fiber[];
-  effectList: Fiber[];
+  commitList: Fiber[];
+  tickEffectList: Effect[];
+  layoutEffectList: Effect[];
   dependencyList: Dependency[];
   workingPreEl?: FiberEl;
   componentList: Fiber[];
@@ -71,7 +73,6 @@ export interface Fiber {
   stateEffects?: Effect[];
   dispatchBindEffects?: (() => void)[];
   effects?: Effect[];
-  layoutEffects?: Effect[];
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
   memorizeState?: MemorizeState;
@@ -105,7 +106,6 @@ export const createFiber = (options: Partial<Fiber> = {}) =>
       stateEffects: undefined,
       dispatchBindEffects: undefined,
       effects: undefined,
-      layoutEffects: undefined,
       dependencies: undefined,
       reconcileState: undefined,
       memorizeState: undefined,

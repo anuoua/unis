@@ -12,7 +12,13 @@ import { Fiber, FLAG, mergeFlag } from "../fiber";
 import { getWorkingFiber } from "../reconcile";
 import { arraysEqual } from "../utils";
 
+export enum EFFECT_TYPE {
+  LAYOUT = "layout",
+  TICK = "tick",
+}
+
 export type Effect = (() => (() => void) | void) & {
+  type?: EFFECT_TYPE;
   clear?: (() => void) | void;
   depsFn?: () => any;
   deps?: any;

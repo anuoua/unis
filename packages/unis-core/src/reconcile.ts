@@ -1,5 +1,12 @@
-import { runStateEffects } from "./api";
-import { commitEffectList } from "./commit";
+import {
+  clearAndRunEffects,
+  clearEffects,
+  Effect,
+  effectDepsEqual,
+  runEffects,
+  runStateEffects,
+} from "./api";
+import { commit } from "./commit";
 import { preElWalkHook } from "./reconcileWalkHooks/preEl";
 import { effectWalkHook } from "./reconcileWalkHooks/effect";
 import { contextWalkHook } from "./context";
@@ -52,7 +59,9 @@ const performWork = (rootCurrentFiber: Fiber) => {
 
   const initialReconcileState: ReconcileState = {
     dispatchBindList: [],
-    effectList: [],
+    commitList: [],
+    tickEffectList: [],
+    layoutEffectList: [],
     dependencyList: [],
     workingPreEl: undefined,
     componentList: [],
@@ -77,18 +86,44 @@ const tickWork = (workingFiber: Fiber) => {
     });
   } else {
     const { reconcileState } = workingFiber;
-    const { effectList, dependencyList, dispatchBindList } = reconcileState!;
+
     // switch dispatch bind fiber
-    for (const fiber of dispatchBindList) {
+    for (const fiber of reconcileState!.dispatchBindList) {
       fiber.dispatchBindEffects?.forEach((effect) => effect());
     }
-    commitEffectList(effectList);
+
+    // commit to dom
+    commit(reconcileState!);
+
+    // call effects
+    callEffects(reconcileState!);
+
     // clear reconcileState
-    effectList.length = 0;
-    dependencyList.length = 0;
-    dispatchBindList.length = 0;
-    reconcileState!.workingPreEl = undefined;
+    for (const prop of Object.keys(reconcileState!)) {
+      delete reconcileState![prop as keyof ReconcileState];
+    }
   }
+};
+
+const callEffects = (reconcileState: ReconcileState) => {
+  const { layoutEffectList, tickEffectList } = reconcileState!;
+
+  // clear and run layoutEffects
+  const triggeredLayoutEffects: Effect[] = [];
+
+  layoutEffectList?.forEach((e) => {
+    const equal = effectDepsEqual(e);
+    if (!equal) {
+      triggeredLayoutEffects.push(e);
+      clearEffects([e]);
+    }
+  });
+
+  // run triggered layout effects
+  runEffects(triggeredLayoutEffects);
+
+  // clear and run tick effects
+  addTik(() => clearAndRunEffects(tickEffectList));
 };
 
 const update = (fiber: Fiber) => {

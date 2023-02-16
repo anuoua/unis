@@ -76,7 +76,6 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
           rendered: oldFiber.rendered,
           stateEffects: oldFiber.stateEffects,
           effects: oldFiber.effects,
-          layoutEffects: oldFiber.layoutEffects,
           id: oldFiber.id,
         }
       : isDOM(newFiber)
@@ -231,7 +230,7 @@ export const diff = (
   let preEndFiber: Fiber | undefined;
 
   const deletion = (fiber: Fiber) => {
-    reconcileState.effectList.push(del(fiber));
+    reconcileState.commitList.push(del(fiber));
   };
 
   const forward = () => {

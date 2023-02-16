@@ -1,7 +1,6 @@
-import { Effect, getWF } from ".";
+import { Effect, EFFECT_TYPE, useEffect } from ".";
 
 export const useLayoutEffect = (cb: Effect, depsFn?: () => any[]) => {
-  const workingFiber = getWF();
-  cb.depsFn = depsFn;
-  workingFiber.layoutEffects?.push(cb) ?? (workingFiber.layoutEffects = [cb]);
+  cb.type = EFFECT_TYPE.LAYOUT;
+  return useEffect(cb, depsFn);
 };
