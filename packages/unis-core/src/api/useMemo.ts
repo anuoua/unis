@@ -1,7 +1,7 @@
 import { use } from "./use";
 import { Fiber, MemorizeState } from "../fiber";
 import { arraysEqual } from "../utils";
-import { addDispatchBindEffect, linkMemorizeState } from "./useReducer";
+import { addDispatchEffect, linkMemorizeState } from "./useReducer";
 
 export const memoHOF = <T extends unknown>(
   handler: () => T,
@@ -27,7 +27,7 @@ export const memoHOF = <T extends unknown>(
     freshFiber = WF;
     freshDeps = depsFn?.() ?? freshDeps;
 
-    addDispatchBindEffect(freshFiber, effect);
+    addDispatchEffect(freshFiber, effect);
 
     freshMemorizeState = {
       value:

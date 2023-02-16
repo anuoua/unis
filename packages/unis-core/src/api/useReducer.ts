@@ -1,4 +1,4 @@
-import { markFiber } from ".";
+import { Effect, EFFECT_TYPE, markFiber } from ".";
 import { use } from "./use";
 import { Fiber, findRoot, MemorizeState } from "../fiber";
 import { readyForWork } from "../reconcile";
@@ -52,17 +52,19 @@ export const reducerHOF = <T extends any, T2 extends any>(
     triggerDebounce(() => currentFiber);
   };
 
-  const effect = () => {
+  const effect: Effect = () => {
     currentFiber = freshFiber!;
     memorizeState = freshMemorizeState!;
     freshFiber = undefined;
     freshMemorizeState = undefined;
   };
 
+  effect.type = EFFECT_TYPE.DISPATCH;
+
   return (WF: Fiber) => {
     freshFiber = WF;
 
-    addDispatchBindEffect(freshFiber, effect);
+    addDispatchEffect(freshFiber, effect);
 
     freshMemorizeState = {
       value:
@@ -82,12 +84,9 @@ export function useReducer<T, T2>(reducerFn: Reducer<T, T2>, initial: T) {
   return use(reducerHOF(reducerFn, initial), arguments[2]);
 }
 
-export const addDispatchBindEffect = (
-  freshFiber: Fiber,
-  effect: () => unknown
-) => {
-  freshFiber.dispatchBindEffects?.push(effect) ??
-    (freshFiber.dispatchBindEffects = [effect]);
+export const addDispatchEffect = (freshFiber: Fiber, effect: Effect) => {
+  freshFiber.reconcileState!.dispatchEffectList?.push(effect) ??
+    (freshFiber.reconcileState!.dispatchEffectList = [effect]);
 };
 
 export const linkMemorizeState = (

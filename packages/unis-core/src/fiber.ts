@@ -4,7 +4,7 @@ import { AttrDiff } from "./diff";
 import { isFun, isNullish } from "./utils";
 
 export interface ReconcileState {
-  dispatchBindList: Fiber[];
+  dispatchEffectList: Effect[];
   commitList: Fiber[];
   tickEffectList: Effect[];
   layoutEffectList: Effect[];
@@ -69,9 +69,7 @@ export interface Fiber {
   childFlag?: FLAG;
   commitFlag?: FLAG;
   children?: Fiber[];
-  nextEffect?: Fiber;
   stateEffects?: Effect[];
-  dispatchBindEffects?: (() => void)[];
   effects?: Effect[];
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
@@ -104,7 +102,6 @@ export const createFiber = (options: Partial<Fiber> = {}) =>
       commitFlag: undefined,
       children: undefined,
       stateEffects: undefined,
-      dispatchBindEffects: undefined,
       effects: undefined,
       dependencies: undefined,
       reconcileState: undefined,

@@ -58,7 +58,7 @@ const performWork = (rootCurrentFiber: Fiber) => {
   });
 
   const initialReconcileState: ReconcileState = {
-    dispatchBindList: [],
+    dispatchEffectList: [],
     commitList: [],
     tickEffectList: [],
     layoutEffectList: [],
@@ -88,9 +88,7 @@ const tickWork = (workingFiber: Fiber) => {
     const { reconcileState } = workingFiber;
 
     // switch dispatch bind fiber
-    for (const fiber of reconcileState!.dispatchBindList) {
-      fiber.dispatchBindEffects?.forEach((effect) => effect());
-    }
+    runEffects(reconcileState!.dispatchEffectList);
 
     // commit to dom
     commit(reconcileState!);
@@ -130,7 +128,6 @@ const update = (fiber: Fiber) => {
   if (matchFlag(fiber.commitFlag, FLAG.REUSE)) return next(fiber, true);
 
   if (isComponent(fiber)) {
-    fiber.reconcileState!.dispatchBindList.push(fiber);
     updateComponent(fiber);
   } else {
     updateHost(fiber);
