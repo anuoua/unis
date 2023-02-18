@@ -15,7 +15,6 @@ import { arraysEqual } from "../utils";
 export enum EFFECT_TYPE {
   LAYOUT = "layout",
   TICK = "tick",
-  DISPATCH = "dispatch",
 }
 
 export type Effect = (() => (() => void) | void) & {

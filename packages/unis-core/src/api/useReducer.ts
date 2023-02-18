@@ -1,4 +1,4 @@
-import { Effect, EFFECT_TYPE, markFiber } from ".";
+import { Effect, markFiber } from ".";
 import { use } from "./use";
 import { Fiber, findToRoot, MemorizeState } from "../fiber";
 import { readyForWork } from "../reconcile";
@@ -62,8 +62,6 @@ export const reducerHOF = <T extends any, T2 extends any>(
     freshFiber = undefined;
     freshMemorizeState = undefined;
   };
-
-  effect.type = EFFECT_TYPE.DISPATCH;
 
   return (WF: Fiber) => {
     freshFiber = WF;
