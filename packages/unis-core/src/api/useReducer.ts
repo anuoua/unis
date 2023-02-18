@@ -1,6 +1,6 @@
 import { Effect, EFFECT_TYPE, markFiber } from ".";
 import { use } from "./use";
-import { Fiber, findRoot, MemorizeState } from "../fiber";
+import { Fiber, findToRoot, MemorizeState } from "../fiber";
 import { readyForWork } from "../reconcile";
 import { addTok, clearTikTaskQueue } from "../toktik";
 
@@ -17,7 +17,11 @@ const triggerDebounce = (getFiber: () => Fiber) => {
     const fibers = new Set(pendingList.map((getFiber) => getFiber()));
     fibers.forEach(markFiber);
 
-    const rootFibers = new Set(Array.from(fibers).map(findRoot));
+    const rootFibers = new Set(
+      Array.from(fibers).map(
+        (fiber) => findToRoot(fiber, (fiber) => !fiber.parent)!
+      )
+    );
     rootFibers.forEach(readyForWork);
 
     pendingList.length = 0;

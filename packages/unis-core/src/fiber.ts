@@ -10,7 +10,6 @@ export interface ReconcileState {
   layoutEffectList: Effect[];
   dependencyList: Dependency[];
   workingPreEl?: FiberEl;
-  componentList: Fiber[];
 }
 
 export enum FLAG {
@@ -243,8 +242,11 @@ export const getContainer = (
   }
 };
 
-export const findRoot = ((fiber: Fiber | undefined) => {
+export const findToRoot = (
+  fiber: Fiber | undefined,
+  cb: (fiber: Fiber) => boolean
+): Fiber | undefined => {
   while ((fiber = fiber?.parent)) {
-    if (!fiber.parent) return fiber;
+    if (cb(fiber)) return fiber;
   }
-}) as (fiber: Fiber) => Fiber;
+};

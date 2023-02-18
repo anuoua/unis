@@ -11,6 +11,7 @@ import {
   isComponent,
   ReconcileState,
   isText,
+  findToRoot,
 } from "./fiber";
 import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
 
@@ -143,7 +144,7 @@ const determineCommitFlag = (
    */
   const nearestComponent = isComponent(parentFiber)
     ? parentFiber
-    : parentFiber.reconcileState!.componentList.at(-1);
+    : findToRoot(parentFiber, (fiber) => isComponent(fiber));
 
   /**
    * when nearest parent component fiber with FLAG.UPDATE commitFlag, it should be FLAG.UPDATE.
