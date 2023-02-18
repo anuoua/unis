@@ -25,11 +25,11 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",
+    "@unis/vite-preset": "workspace:^",
     "autoprefixer": "^10.4.0",
     "postcss": "^8.3.11",
     "rollup-plugin-reassign": "^1.0.2",
     "tailwindcss": "^2.2.19",
-    "vite": "^2.6.13",
-    "@unis/vite-preset": "workspace:^"
+    "vite": "^4.1.2"
   }
 }
