@@ -1,5 +1,5 @@
 import { getEventName, isEvent, isNullish, toArray } from "./utils";
-import { ELEMENT, Fiber, findEls, isText } from "./fiber";
+import { ELEMENT, Fiber, FiberEl, findEls, isPortal, isText } from "./fiber";
 import { readyForWork } from "./reconcile";
 
 export const render = (element: any, container: Element) => {
@@ -14,8 +14,6 @@ export const render = (element: any, container: Element) => {
   });
 };
 
-export const createDOMFragment = () => document.createDocumentFragment();
-
 export const createDOMElement = (fiber: Fiber) => {
   const { tag: type, isSVG } = fiber;
   return isText(fiber)
@@ -25,21 +23,21 @@ export const createDOMElement = (fiber: Fiber) => {
     : document.createElement(type as string);
 };
 
-export const insertBefore = (container: Node, node: Node, child: Node | null) =>
-  container.insertBefore(node, child);
-
-export const append = (
-  container: Element | DocumentFragment,
-  ...nodes: (DocumentFragment | Element | Text)[]
+export const insertBefore = (
+  containerFiber: Fiber,
+  insertElement: FiberEl,
+  targetElement: FiberEl | null
 ) => {
-  for (const node of nodes) {
-    container.appendChild(node);
-  }
+  (isPortal(containerFiber)
+    ? containerFiber.to
+    : containerFiber.el)!.insertBefore(insertElement, targetElement);
 };
 
-export const nextSibling = (node: Node) => node.nextSibling;
+export const nextSibling = (fiber: Fiber) =>
+  fiber.el!.nextSibling as FiberEl | null;
 
-export const firstChild = (node: Node) => node.firstChild;
+export const firstChild = (fiber: Fiber) =>
+  fiber.el!.firstChild as FiberEl | null;
 
 export const remove = (fiber: Fiber) => {
   const [first, ...rest] = findEls(fiber);

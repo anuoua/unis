@@ -1,7 +1,5 @@
 import { clearEffects } from "./api";
 import {
-  append,
-  createDOMFragment,
   firstChild,
   insertBefore,
   nextSibling,
@@ -13,15 +11,15 @@ import {
   Fiber,
   findEls,
   FLAG,
-  getContainer,
+  getContainerElFiber,
   graft,
   isComponent,
   isElement,
   matchFlag,
-  isPortal,
   isText,
   isDOM,
   ReconcileState,
+  isPortal,
 } from "./fiber";
 
 export const commitDeletion = (fiber: Fiber) => {
@@ -77,27 +75,23 @@ export const commitUpdate = (fiber: Fiber) => {
 };
 
 export const commitInsert = (fiber: Fiber) => {
-  const [container, isPortalContainer] = getContainer(fiber)!;
+  const container = getContainerElFiber(fiber)!;
 
-  let insertElement = isDOM(fiber) ? fiber.el : undefined;
+  const insertElements = isDOM(fiber)
+    ? [fiber.el!]
+    : findEls(
+        matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
+      );
 
-  if (!insertElement) {
-    insertElement = createDOMFragment();
-    const els = findEls(
-      matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
-    );
-    append(insertElement, ...els);
+  const insertTarget = isPortal(container)
+    ? null
+    : fiber.preElFiber
+    ? nextSibling(fiber.preElFiber)
+    : firstChild(container);
+
+  for (const insertElement of insertElements) {
+    insertBefore(container, insertElement, insertTarget);
   }
-
-  insertBefore(
-    container,
-    insertElement,
-    isPortalContainer
-      ? null
-      : fiber.preEl
-      ? nextSibling(fiber.preEl)
-      : firstChild(container)
-  );
 };
 
 export const commit = (reconcileState: ReconcileState) => {
@@ -118,7 +112,7 @@ export const commit = (reconcileState: ReconcileState) => {
     if (matchFlag(fiber.commitFlag, FLAG.REUSE)) {
       graft(fiber, fiber.alternate!);
     }
-    fiber.preEl = undefined;
+    fiber.preElFiber = undefined;
     fiber.alternate = undefined;
     fiber.commitFlag = undefined;
   }

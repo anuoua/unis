@@ -9,7 +9,7 @@ export interface ReconcileState {
   tickEffectList: Effect[];
   layoutEffectList: Effect[];
   dependencyList: Dependency[];
-  workingPreEl?: FiberEl;
+  workingPreElFiber?: Fiber;
 }
 
 export enum FLAG {
@@ -53,7 +53,7 @@ export interface Fiber {
   index?: number;
   to?: Element;
   el?: FiberEl;
-  preEl?: FiberEl;
+  preElFiber?: Fiber;
   isSVG?: boolean;
   isDestroyed?: boolean;
   props?: any;
@@ -218,14 +218,14 @@ export const findEls = (fiber: Fiber, findInPortal = false) => {
   return els;
 };
 
-export const findLastEl = (fiber: Fiber): FiberEl | undefined => {
+export const findLastElFiber = (fiber: Fiber): Fiber | undefined => {
   if (isDOM(fiber)) {
-    return fiber.el!;
+    return fiber;
   } else if (isPortal(fiber)) {
     return undefined;
   } else {
     for (let i = 0; i < (fiber.children?.length ?? 0); i++) {
-      const result = findLastEl(fiber.children!.at(-(i + 1))!);
+      const result = findLastElFiber(fiber.children!.at(-(i + 1))!);
       if (result) return result;
     }
   }
@@ -233,12 +233,11 @@ export const findLastEl = (fiber: Fiber): FiberEl | undefined => {
 
 export type ContainerElement = Exclude<FiberEl, Text>;
 
-export const getContainer = (
+export const getContainerElFiber = (
   fiber: Fiber | undefined
-): [ContainerElement, boolean] | undefined => {
+): Fiber | undefined => {
   while ((fiber = fiber?.parent)) {
-    if (isPortal(fiber)) return [fiber.to as ContainerElement, true];
-    if (isDOM(fiber)) return [fiber.el as ContainerElement, false];
+    if (isPortal(fiber) || isDOM(fiber)) return fiber;
   }
 };
 

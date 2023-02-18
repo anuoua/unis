@@ -7,7 +7,7 @@ import {
   runStateEffects,
 } from "./api";
 import { commit } from "./commit";
-import { preElWalkHook } from "./reconcileWalkHooks/preEl";
+import { preElFiberWalkHook } from "./reconcileWalkHooks/preElFiber";
 import { effectWalkHook } from "./reconcileWalkHooks/effect";
 import { contextWalkHook } from "./context";
 import {
@@ -34,7 +34,7 @@ export const setWorkingFiber = (fiber: Fiber | undefined) =>
 const [next, addHook] = createNext();
 
 // preEl
-addHook(preElWalkHook);
+addHook(preElFiberWalkHook);
 // effect
 addHook(effectWalkHook);
 // context
@@ -60,7 +60,7 @@ const performWork = (rootCurrentFiber: Fiber) => {
     tickEffectList: [],
     layoutEffectList: [],
     dependencyList: [],
-    workingPreEl: undefined,
+    workingPreElFiber: undefined,
   };
 
   rootWorkingFiber.reconcileState = initialReconcileState;
