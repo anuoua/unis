@@ -9,7 +9,7 @@ const configGen = (format) => ({
   input: "src/unis.ts",
   output: [
     {
-      dir: "build",
+      dir: "dist",
       entryFileNames: `unis.${format === "esm" ? "mjs" : "js"}`,
       format,
       sourcemap: true,
@@ -19,7 +19,6 @@ const configGen = (format) => ({
     nodeResolve(),
     esbuild({
       sourceMap: true,
-      minify: process.env.NODE_ENV === "development" ? false : true,
       target: "esnext",
     }),
   ],

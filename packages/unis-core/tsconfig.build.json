@@ -1,8 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "emitDeclarationOnly": true
-  },
   "include": ["src", "types/jsx.d.ts"]
 }

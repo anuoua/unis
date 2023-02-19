@@ -1,2 +1,2 @@
 export * from "./types/jsx";
-export * from "./build/unis";
+export * from "./dist/unis";
