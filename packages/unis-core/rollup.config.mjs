@@ -1,6 +1,10 @@
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-import esbuild from "rollup-plugin-esbuild"
+import esbuild from "rollup-plugin-esbuild";
 
+/**
+ * @param {*} format
+ * @returns {import('rollup').RollupOptions}
+ */
 const configGen = (format) => ({
   input: "src/unis.ts",
   output: [
@@ -15,8 +19,8 @@ const configGen = (format) => ({
     nodeResolve(),
     esbuild({
       sourceMap: true,
-      minify: process.env.NODE_ENV === 'development' ? false : true,
-      target: 'esnext'
+      minify: process.env.NODE_ENV === "development" ? false : true,
+      target: "esnext",
     }),
   ],
 });

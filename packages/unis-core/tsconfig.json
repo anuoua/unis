@@ -3,7 +3,8 @@
   "compilerOptions": {
     "jsx": "react",
     "jsxFactory": "h",
-    "jsxImportSource": ""
+    "jsxImportSource": "",
+    "outDir": "build",
   },
   "include": ["src", "test", "types/jsx.d.ts"]
 }
