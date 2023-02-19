@@ -2,20 +2,21 @@
   "name": "@unis/router",
   "version": "0.0.4",
   "description": "Unis router component",
-  "main": "build/index.js",
-  "module": "build/index.mjs",
-  "types": "build/index.d.ts",
-  "typings": "build/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "rimraf build && rollup --config && tsc",
+    "build": "rimraf build && rimraf dist && rollup --config && pnpm dts",
     "build:dev": "cross-env NODE_ENV=development pnpm build",
     "test": "vitest run --coverage",
-    "test:watch": "vitest -w"
+    "test:watch": "vitest -w",
+    "dts": "tsc -p tsconfig.json && api-extractor run --local --verbose"
   },
   "exports": {
     ".": {
-      "require": "./build/index.js",
-      "import": "./build/index.mjs"
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     }
   },
   "keywords": [
@@ -23,7 +24,7 @@
     "router"
   ],
   "files": [
-    "build"
+    "dist"
   ],
   "author": "anuoua",
   "peerDependencies": {
@@ -35,15 +36,17 @@
   },
   "homepage": "https://github.com/anuoua/unis/tree/main/packages/unis-router",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@microsoft/api-extractor": "^7.34.4",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/node": "^18.14.0",
     "@unis/unis": "workspace:^",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.13.13",
+    "esbuild": "^0.17.8",
     "rimraf": "^3.0.2",
-    "rollup": "^2.72.0",
-    "rollup-plugin-esbuild": "^4.6.0",
-    "rollup-plugin-reassign": "^1.0.2",
-    "typescript": "^4.4.4",
+    "rollup": "^3.17.1",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-reassign": "^1.0.3",
+    "typescript": "^4.9.5",
     "vitest": "^0.21.0"
   },
   "dependencies": {
