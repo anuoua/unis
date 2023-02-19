@@ -14,7 +14,7 @@ const configGen = (format) =>
     external: ["@unis/unis"],
     output: [
       {
-        dir: "build",
+        dir: "dist",
         entryFileNames: `index.${format === "esm" ? "mjs" : "js"}`,
         format,
         sourcemap: true,
@@ -24,9 +24,7 @@ const configGen = (format) =>
       nodeResolve(),
       esbuild({
         sourceMap: true,
-        minify: process.env.NODE_ENV === "development" ? false : true,
         target: "esnext",
-        jsxFactory: "h",
       }),
       reassign({
         include: ["**/*.(t|j)s?(x)"],

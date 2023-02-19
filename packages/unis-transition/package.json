@@ -2,18 +2,19 @@
   "name": "@unis/transition",
   "version": "0.0.7",
   "description": "Unis transition component",
-  "main": "build/index.js",
-  "module": "build/index.mjs",
-  "types": "build/index.d.ts",
-  "typings": "build/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "build": "rimraf build && rollup --config && tsc",
-    "build:dev": "cross-env NODE_ENV=development pnpm build"
+    "build": "rimraf build && rimraf dist && rollup --config && pnpm dts",
+    "build:dev": "cross-env NODE_ENV=development pnpm build",
+    "dts": "tsc -p tsconfig.json && api-extractor run --local --verbose"
   },
   "exports": {
     ".": {
-      "require": "./build/index.js",
-      "import": "./build/index.mjs"
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     }
   },
   "keywords": [
@@ -22,7 +23,7 @@
     "unis"
   ],
   "files": [
-    "build"
+    "dist"
   ],
   "author": "anuoua",
   "peerDependencies": {
@@ -34,6 +35,7 @@
   },
   "homepage": "https://github.com/anuoua/unis/tree/main/packages/unis-transition",
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.34.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@unis/unis": "workspace:^",
     "cross-env": "^7.0.3",

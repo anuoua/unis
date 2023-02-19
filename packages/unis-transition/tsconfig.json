@@ -2,11 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "emitDeclarationOnly": true,
-    "declarationMap": false,
+    "declarationMap": true,
     "outDir": "build",
-    "jsx": "preserve",
+    "jsx": "react",
     "jsxFactory": "h",
-    "jsxImportSource": ""
+    "jsxImportSource": null,
   },
   "include": ["src"]
 }
