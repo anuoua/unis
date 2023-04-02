@@ -1,13 +1,5 @@
 import { clearEffects } from "./api";
 import {
-  firstChild,
-  insertBefore,
-  nextSibling,
-  remove,
-  updateElementProperties,
-  updateTextProperties,
-} from "./dom";
-import {
   Fiber,
   findEls,
   FLAG,
@@ -20,9 +12,10 @@ import {
   isDOM,
   ReconcileState,
   isPortal,
+  Operator,
 } from "./fiber";
 
-export const commitDeletion = (fiber: Fiber) => {
+export const commitDeletion = (fiber: Fiber, operator: Operator) => {
   let indexFiber: Fiber | undefined = fiber;
 
   while (indexFiber) {
@@ -38,7 +31,7 @@ export const commitDeletion = (fiber: Fiber) => {
      */
     indexFiber.isDestroyed = true;
     if (isPortal(indexFiber)) {
-      indexFiber.child && remove(indexFiber.child);
+      indexFiber.child && operator.remove(indexFiber.child);
     }
     indexFiber.dependencies = undefined;
     indexFiber.reconcileState = undefined;
@@ -66,15 +59,15 @@ export const commitDeletion = (fiber: Fiber) => {
     }
   }
 
-  remove(fiber);
+  operator.remove(fiber);
 };
 
-export const commitUpdate = (fiber: Fiber) => {
-  if (isText(fiber)) updateTextProperties(fiber);
-  if (isElement(fiber)) updateElementProperties(fiber);
+export const commitUpdate = (fiber: Fiber, operator: Operator) => {
+  if (isText(fiber)) operator.updateTextProperties(fiber);
+  if (isElement(fiber)) operator.updateElementProperties(fiber);
 };
 
-export const commitInsert = (fiber: Fiber) => {
+export const commitInsert = (fiber: Fiber, operator: Operator) => {
   const container = getContainerElFiber(fiber)!;
 
   const insertElements = isDOM(fiber)
@@ -86,28 +79,29 @@ export const commitInsert = (fiber: Fiber) => {
   const insertTarget = isPortal(container)
     ? null
     : fiber.preElFiber
-    ? nextSibling(fiber.preElFiber)
-    : firstChild(container);
+    ? operator.nextSibling(fiber.preElFiber)
+    : operator.firstChild(container);
 
   for (const insertElement of insertElements) {
-    insertBefore(container, insertElement, insertTarget);
+    operator.insertBefore(container, insertElement, insertTarget);
   }
 };
 
 export const commit = (reconcileState: ReconcileState) => {
+  const { operator } = reconcileState.rootWorkingFiber.runtime!;
   for (let fiber of reconcileState.commitList) {
     if (matchFlag(fiber.commitFlag, FLAG.DELETE)) {
-      commitDeletion(fiber.alternate!);
+      commitDeletion(fiber.alternate!, operator);
       continue;
     }
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
-      commitUpdate(fiber);
+      commitUpdate(fiber, operator);
     }
     if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isDOM(fiber)) {
-      commitInsert(fiber);
+      commitInsert(fiber, operator);
     }
     if (matchFlag(fiber.commitFlag, FLAG.INSERT)) {
-      commitInsert(fiber);
+      commitInsert(fiber, operator);
     }
     if (matchFlag(fiber.commitFlag, FLAG.REUSE)) {
       graft(fiber, fiber.alternate!);

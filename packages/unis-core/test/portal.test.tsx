@@ -4,7 +4,7 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { useEffect, useState } from "../src/api";
 import { createPortal, Fragment, h } from "../src/h";
-import { render } from "../src/dom";
+import { render } from "../src/runtime/dom";
 import { sleep } from "./util";
 
 let root: Element;

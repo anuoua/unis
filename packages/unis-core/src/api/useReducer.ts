@@ -1,40 +1,31 @@
 import { Effect, markFiber } from ".";
 import { use } from "./use";
-import { Fiber, findToRoot, MemorizeState } from "../fiber";
+import { Fiber, findRoot, findRuntime, MemorizeState, TokTik } from "../fiber";
 import { readyForWork } from "../reconcile";
-import { addTok, clearTikTaskQueue } from "../toktik";
 
 export type Reducer<T, T2> = (state: T, action: T2) => T;
 
-const pendingList: (() => Fiber)[] = [];
+const readyList: (() => Fiber)[] = [];
 
-const triggerDebounce = (getFiber: () => Fiber) => {
-  pendingList.push(getFiber);
+const triggerReconcile = () => {
+  const fibers = new Set(readyList.map((getFiber) => getFiber()));
+  fibers.forEach(markFiber);
 
-  if (pendingList.length > 1) return;
+  // multiple app trigger same time
+  const rootFibers = new Set(Array.from(fibers).map(findRoot));
+  rootFibers.forEach(readyForWork);
 
-  addTok(() => {
-    const fibers = new Set(pendingList.map((getFiber) => getFiber()));
-    fibers.forEach(markFiber);
-
-    const rootFibers = new Set(
-      Array.from(fibers).map(
-        (fiber) => findToRoot(fiber, (fiber) => !fiber.parent)!
-      )
-    );
-    rootFibers.forEach(readyForWork);
-
-    pendingList.length = 0;
-  }, true);
+  readyList.length = 0;
 };
 
 export const reducerHOF = <T extends any, T2 extends any>(
   reducerFn: Reducer<T, T2>,
   initial: T
 ) => {
-  let currentFiber: Fiber; // do not getWF here, workingFiber should be assigned in effect.
+  let currentFiber: Fiber | undefined; // do not getWF here, workingFiber should be assigned in effect.
   let freshFiber: Fiber | undefined;
   let freshMemorizeState: MemorizeState | undefined;
+  let toktik: TokTik | undefined;
 
   let memorizeState: MemorizeState = {
     value: undefined,
@@ -46,19 +37,28 @@ export const reducerHOF = <T extends any, T2 extends any>(
     if (!currentFiber) return console.warn("Component is not created");
     if (currentFiber.isDestroyed)
       return console.warn("Component has been destroyed");
+
     const newState = reducerFn(memorizeState.value, action);
     if (Object.is(newState, memorizeState.value)) return;
+
     memorizeState.dispatchValue = newState;
     memorizeState.deps = [newState];
+
     if (freshFiber) {
-      clearTikTaskQueue();
+      toktik!.clearTikTaskQueue();
     }
-    triggerDebounce(() => currentFiber);
+
+    readyList.push(() => currentFiber!);
+
+    if (readyList.length === 1) {
+      toktik!.addTok(triggerReconcile, true);
+    }
   };
 
   const effect: Effect = () => {
     currentFiber = freshFiber!;
     memorizeState = freshMemorizeState!;
+    if (!toktik) toktik = findRuntime(currentFiber).toktik;
     freshFiber = undefined;
     freshMemorizeState = undefined;
   };

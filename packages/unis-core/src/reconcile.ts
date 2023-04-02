@@ -18,9 +18,9 @@ import {
   isComponent,
   createFiber,
   matchFlag,
+  findRuntime,
 } from "./fiber";
 import { formatChildren } from "./h";
-import { addTok, addTik, shouldYield } from "./toktik";
 import { isFun } from "./utils";
 import { diff } from "./diff";
 
@@ -41,7 +41,7 @@ addHook(effectWalkHook);
 addHook(contextWalkHook);
 
 export const readyForWork = (rootCurrentFiber: Fiber) => {
-  addTok(() => performWork(rootCurrentFiber));
+  rootCurrentFiber.runtime!.toktik.addTok(() => performWork(rootCurrentFiber));
 };
 
 const performWork = (rootCurrentFiber: Fiber) => {
@@ -52,9 +52,11 @@ const performWork = (rootCurrentFiber: Fiber) => {
     props: rootCurrentFiber.props,
     alternate: rootCurrentFiber,
     el: rootCurrentFiber.el,
+    runtime: rootCurrentFiber.runtime,
   });
 
   const initialReconcileState: ReconcileState = {
+    rootWorkingFiber,
     dispatchEffectList: [],
     commitList: [],
     tickEffectList: [],
@@ -70,13 +72,14 @@ const performWork = (rootCurrentFiber: Fiber) => {
 };
 
 const tickWork = (workingFiber: Fiber) => {
+  const { toktik } = findRuntime(workingFiber);
   let indexFiber: Fiber | undefined = workingFiber;
-  while (indexFiber && !shouldYield()) {
+  while (indexFiber && !toktik.shouldYield()) {
     indexFiber = update(indexFiber);
     setWorkingFiber(indexFiber);
   }
   if (indexFiber) {
-    addTik(() => {
+    toktik.addTik(() => {
       setWorkingFiber(indexFiber);
       tickWork(indexFiber!);
     });
@@ -100,7 +103,9 @@ const tickWork = (workingFiber: Fiber) => {
 };
 
 const callEffects = (reconcileState: ReconcileState) => {
-  const { layoutEffectList, tickEffectList } = reconcileState!;
+  const { layoutEffectList, tickEffectList, rootWorkingFiber } =
+    reconcileState!;
+  const { toktik } = rootWorkingFiber.runtime!;
 
   // clear and run layoutEffects
   const triggeredLayoutEffects: Effect[] = [];
@@ -117,7 +122,7 @@ const callEffects = (reconcileState: ReconcileState) => {
   runEffects(triggeredLayoutEffects);
 
   // clear and run tick effects
-  addTik(() => clearAndRunEffects(tickEffectList));
+  toktik.addTik(() => clearAndRunEffects(tickEffectList));
 };
 
 const update = (fiber: Fiber) => {

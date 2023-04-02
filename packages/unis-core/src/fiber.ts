@@ -4,6 +4,7 @@ import { AttrDiff } from "./diff";
 import { isFun, isNullish } from "./utils";
 
 export interface ReconcileState {
+  rootWorkingFiber: Fiber;
   dispatchEffectList: Effect[];
   commitList: Fiber[];
   tickEffectList: Effect[];
@@ -31,7 +32,7 @@ export const clearFlag = (a: FLAG | undefined, b: FLAG) =>
 export const matchFlag = (a: FLAG | undefined, b: FLAG) =>
   isNullish(a) ? false : a & b;
 
-export type FiberEl = Element | Text | DocumentFragment | SVGAElement;
+export type FiberEl = any;
 export type FiberType =
   | string
   | Function
@@ -43,6 +44,38 @@ export interface MemorizeState {
   dispatchValue?: any;
   deps: any[];
   next?: MemorizeState;
+}
+
+export interface TokTik {
+  addTok: (task: Function, pending?: boolean) => void;
+  addTik: (task: Function) => void;
+  clearTikTaskQueue: () => void;
+  shouldYield: () => boolean;
+}
+
+export interface Operator {
+  createDOMElement(fiber: Fiber): FiberEl;
+
+  insertBefore(
+    containerFiber: Fiber,
+    insertElement: FiberEl,
+    targetElement: FiberEl | null
+  ): void;
+
+  firstChild(fiber: Fiber): FiberEl | null;
+
+  nextSibling(fiber: Fiber): FiberEl | null;
+
+  remove(fiber: Fiber): void;
+
+  updateTextProperties(fiber: Fiber): void;
+
+  updateElementProperties(fiber: Fiber): void;
+}
+
+export interface Runtime {
+  toktik: TokTik;
+  operator: Operator;
 }
 
 export interface Fiber {
@@ -73,10 +106,11 @@ export interface Fiber {
   dependencies?: Dependency[];
   reconcileState?: ReconcileState;
   memorizeState?: MemorizeState;
+  runtime?: Runtime;
 }
 
 export const createFiber = (options: Partial<Fiber> = {}) =>
-  Object.assign(
+  Object.assign<Fiber, Fiber>(
     {
       id: undefined,
       parent: undefined,
@@ -85,7 +119,7 @@ export const createFiber = (options: Partial<Fiber> = {}) =>
       index: undefined,
       to: undefined,
       el: undefined,
-      preEl: undefined,
+      preElFiber: undefined,
       isSVG: undefined,
       isDestroyed: undefined,
       props: undefined,
@@ -107,7 +141,7 @@ export const createFiber = (options: Partial<Fiber> = {}) =>
       memorizeState: undefined,
     },
     options
-  ) as Fiber;
+  );
 
 export const TEXT = Symbol("$$Text");
 export const ELEMENT = Symbol("$$Element");
@@ -249,3 +283,11 @@ export const findToRoot = (
     if (cb(fiber)) return fiber;
   }
 };
+
+export const findRoot = (fiber: Fiber) =>
+  findToRoot(fiber, (fiber) => !fiber.parent)!;
+
+export const findRuntime = (fiber: Fiber) =>
+  fiber.reconcileState?.rootWorkingFiber
+    ? fiber.reconcileState.rootWorkingFiber.runtime!
+    : findRoot(fiber).runtime!;

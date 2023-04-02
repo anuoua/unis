@@ -1,4 +1,3 @@
-import { createDOMElement, updateElementProperties } from "./dom";
 import {
   clearFlag,
   Fiber,
@@ -12,6 +11,8 @@ import {
   ReconcileState,
   isText,
   findToRoot,
+  findRuntime,
+  Operator,
 } from "./fiber";
 import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
 
@@ -97,7 +98,11 @@ export const del = (oldFiber: Fiber): Fiber => ({
   alternate: oldFiber,
 });
 
-export const create = (newFiber: Fiber, parentFiber: Fiber) => {
+export const create = (
+  newFiber: Fiber,
+  parentFiber: Fiber,
+  operator: Operator
+) => {
   const retFiber = {
     ...newFiber,
     commitFlag: FLAG.CREATE,
@@ -105,12 +110,12 @@ export const create = (newFiber: Fiber, parentFiber: Fiber) => {
 
   if (isDOM(newFiber)) {
     retFiber.isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
-    retFiber.el = createDOMElement(retFiber);
+    retFiber.el = operator.createDOMElement(retFiber);
     const diff = isText(retFiber)
       ? undefined
       : attrDiff(retFiber, { props: {} });
     retFiber.attrDiff = diff;
-    if (diff?.length) updateElementProperties(retFiber);
+    if (diff?.length) operator.updateElementProperties(retFiber);
   }
 
   if (isPortal(newFiber)) {
@@ -214,6 +219,7 @@ export const diff = (
   oldChildren: Fiber[] = [],
   newChildren: Fiber[] = []
 ) => {
+  const { operator } = findRuntime(parentFiber);
   const { reconcileState } = parentFiber as { reconcileState: ReconcileState };
 
   let cloneChildren: Fiber[] = [];
@@ -297,7 +303,7 @@ export const diff = (
       }
       const index = keyIndexMap[newStartFiber.props.key];
       if (isNaN(index)) {
-        newStartFiber = create(newStartFiber, parentFiber);
+        newStartFiber = create(newStartFiber, parentFiber, operator);
       } else {
         const targetFiber = oldChildren[index];
         const same = isSame(newStartFiber, targetFiber);
@@ -308,7 +314,7 @@ export const diff = (
               targetFiber,
               FLAG.INSERT
             )
-          : create(newStartFiber, parentFiber);
+          : create(newStartFiber, parentFiber, operator);
         !same && deletion(targetFiber);
         oldChildren[index] = undefined as unknown as Fiber;
       }
@@ -318,7 +324,7 @@ export const diff = (
 
   if (oldStartIndex > oldEndIndex) {
     newChildren.slice(newStartIndex, newEndIndex + 1).forEach((fiber) => {
-      newStartFiber = create(newStartFiber, parentFiber);
+      newStartFiber = create(newStartFiber, parentFiber, operator);
       forward();
     });
   } else if (newStartIndex > newEndIndex) {
