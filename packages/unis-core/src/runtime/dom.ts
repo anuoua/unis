@@ -22,3 +22,19 @@ export const render = (element: any, container: Element) => {
     },
   });
 };
+
+export const hydrate = (element: any, container: Element) => {
+  readyForWork({
+    tag: container.tagName.toLocaleLowerCase(),
+    type: ELEMENT,
+    el: container,
+    index: 0,
+    props: {
+      children: toArray(element),
+    },
+    runtime: {
+      toktik,
+      operator,
+    },
+  });
+};

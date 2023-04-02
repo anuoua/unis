@@ -2,7 +2,8 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { useEffect, useState } from "../src/api";
+import { useEffect } from "../src/api/useEffect";
+import { useState } from "../src/api/useState";
 import { h } from "../src/h";
 import { render } from "../src/runtime/dom";
 import { sleep } from "./util";

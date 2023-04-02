@@ -1,34 +1,52 @@
-import { Fiber, findEls, isPortal, isText } from "../fiber";
+import { Fiber, findEls, isPortal, isText, Operator } from "../fiber";
 import { getEventName, isEvent, isNullish } from "../utils";
 
-type FiberEl = Element | DocumentFragment | SVGAElement | Text;
+type FiberDomEl = Element | DocumentFragment | SVGAElement | Text | ParentNode;
 
-export const createOperator = () => {
-  const createDOMElement = (fiber: Fiber) => {
-    const { tag: type, isSVG } = fiber;
+interface FiberDom extends Fiber {
+  el?: FiberDomEl;
+}
+
+export const createOperator = (): Operator => {
+  const createDomElement = (fiber: FiberDom) => {
+    const { tag: type, isSvg } = fiber;
     return isText(fiber)
       ? document.createTextNode(fiber.props.nodeValue + "")
-      : isSVG
+      : isSvg
       ? document.createElementNS("http://www.w3.org/2000/svg", type as string)
       : document.createElement(type as string);
   };
 
-  const insertBefore = (
-    containerFiber: Fiber,
-    insertElement: FiberEl,
-    targetElement: FiberEl | null
-  ) => {
-    (isPortal(containerFiber)
-      ? containerFiber.to
-      : containerFiber.el)!.insertBefore(insertElement, targetElement);
+  const findNextDomElement = (fiber: FiberDom) => {
+    let el = fiber.el as FiberDomEl | null;
+    while (el) {
+      if (el.firstChild) return el.firstChild;
+      if (el.nextSibling) return el.nextSibling;
+      while ((el = el.parentNode)) {
+        if (el.nextSibling) return el.nextSibling;
+      }
+    }
+    return null;
   };
 
-  const nextSibling = (fiber: Fiber) => fiber.el!.nextSibling as FiberEl | null;
+  const insertBefore = (
+    containerFiber: FiberDom,
+    insertElement: FiberDomEl,
+    targetElement: FiberDomEl | null
+  ) => {
+    (
+      (isPortal(containerFiber)
+        ? containerFiber.to
+        : containerFiber.el)! as FiberDomEl
+    ).insertBefore(insertElement, targetElement);
+  };
 
-  const firstChild = (fiber: Fiber) => fiber.el!.firstChild as FiberEl | null;
+  const nextSibling = (fiber: FiberDom) => fiber.el!.nextSibling;
 
-  const remove = (fiber: Fiber) => {
-    const [first, ...rest] = findEls(fiber);
+  const firstChild = (fiber: FiberDom) => fiber.el!.firstChild;
+
+  const remove = (fiber: FiberDom) => {
+    const [first, ...rest] = findEls(fiber) as FiberDomEl[];
     const parentNode = first?.parentNode;
     if (parentNode) {
       for (const el of [first, ...rest]) {
@@ -37,33 +55,33 @@ export const createOperator = () => {
     }
   };
 
-  const updateTextProperties = (fiber: Fiber) => {
-    fiber.el!.nodeValue = fiber.props.nodeValue + "";
+  const updateTextProperties = (fiber: FiberDom) => {
+    (fiber.el! as Text).nodeValue = fiber.props.nodeValue + "";
   };
 
   const setAttr = (
     el: SVGAElement | HTMLElement,
-    isSVG: boolean,
+    isSvg: boolean,
     key: string,
     value: string
   ) =>
-    isSVG
+    isSvg
       ? (el as SVGAElement).setAttributeNS(null, key, value)
       : (el as HTMLElement).setAttribute(key, value);
 
   const removeAttr = (
     el: SVGAElement | HTMLElement,
-    isSVG: boolean,
+    isSvg: boolean,
     key: string
   ) =>
-    isSVG
+    isSvg
       ? (el as SVGAElement).removeAttributeNS(null, key)
       : (el as HTMLElement).removeAttribute(key);
 
-  const updateElementProperties = (fiber: Fiber) => {
-    let { el, isSVG, attrDiff: diff } = fiber;
+  const updateElementProperties = (fiber: FiberDom) => {
+    let { el, isSvg, attrDiff } = fiber;
 
-    for (const [key, newValue, oldValue] of diff || []) {
+    for (const [key, newValue, oldValue] of attrDiff || []) {
       const newExist = !isNullish(newValue);
       const oldExist = !isNullish(oldValue);
       if (key === "ref") {
@@ -75,15 +93,15 @@ export const createOperator = () => {
         newExist && el!.addEventListener(eventName, newValue, capture);
       } else {
         newExist
-          ? setAttr(el as SVGAElement | HTMLElement, isSVG!, key, newValue)
-          : removeAttr(el as SVGAElement | HTMLElement, isSVG!, key);
+          ? setAttr(el as SVGAElement | HTMLElement, isSvg!, key, newValue)
+          : removeAttr(el as SVGAElement | HTMLElement, isSvg!, key);
       }
     }
   };
 
   return {
-    createOperator,
-    createDOMElement,
+    createDomElement,
+    findNextDomElement,
     insertBefore,
     nextSibling,
     firstChild,

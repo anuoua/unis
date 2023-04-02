@@ -10,16 +10,23 @@ export default defineConfig({
   plugins: [
     reassign({
       targetFns: {
-        "../src/api": {
+        "../src/api/use": {
           use: 1,
-          useState: 1,
-          useProps: 1,
-          useContext: 1,
-          useReducer: 2,
-          useMemo: 2,
         },
-        "../src/context": {
+        "../src/api/useState": {
+          useState: 1,
+        },
+        "../src/api/useProps": {
+          useProps: 1,
+        },
+        "../src/api/useContext": {
           useContext: 1,
+        },
+        "../src/api/useReducer": {
+          useReducer: 2,
+        },
+        "../src/api/useMemo": {
+          useMemo: 2,
         },
       },
     }),

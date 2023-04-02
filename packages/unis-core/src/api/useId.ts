@@ -1,11 +1,11 @@
-import { getWF } from ".";
+import { getWF } from "./utils";
 import { Fiber } from "../fiber";
 import { use } from "./use";
 
 let id = 0;
 let preId = "";
 
-export const idHOF = () => {
+export const idHof = () => {
   let workingFiber = getWF();
   if (!workingFiber.id) {
     if (id === Number.MAX_SAFE_INTEGER) {
@@ -18,5 +18,5 @@ export const idHOF = () => {
 };
 
 export function useId() {
-  return use(idHOF());
+  return use(idHof());
 }

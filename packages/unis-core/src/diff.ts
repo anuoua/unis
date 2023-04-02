@@ -2,7 +2,7 @@ import {
   clearFlag,
   Fiber,
   FLAG,
-  isDOM,
+  isDom,
   matchFlag,
   isPortal,
   isSame,
@@ -29,7 +29,7 @@ export const attrDiff = (
   const getRealAttr = (attr: string) => {
     if (attr === "className") return "class";
     if (attr === "htmlFor") return "for";
-    if (newFiber.isSVG) return svgKey(attr);
+    if (newFiber.isSvg) return svgKey(attr);
     return attr.toLowerCase();
   };
 
@@ -80,8 +80,8 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
           effects: oldFiber.effects,
           id: oldFiber.id,
         }
-      : isDOM(newFiber)
-      ? { el: oldFiber.el, isSVG: oldFiber.isSVG }
+      : isDom(newFiber)
+      ? { el: oldFiber.el, isSvg: oldFiber.isSvg }
       : isPortal(newFiber)
       ? { to: oldFiber.to }
       : undefined
@@ -108,9 +108,9 @@ export const create = (
     commitFlag: FLAG.CREATE,
   } as Fiber;
 
-  if (isDOM(newFiber)) {
-    retFiber.isSVG = newFiber.tag === "svg" || parentFiber.isSVG;
-    retFiber.el = operator.createDOMElement(retFiber);
+  if (isDom(newFiber)) {
+    retFiber.isSvg = newFiber.tag === "svg" || parentFiber.isSvg;
+    retFiber.el = operator.createDomElement(retFiber);
     const diff = isText(retFiber)
       ? undefined
       : attrDiff(retFiber, { props: {} });
@@ -177,7 +177,7 @@ const determineCommitFlag = (
     commitFlag = mergeFlag(commitFlag, FLAG.REUSE);
   }
 
-  if (isDOM(newFiber)) {
+  if (isDom(newFiber)) {
     let diff: AttrDiff = [];
     if (matchFlag(commitFlag, FLAG.UPDATE)) {
       diff = attrDiff(newFiber, oldFiber);

@@ -1,4 +1,4 @@
-import { Effect, markFiber } from ".";
+import { Effect, markFiber } from "./utils";
 import { use } from "./use";
 import { Fiber, findRoot, findRuntime, MemorizeState, TokTik } from "../fiber";
 import { readyForWork } from "../reconcile";
@@ -13,12 +13,12 @@ const triggerReconcile = () => {
 
   // multiple app trigger same time
   const rootFibers = new Set(Array.from(fibers).map(findRoot));
-  rootFibers.forEach(readyForWork);
+  rootFibers.forEach((fiber) => readyForWork(fiber));
 
   readyList.length = 0;
 };
 
-export const reducerHOF = <T extends any, T2 extends any>(
+export const reducerHof = <T extends any, T2 extends any>(
   reducerFn: Reducer<T, T2>,
   initial: T
 ) => {
@@ -83,7 +83,7 @@ export const reducerHOF = <T extends any, T2 extends any>(
 };
 
 export function useReducer<T, T2>(reducerFn: Reducer<T, T2>, initial: T) {
-  return use(reducerHOF(reducerFn, initial), arguments[2]);
+  return use(reducerHof(reducerFn, initial), arguments[2]);
 }
 
 export const addDispatchEffect = (freshFiber: Fiber, effect: Effect) => {
@@ -103,4 +103,10 @@ export const linkMemorizeState = (
     freshFiber.memorizeState = freshMemorizeState;
     freshMemorizeState.next = freshMemorizeState;
   }
+};
+
+export const cutMemorizeState = (fiber: Fiber) => {
+  const first = fiber.memorizeState?.next;
+  fiber.memorizeState && (fiber.memorizeState.next = undefined);
+  fiber.memorizeState = first;
 };

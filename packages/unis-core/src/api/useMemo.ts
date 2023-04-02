@@ -3,7 +3,7 @@ import { Fiber, MemorizeState } from "../fiber";
 import { arraysEqual } from "../utils";
 import { addDispatchEffect, linkMemorizeState } from "./useReducer";
 
-export const memoHOF = <T extends unknown>(
+export const memoHof = <T extends unknown>(
   handler: () => T,
   depsFn?: () => any[]
 ) => {
@@ -47,5 +47,5 @@ export function useMemo<T extends unknown>(
   handler: () => T,
   depsFn?: () => any[]
 ) {
-  return use(memoHOF(handler, depsFn), arguments[2]);
+  return use(memoHof(handler, depsFn), arguments[2]);
 }

@@ -1,4 +1,4 @@
-import { EFFECT_TYPE } from "../api";
+import { EFFECT_TYPE } from "../api/utils";
 import { Fiber, WalkHook } from "../fiber";
 
 const pushEffect = (fiber: Fiber) => {

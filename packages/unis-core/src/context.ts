@@ -1,5 +1,6 @@
-import { markFiber, use, useProps } from "./api";
-import { PROVIDER, createNext, Fiber, WalkHook, isProvider } from "./fiber";
+import { useProps } from "./api/useProps";
+import { useContext } from "./api/useContext";
+import { PROVIDER, Fiber } from "./fiber";
 
 export interface Context<T = any> {
   Provider: (props: { value: T; children: any }) => JSX.Element;
@@ -37,10 +38,16 @@ export function createContext<T>(initial: T) {
   };
 
   const Consumer = (props: { children: (value: T) => JSX.Element }) => {
-    // @ts-ignore
-    let p = useProps(props, ($) => (p = $));
-    // @ts-ignore
-    let state = useContext(context, ($) => (state = $));
+    let p = useProps(
+      props,
+      // @ts-ignore
+      ($) => (p = $)
+    );
+    let state = useContext(
+      context,
+      // @ts-ignore
+      ($) => (state = $)
+    );
     return () => p.children(state);
   };
 
@@ -54,64 +61,3 @@ export function createContext<T>(initial: T) {
 
   return context;
 }
-
-const contextHOF = <T extends Context>(context: T) => {
-  const readContext = (fiber: Fiber): T["initial"] => {
-    const { dependencyList = [] } = fiber.reconcileState!;
-    const result = [...dependencyList]
-      .reverse()
-      .find((d) => d.context === context);
-
-    if (result) {
-      if (fiber.dependencies) {
-        !fiber.dependencies.includes(result) && fiber.dependencies.push(result);
-      } else {
-        fiber.dependencies = [result];
-      }
-      return result.value;
-    } else {
-      return context.initial;
-    }
-  };
-  return (WF: Fiber) => readContext(WF);
-};
-
-export function useContext<T extends Context>(ctx: T) {
-  return use(contextHOF(ctx), arguments[1]);
-}
-
-export const contextWalkHook: WalkHook = {
-  down: (from: Fiber, to?: Fiber) => {
-    isProvider(from) &&
-      from.reconcileState!.dependencyList.push(createDependency(from));
-  },
-
-  up: (from: Fiber, to?: Fiber) => {
-    to && isProvider(to) && from.reconcileState!.dependencyList.pop();
-  },
-
-  enter: (enter: Fiber, skipChild: boolean) => {
-    if (
-      enter.alternate &&
-      isProvider(enter.alternate) &&
-      !Object.is(enter.alternate.props.value, enter.props.value)
-    ) {
-      let alternate = enter.alternate;
-      let indexFiber: Fiber | undefined = alternate;
-
-      const [next, addHook] = createNext();
-
-      addHook({ up: (from, to) => to !== alternate });
-
-      do {
-        findDependency(indexFiber, enter) && markFiber(indexFiber);
-        indexFiber = next(
-          indexFiber,
-          indexFiber !== alternate &&
-            isProvider(indexFiber) &&
-            indexFiber.tag === enter.tag
-        );
-      } while (indexFiber);
-    }
-  },
-};

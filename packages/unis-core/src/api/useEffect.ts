@@ -1,4 +1,4 @@
-import { Effect, EFFECT_TYPE, getWF } from ".";
+import { Effect, EFFECT_TYPE, getWF } from "./utils";
 
 export const useEffect = (cb: Effect, depsFn?: () => any[]) => {
   const workingFiber = getWF();

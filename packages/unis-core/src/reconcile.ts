@@ -5,11 +5,7 @@ import {
   effectDepsEqual,
   runEffects,
   runStateEffects,
-} from "./api";
-import { commit } from "./commit";
-import { preElFiberWalkHook } from "./reconcileWalkHooks/preElFiber";
-import { effectWalkHook } from "./reconcileWalkHooks/effect";
-import { contextWalkHook } from "./context";
+} from "./api/utils";
 import {
   createNext,
   Fiber,
@@ -20,9 +16,14 @@ import {
   matchFlag,
   findRuntime,
 } from "./fiber";
+import { commit } from "./commit";
+import { preElFiberWalkHook } from "./reconcileWalkHooks/preElFiber";
+import { effectWalkHook } from "./reconcileWalkHooks/effect";
 import { formatChildren } from "./h";
 import { isFun } from "./utils";
 import { diff } from "./diff";
+import { contextWalkHook } from "./reconcileWalkHooks/context";
+import { cutMemorizeState } from "./unis";
 
 let workingFiber: Fiber | undefined;
 
@@ -40,11 +41,13 @@ addHook(effectWalkHook);
 // context
 addHook(contextWalkHook);
 
-export const readyForWork = (rootCurrentFiber: Fiber) => {
-  rootCurrentFiber.runtime!.toktik.addTok(() => performWork(rootCurrentFiber));
+export const readyForWork = (rootCurrentFiber: Fiber, hydrate = false) => {
+  rootCurrentFiber.runtime!.toktik.addTok(() =>
+    performWork(rootCurrentFiber, hydrate)
+  );
 };
 
-const performWork = (rootCurrentFiber: Fiber) => {
+const performWork = (rootCurrentFiber: Fiber, hydrate: boolean) => {
   const rootWorkingFiber = createFiber({
     index: rootCurrentFiber.index,
     tag: rootCurrentFiber.tag,
@@ -63,6 +66,9 @@ const performWork = (rootCurrentFiber: Fiber) => {
     layoutEffectList: [],
     dependencyList: [],
     workingPreElFiber: undefined,
+    hydrate,
+    hydrateNextEl:
+      rootCurrentFiber.runtime!.operator.findNextDomElement(rootCurrentFiber),
   };
 
   rootWorkingFiber.reconcileState = initialReconcileState;
@@ -92,8 +98,8 @@ const tickWork = (workingFiber: Fiber) => {
     // commit to dom
     commit(reconcileState!);
 
-    // call effects
-    callEffects(reconcileState!);
+    // call component effects
+    callComponentEffects(reconcileState!);
 
     // clear reconcileState
     for (const prop of Object.keys(reconcileState!)) {
@@ -102,7 +108,7 @@ const tickWork = (workingFiber: Fiber) => {
   }
 };
 
-const callEffects = (reconcileState: ReconcileState) => {
+const callComponentEffects = (reconcileState: ReconcileState) => {
   const { layoutEffectList, tickEffectList, rootWorkingFiber } =
     reconcileState!;
   const { toktik } = rootWorkingFiber.runtime!;
@@ -141,12 +147,6 @@ const update = (fiber: Fiber) => {
 
 const updateHost = (fiber: Fiber) => {
   diff(fiber, fiber.alternate?.children, formatChildren(fiber.props.children));
-};
-
-const cutMemorizeState = (fiber: Fiber) => {
-  const first = fiber.memorizeState?.next;
-  fiber.memorizeState && (fiber.memorizeState.next = undefined);
-  fiber.memorizeState = first;
 };
 
 const updateComponent = (fiber: Fiber) => {

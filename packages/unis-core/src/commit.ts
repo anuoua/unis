@@ -1,4 +1,4 @@
-import { clearEffects } from "./api";
+import { clearEffects } from "./api/utils";
 import {
   Fiber,
   findEls,
@@ -9,7 +9,7 @@ import {
   isElement,
   matchFlag,
   isText,
-  isDOM,
+  isDom,
   ReconcileState,
   isPortal,
   Operator,
@@ -70,7 +70,7 @@ export const commitUpdate = (fiber: Fiber, operator: Operator) => {
 export const commitInsert = (fiber: Fiber, operator: Operator) => {
   const container = getContainerElFiber(fiber)!;
 
-  const insertElements = isDOM(fiber)
+  const insertElements = isDom(fiber)
     ? [fiber.el!]
     : findEls(
         matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
@@ -97,7 +97,7 @@ export const commit = (reconcileState: ReconcileState) => {
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       commitUpdate(fiber, operator);
     }
-    if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isDOM(fiber)) {
+    if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isDom(fiber)) {
       commitInsert(fiber, operator);
     }
     if (matchFlag(fiber.commitFlag, FLAG.INSERT)) {

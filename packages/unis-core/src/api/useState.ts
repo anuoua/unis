@@ -1,8 +1,8 @@
 import { use } from "./use";
-import { reducerHOF } from "./useReducer";
+import { reducerHof } from "./useReducer";
 
-export const stateHOF = <T extends any>(initial: T) => {
-  return reducerHOF<T, T>((preState, action) => action, initial);
+export const stateHof = <T extends any>(initial: T) => {
+  return reducerHof<T, T>((preState, action) => action, initial);
 };
 
 export function useState<T = undefined>(): [
@@ -11,5 +11,5 @@ export function useState<T = undefined>(): [
 ];
 export function useState<T>(initial: T): [T, (value: T) => void];
 export function useState<T>(initial?: T) {
-  return use(stateHOF(initial), arguments[1]);
+  return use(stateHof(initial), arguments[1]);
 }

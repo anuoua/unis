@@ -1,4 +1,4 @@
-import { Effect } from "./api";
+import { Effect } from "./api/utils";
 import { Dependency } from "./context";
 import { AttrDiff } from "./diff";
 import { isFun, isNullish } from "./utils";
@@ -11,6 +11,8 @@ export interface ReconcileState {
   layoutEffectList: Effect[];
   dependencyList: Dependency[];
   workingPreElFiber?: Fiber;
+  hydrate: boolean;
+  hydrateNextEl: FiberEl;
 }
 
 export enum FLAG {
@@ -32,7 +34,7 @@ export const clearFlag = (a: FLAG | undefined, b: FLAG) =>
 export const matchFlag = (a: FLAG | undefined, b: FLAG) =>
   isNullish(a) ? false : a & b;
 
-export type FiberEl = any;
+export type FiberEl = unknown;
 export type FiberType =
   | string
   | Function
@@ -54,7 +56,9 @@ export interface TokTik {
 }
 
 export interface Operator {
-  createDOMElement(fiber: Fiber): FiberEl;
+  createDomElement(fiber: Fiber): FiberEl;
+
+  findNextDomElement(fiber: Fiber): FiberEl | null;
 
   insertBefore(
     containerFiber: Fiber,
@@ -87,7 +91,7 @@ export interface Fiber {
   to?: Element;
   el?: FiberEl;
   preElFiber?: Fiber;
-  isSVG?: boolean;
+  isSvg?: boolean;
   isDestroyed?: boolean;
   props?: any;
   compare?: Function;
@@ -120,7 +124,7 @@ export const createFiber = (options: Partial<Fiber> = {}) =>
       to: undefined,
       el: undefined,
       preElFiber: undefined,
-      isSVG: undefined,
+      isSvg: undefined,
       isDestroyed: undefined,
       props: undefined,
       compare: undefined,
@@ -151,7 +155,7 @@ export const COMPONENT = Symbol("$$Component");
 
 export const isText = (fiber: Fiber) => fiber.type === TEXT;
 export const isElement = (fiber: Fiber) => fiber.type === ELEMENT;
-export const isDOM = (fiber: Fiber) => isElement(fiber) || isText(fiber);
+export const isDom = (fiber: Fiber) => isElement(fiber) || isText(fiber);
 
 export const isPortal = (fiber: Fiber) => fiber.type === PORTAL;
 export const isProvider = (fiber: Fiber) => fiber.type === PROVIDER;
@@ -241,7 +245,7 @@ export const graft = (newFiber: Fiber, oldFiber: Fiber) => {
 
 export const findEls = (fiber: Fiber, findInPortal = false) => {
   const els: FiberEl[] = [];
-  isDOM(fiber)
+  isDom(fiber)
     ? els.push(fiber.el!)
     : isPortal(fiber) && !findInPortal
     ? false
@@ -253,7 +257,7 @@ export const findEls = (fiber: Fiber, findInPortal = false) => {
 };
 
 export const findLastElFiber = (fiber: Fiber): Fiber | undefined => {
-  if (isDOM(fiber)) {
+  if (isDom(fiber)) {
     return fiber;
   } else if (isPortal(fiber)) {
     return undefined;
@@ -271,7 +275,7 @@ export const getContainerElFiber = (
   fiber: Fiber | undefined
 ): Fiber | undefined => {
   while ((fiber = fiber?.parent)) {
-    if (isPortal(fiber) || isDOM(fiber)) return fiber;
+    if (isPortal(fiber) || isDom(fiber)) return fiber;
   }
 };
 

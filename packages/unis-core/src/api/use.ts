@@ -1,4 +1,4 @@
-import { getWF } from ".";
+import { getWF } from "./utils";
 
 export function use<T extends (...args: any[]) => any>(fn: T): ReturnType<T>;
 export function use<T extends (...args: any[]) => any>(
