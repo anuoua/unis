@@ -154,7 +154,7 @@ const updateHost = (fiber: Fiber) => {
     if (!operator.matchElement(fiber, hydrateEl))
       throw new Error("Hydrate failed!");
     fiber.el = hydrateEl;
-    fiber.reconcileState!.hydrateEl = operator.findNextDomElement(hydrateEl);
+    fiber.reconcileState!.hydrateEl = operator.nextElement(hydrateEl);
     const diff = isText(fiber)
       ? undefined
       : attrDiff(fiber, { props: {} }, true);

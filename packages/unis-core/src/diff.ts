@@ -122,7 +122,7 @@ export const create = (
   if (isElement(newFiber)) {
     retFiber.isSvg = newFiber.tag === "svg" || parentFiber.isSvg;
     if (!hydrate) {
-      retFiber.el = operator.createDomElement(retFiber);
+      retFiber.el = operator.createElement(retFiber);
       const diff = isText(retFiber)
         ? undefined
         : attrDiff(retFiber, { props: {} });

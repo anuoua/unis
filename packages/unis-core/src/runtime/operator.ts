@@ -9,7 +9,7 @@ interface FiberDom extends Fiber {
 }
 
 export const createOperator = (): Operator => {
-  const createDomElement = (fiber: FiberDom) => {
+  const createElement = (fiber: FiberDom) => {
     const { tag: type, isSvg } = fiber;
     return isText(fiber)
       ? document.createTextNode(fiber.props.nodeValue + "")
@@ -18,7 +18,7 @@ export const createOperator = (): Operator => {
       : document.createElement(type as string);
   };
 
-  const findNextDomElement = (el: FiberDomEl | null) => {
+  const nextElement = (el: FiberDomEl | null) => {
     while (el) {
       if (el.firstChild) return el.firstChild;
       if (el.nextSibling) return el.nextSibling;
@@ -106,8 +106,8 @@ export const createOperator = (): Operator => {
   };
 
   return {
-    createDomElement,
-    findNextDomElement,
+    createElement,
+    nextElement,
     matchElement,
     insertBefore,
     nextSibling,

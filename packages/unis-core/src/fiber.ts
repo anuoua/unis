@@ -56,11 +56,15 @@ export interface TokTik {
 }
 
 export interface Operator {
-  createDomElement(fiber: Fiber): FiberEl;
+  // for reuse element when hydrate
+  nextElement(el: FiberEl): FiberEl | null;
 
-  findNextDomElement(el: FiberEl): FiberEl | null;
-
+  // for reuse element when hydrate
   matchElement(fiber: Fiber, el: FiberEl): boolean;
+
+  createElement(fiber: Fiber): FiberEl;
+
+  remove(fiber: Fiber): void;
 
   insertBefore(
     containerFiber: Fiber,
@@ -71,8 +75,6 @@ export interface Operator {
   firstChild(fiber: Fiber): FiberEl | null;
 
   nextSibling(fiber: Fiber): FiberEl | null;
-
-  remove(fiber: Fiber): void;
 
   updateTextProperties(fiber: Fiber): void;
 
