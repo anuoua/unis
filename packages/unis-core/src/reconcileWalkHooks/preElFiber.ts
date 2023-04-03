@@ -2,7 +2,7 @@ import {
   Fiber,
   findLastElFiber,
   FLAG,
-  isDom,
+  isElement,
   isPortal,
   matchFlag,
   WalkHook,
@@ -24,13 +24,13 @@ const setReuseFiberPreElFiber = (fiber: Fiber) => {
 
 export const preElFiberWalkHook: WalkHook = {
   down: (from: Fiber, to?: Fiber) => {
-    isDom(from) && setWorkingPreElFiber(from, undefined);
+    isElement(from) && setWorkingPreElFiber(from, undefined);
     isPortal(from) && setWorkingPreElFiber(from, undefined);
   },
 
   up: (from: Fiber, to?: Fiber) => {
     if (to) {
-      isDom(to) && setWorkingPreElFiber(from, to);
+      isElement(to) && setWorkingPreElFiber(from, to);
       isPortal(to) && setWorkingPreElFiber(from, to.preElFiber);
     }
     setReuseFiberPreElFiber(from);
@@ -40,7 +40,7 @@ export const preElFiberWalkHook: WalkHook = {
     if (matchFlag(from.commitFlag, FLAG.REUSE)) {
       setReuseFiberPreElFiber(from);
     } else {
-      isDom(from) && setWorkingPreElFiber(from, from);
+      isElement(from) && setWorkingPreElFiber(from, from);
     }
   },
 

@@ -12,7 +12,7 @@ export interface ReconcileState {
   dependencyList: Dependency[];
   workingPreElFiber?: Fiber;
   hydrate: boolean;
-  hydrateNextEl: FiberEl;
+  hydrateEl?: FiberEl;
 }
 
 export enum FLAG {
@@ -58,7 +58,9 @@ export interface TokTik {
 export interface Operator {
   createDomElement(fiber: Fiber): FiberEl;
 
-  findNextDomElement(fiber: Fiber): FiberEl | null;
+  findNextDomElement(el: FiberEl): FiberEl | null;
+
+  matchElement(fiber: Fiber, el: FiberEl): boolean;
 
   insertBefore(
     containerFiber: Fiber,
@@ -154,8 +156,9 @@ export const PROVIDER = Symbol("$$Provider");
 export const COMPONENT = Symbol("$$Component");
 
 export const isText = (fiber: Fiber) => fiber.type === TEXT;
-export const isElement = (fiber: Fiber) => fiber.type === ELEMENT;
-export const isDom = (fiber: Fiber) => isElement(fiber) || isText(fiber);
+export const isHostElement = (fiber: Fiber) => fiber.type === ELEMENT;
+export const isElement = (fiber: Fiber) =>
+  isHostElement(fiber) || isText(fiber);
 
 export const isPortal = (fiber: Fiber) => fiber.type === PORTAL;
 export const isProvider = (fiber: Fiber) => fiber.type === PROVIDER;
@@ -245,7 +248,7 @@ export const graft = (newFiber: Fiber, oldFiber: Fiber) => {
 
 export const findEls = (fiber: Fiber, findInPortal = false) => {
   const els: FiberEl[] = [];
-  isDom(fiber)
+  isElement(fiber)
     ? els.push(fiber.el!)
     : isPortal(fiber) && !findInPortal
     ? false
@@ -257,7 +260,7 @@ export const findEls = (fiber: Fiber, findInPortal = false) => {
 };
 
 export const findLastElFiber = (fiber: Fiber): Fiber | undefined => {
-  if (isDom(fiber)) {
+  if (isElement(fiber)) {
     return fiber;
   } else if (isPortal(fiber)) {
     return undefined;
@@ -275,7 +278,7 @@ export const getContainerElFiber = (
   fiber: Fiber | undefined
 ): Fiber | undefined => {
   while ((fiber = fiber?.parent)) {
-    if (isPortal(fiber) || isDom(fiber)) return fiber;
+    if (isPortal(fiber) || isElement(fiber)) return fiber;
   }
 };
 

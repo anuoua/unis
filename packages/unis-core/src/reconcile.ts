@@ -15,13 +15,15 @@ import {
   createFiber,
   matchFlag,
   findRuntime,
+  isText,
+  isElement,
 } from "./fiber";
 import { commit } from "./commit";
 import { preElFiberWalkHook } from "./reconcileWalkHooks/preElFiber";
 import { effectWalkHook } from "./reconcileWalkHooks/effect";
 import { formatChildren } from "./h";
 import { isFun } from "./utils";
-import { diff } from "./diff";
+import { attrDiff, diff } from "./diff";
 import { contextWalkHook } from "./reconcileWalkHooks/context";
 import { cutMemorizeState } from "./unis";
 
@@ -67,8 +69,7 @@ const performWork = (rootCurrentFiber: Fiber, hydrate: boolean) => {
     dependencyList: [],
     workingPreElFiber: undefined,
     hydrate,
-    hydrateNextEl:
-      rootCurrentFiber.runtime!.operator.findNextDomElement(rootCurrentFiber),
+    hydrateEl: rootCurrentFiber.el,
   };
 
   rootWorkingFiber.reconcileState = initialReconcileState;
@@ -95,7 +96,7 @@ const tickWork = (workingFiber: Fiber) => {
     // switch dispatch bind fiber
     runEffects(reconcileState!.dispatchEffectList);
 
-    // commit to dom
+    // commit
     commit(reconcileState!);
 
     // call component effects
@@ -146,6 +147,21 @@ const update = (fiber: Fiber) => {
 };
 
 const updateHost = (fiber: Fiber) => {
+  const { hydrate, hydrateEl } = fiber.reconcileState!;
+  const { operator } = findRuntime(fiber);
+
+  if (isElement(fiber) && hydrate && hydrateEl) {
+    if (!operator.matchElement(fiber, hydrateEl))
+      throw new Error("Hydrate failed!");
+    fiber.el = hydrateEl;
+    fiber.reconcileState!.hydrateEl = operator.findNextDomElement(hydrateEl);
+    const diff = isText(fiber)
+      ? undefined
+      : attrDiff(fiber, { props: {} }, true);
+    fiber.attrDiff = diff;
+    if (diff?.length) operator.updateElementProperties(fiber);
+  }
+
   diff(fiber, fiber.alternate?.children, formatChildren(fiber.props.children));
 };
 

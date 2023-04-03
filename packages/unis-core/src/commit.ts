@@ -6,10 +6,10 @@ import {
   getContainerElFiber,
   graft,
   isComponent,
-  isElement,
+  isHostElement,
   matchFlag,
   isText,
-  isDom,
+  isElement,
   ReconcileState,
   isPortal,
   Operator,
@@ -19,7 +19,7 @@ export const commitDeletion = (fiber: Fiber, operator: Operator) => {
   let indexFiber: Fiber | undefined = fiber;
 
   while (indexFiber) {
-    if (isElement(indexFiber)) {
+    if (isHostElement(indexFiber)) {
       indexFiber.props.ref && (indexFiber.props.ref.current = undefined);
     }
     if (isComponent(indexFiber)) {
@@ -64,13 +64,13 @@ export const commitDeletion = (fiber: Fiber, operator: Operator) => {
 
 export const commitUpdate = (fiber: Fiber, operator: Operator) => {
   if (isText(fiber)) operator.updateTextProperties(fiber);
-  if (isElement(fiber)) operator.updateElementProperties(fiber);
+  if (isHostElement(fiber)) operator.updateElementProperties(fiber);
 };
 
 export const commitInsert = (fiber: Fiber, operator: Operator) => {
   const container = getContainerElFiber(fiber)!;
 
-  const insertElements = isDom(fiber)
+  const insertElements = isElement(fiber)
     ? [fiber.el!]
     : findEls(
         matchFlag(fiber.commitFlag, FLAG.REUSE) ? fiber.alternate! : fiber
@@ -97,7 +97,7 @@ export const commit = (reconcileState: ReconcileState) => {
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       commitUpdate(fiber, operator);
     }
-    if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isDom(fiber)) {
+    if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isElement(fiber)) {
       commitInsert(fiber, operator);
     }
     if (matchFlag(fiber.commitFlag, FLAG.INSERT)) {

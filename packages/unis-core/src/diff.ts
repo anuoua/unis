@@ -2,7 +2,7 @@ import {
   clearFlag,
   Fiber,
   FLAG,
-  isDom,
+  isElement,
   matchFlag,
   isPortal,
   isSame,
@@ -12,15 +12,23 @@ import {
   isText,
   findToRoot,
   findRuntime,
-  Operator,
 } from "./fiber";
-import { classes, isNullish, isStr, keys, styleStr, svgKey } from "./utils";
+import {
+  classes,
+  isNullish,
+  isStr,
+  isEvent,
+  keys,
+  styleStr,
+  svgKey,
+} from "./utils";
 
 export type AttrDiff = [string, any, any][];
 
 export const attrDiff = (
   newFiber: Record<string, any>,
-  oldFiber: Record<string, any>
+  oldFiber: Record<string, any>,
+  onlyEvent = false
 ) => {
   const diff: AttrDiff = [];
   const newProps = newFiber.props;
@@ -48,6 +56,7 @@ export const attrDiff = (
   };
 
   for (const key of keys({ ...newProps, ...oldProps })) {
+    if (onlyEvent && !isEvent(key)) continue;
     if (["xmlns", "children"].includes(key)) continue;
     const newValue = newProps[key];
     const oldValue = oldProps[key];
@@ -80,7 +89,7 @@ export const clone = (newFiber: Fiber, oldFiber: Fiber, commitFlag?: FLAG) =>
           effects: oldFiber.effects,
           id: oldFiber.id,
         }
-      : isDom(newFiber)
+      : isElement(newFiber)
       ? { el: oldFiber.el, isSvg: oldFiber.isSvg }
       : isPortal(newFiber)
       ? { to: oldFiber.to }
@@ -101,21 +110,25 @@ export const del = (oldFiber: Fiber): Fiber => ({
 export const create = (
   newFiber: Fiber,
   parentFiber: Fiber,
-  operator: Operator
+  hydrate = false
 ) => {
   const retFiber = {
     ...newFiber,
     commitFlag: FLAG.CREATE,
   } as Fiber;
 
-  if (isDom(newFiber)) {
+  const { operator } = findRuntime(parentFiber);
+
+  if (isElement(newFiber)) {
     retFiber.isSvg = newFiber.tag === "svg" || parentFiber.isSvg;
-    retFiber.el = operator.createDomElement(retFiber);
-    const diff = isText(retFiber)
-      ? undefined
-      : attrDiff(retFiber, { props: {} });
-    retFiber.attrDiff = diff;
-    if (diff?.length) operator.updateElementProperties(retFiber);
+    if (!hydrate) {
+      retFiber.el = operator.createDomElement(retFiber);
+      const diff = isText(retFiber)
+        ? undefined
+        : attrDiff(retFiber, { props: {} });
+      retFiber.attrDiff = diff;
+      if (diff?.length) operator.updateElementProperties(retFiber);
+    }
   }
 
   if (isPortal(newFiber)) {
@@ -177,7 +190,7 @@ const determineCommitFlag = (
     commitFlag = mergeFlag(commitFlag, FLAG.REUSE);
   }
 
-  if (isDom(newFiber)) {
+  if (isElement(newFiber)) {
     let diff: AttrDiff = [];
     if (matchFlag(commitFlag, FLAG.UPDATE)) {
       diff = attrDiff(newFiber, oldFiber);
@@ -219,7 +232,6 @@ export const diff = (
   oldChildren: Fiber[] = [],
   newChildren: Fiber[] = []
 ) => {
-  const { operator } = findRuntime(parentFiber);
   const { reconcileState } = parentFiber as { reconcileState: ReconcileState };
 
   let cloneChildren: Fiber[] = [];
@@ -303,7 +315,7 @@ export const diff = (
       }
       const index = keyIndexMap[newStartFiber.props.key];
       if (isNaN(index)) {
-        newStartFiber = create(newStartFiber, parentFiber, operator);
+        newStartFiber = create(newStartFiber, parentFiber);
       } else {
         const targetFiber = oldChildren[index];
         const same = isSame(newStartFiber, targetFiber);
@@ -314,7 +326,7 @@ export const diff = (
               targetFiber,
               FLAG.INSERT
             )
-          : create(newStartFiber, parentFiber, operator);
+          : create(newStartFiber, parentFiber);
         !same && deletion(targetFiber);
         oldChildren[index] = undefined as unknown as Fiber;
       }
@@ -324,7 +336,11 @@ export const diff = (
 
   if (oldStartIndex > oldEndIndex) {
     newChildren.slice(newStartIndex, newEndIndex + 1).forEach((fiber) => {
-      newStartFiber = create(newStartFiber, parentFiber, operator);
+      newStartFiber = create(
+        newStartFiber,
+        parentFiber,
+        reconcileState.hydrate
+      );
       forward();
     });
   } else if (newStartIndex > newEndIndex) {

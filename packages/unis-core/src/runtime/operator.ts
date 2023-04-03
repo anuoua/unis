@@ -1,5 +1,6 @@
 import { Fiber, findEls, isPortal, isText, Operator } from "../fiber";
 import { getEventName, isEvent, isNullish } from "../utils";
+import { UNIS_ROOT } from "./dom";
 
 type FiberDomEl = Element | DocumentFragment | SVGAElement | Text | ParentNode;
 
@@ -17,17 +18,22 @@ export const createOperator = (): Operator => {
       : document.createElement(type as string);
   };
 
-  const findNextDomElement = (fiber: FiberDom) => {
-    let el = fiber.el as FiberDomEl | null;
+  const findNextDomElement = (el: FiberDomEl | null) => {
     while (el) {
       if (el.firstChild) return el.firstChild;
       if (el.nextSibling) return el.nextSibling;
       while ((el = el.parentNode)) {
+        if ((el as any)[UNIS_ROOT]) return null;
         if (el.nextSibling) return el.nextSibling;
       }
     }
     return null;
   };
+
+  const matchElement = (fiber: FiberDom, el: Element | Text) =>
+    el.nodeType === Node.TEXT_NODE
+      ? isText(fiber)
+      : (el as Element).tagName.toLocaleLowerCase() === fiber.tag;
 
   const insertBefore = (
     containerFiber: FiberDom,
@@ -102,6 +108,7 @@ export const createOperator = (): Operator => {
   return {
     createDomElement,
     findNextDomElement,
+    matchElement,
     insertBefore,
     nextSibling,
     firstChild,

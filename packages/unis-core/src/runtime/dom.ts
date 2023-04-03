@@ -7,34 +7,24 @@ import { createOperator } from "./operator";
 const toktik = createTokTik();
 const operator = createOperator();
 
-export const render = (element: any, container: Element) => {
-  readyForWork({
-    tag: container.tagName.toLocaleLowerCase(),
-    type: ELEMENT,
-    el: container,
-    index: 0,
-    props: {
-      children: toArray(element),
-    },
-    runtime: {
-      toktik,
-      operator,
-    },
-  });
-};
+export const UNIS_ROOT = Symbol("unis_root");
 
-export const hydrate = (element: any, container: Element) => {
-  readyForWork({
-    tag: container.tagName.toLocaleLowerCase(),
-    type: ELEMENT,
-    el: container,
-    index: 0,
-    props: {
-      children: toArray(element),
+export const render = (element: any, container: Element, hydrate = false) => {
+  (container as any)[UNIS_ROOT] = true;
+  readyForWork(
+    {
+      tag: container.tagName.toLocaleLowerCase(),
+      type: ELEMENT,
+      el: container,
+      index: 0,
+      props: {
+        children: toArray(element),
+      },
+      runtime: {
+        toktik,
+        operator,
+      },
     },
-    runtime: {
-      toktik,
-      operator,
-    },
-  });
+    hydrate
+  );
 };
