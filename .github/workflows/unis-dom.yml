@@ -23,7 +23,9 @@ jobs:
           version: 7.9.0
       - run: |
           pnpm install
-          cd packages/unis-dom
+          cd packages/unis-core
+          pnpm build
+          cd ../unis-dom
           pnpm test
 
   "publish":
@@ -41,7 +43,9 @@ jobs:
           version: 7.1.2
       - run: |
           pnpm install
-          cd packages/unis-dom
+          cd packages/unis-core
+          pnpm build
+          cd ../unis-dom
           pnpm build
           pnpm publish --no-git-checks --access public
         env:
