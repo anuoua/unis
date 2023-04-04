@@ -1,6 +1,6 @@
 {
   "name": "@unis/router",
-  "version": "0.0.4",
+  "version": "0.1.0-alpha.0",
   "description": "Unis router component",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
