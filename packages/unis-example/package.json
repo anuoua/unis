@@ -21,7 +21,8 @@
   "dependencies": {
     "@unis/router": "workspace:^",
     "@unis/transition": "workspace:^",
-    "@unis/unis": "workspace:^"
+    "@unis/core": "workspace:^",
+    "@unis/dom": "workspace:^"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.182",

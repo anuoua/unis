@@ -69,12 +69,3 @@ export const clearAndRunEffects = (effects?: Effect[]) => {
     effect.clear = effect();
   }
 };
-
-export const unisFns = {
-  use: 1,
-  useState: 1,
-  useProps: 1,
-  useContext: 1,
-  useReducer: 2,
-  useMemo: 2,
-};

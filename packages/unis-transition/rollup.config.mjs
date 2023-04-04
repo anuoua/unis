@@ -2,7 +2,7 @@ import { defineConfig } from "rollup";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import esbuild from "rollup-plugin-esbuild";
 import { reassign } from "rollup-plugin-reassign";
-import { unisFns } from "@unis/unis";
+import { unisFns } from "@unis/core";
 
 /**
  * @param {*} format
@@ -11,7 +11,7 @@ import { unisFns } from "@unis/unis";
 const configGen = (format) =>
   defineConfig({
     input: "src/index.ts",
-    external: ["@unis/unis"],
+    external: ["@unis/core"],
     output: [
       {
         dir: "dist",
@@ -29,7 +29,7 @@ const configGen = (format) =>
       reassign({
         include: ["**/*.(t|j)s?(x)"],
         targetFns: {
-          "@unis/unis": unisFns,
+          "@unis/core": unisFns,
         },
       }),
     ],

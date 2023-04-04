@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "@unis/unis";
+import { use, useEffect, useState } from "@unis/core";
 
 export const UNMOUNTED = "unmounted";
 export const APPEARING = "appearing";

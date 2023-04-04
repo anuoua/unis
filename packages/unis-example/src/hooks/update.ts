@@ -1,4 +1,4 @@
-import { useState } from "@unis/unis";
+import { useState } from "@unis/core";
 
 export const Update = () => {
   let [count, setCount] = useState(1);

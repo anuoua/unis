@@ -28,7 +28,7 @@
   ],
   "author": "anuoua",
   "peerDependencies": {
-    "@unis/unis": "workspace:^"
+    "@unis/core": "workspace:^"
   },
   "license": "MIT",
   "bugs": {
@@ -39,7 +39,7 @@
     "@microsoft/api-extractor": "^7.34.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/node": "^18.14.0",
-    "@unis/unis": "workspace:^",
+    "@unis/core": "workspace:^",
     "cross-env": "^7.0.3",
     "esbuild": "^0.17.8",
     "rimraf": "^3.0.2",

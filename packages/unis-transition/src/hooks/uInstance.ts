@@ -1,4 +1,4 @@
-import { Fiber, use } from "@unis/unis";
+import { Fiber, use } from "@unis/core";
 
 export const uInstance = () => {
   let instance = use((WF: Fiber) => WF);

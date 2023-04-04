@@ -7,6 +7,7 @@ import esbuild from "rollup-plugin-esbuild";
  */
 const configGen = (format) => ({
   input: "src/index.ts",
+  external: ["@unis/core"],
   output: [
     {
       dir: "dist",

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useProps } from "@unis/unis";
+import { useContext, useEffect, useProps } from "@unis/core";
 import { RouteContext, RouterContext } from "../context";
 import { resolvePath } from "../utils";
 

@@ -2,11 +2,9 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { useEffect } from "../src/api/useEffect";
-import { useState } from "../src/api/useState";
-import { h } from "../src/h";
-import { render } from "../src/runtime/dom";
-import { sleep } from "./util";
+import { h, useEffect, useState } from "@unis/core";
+import { testRender } from "./testRuntime";
+import { rendered } from "./util";
 
 let root: Element;
 
@@ -54,11 +52,11 @@ it("dom", async () => {
     };
   };
 
-  render(<App />, root);
+  testRender(<App />, root);
   expect(root.innerHTML).toBe(
     '<div style="background: yellow;" tabindex="1" class="class1">hello</div>'
   );
-  await sleep(10);
+  await rendered();
   expect(root.innerHTML).toBe(
     '<div style="background: red;" tabindex="2">hello</div>'
   );

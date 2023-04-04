@@ -1,4 +1,4 @@
-import { h, use, useContext } from "@unis/unis";
+import { h, use, useContext } from "@unis/core";
 import { RouteContext, RouterContext } from "../context";
 import { Outlet } from "../components/Outlet";
 import { RouteData } from "../types";

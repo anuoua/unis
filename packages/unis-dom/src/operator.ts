@@ -1,6 +1,6 @@
-import { Fiber, findEls, isPortal, isText, Operator } from "../fiber";
-import { getEventName, isEvent, isNullish } from "../utils";
-import { UNIS_ROOT } from "./dom";
+import { Fiber, findEls, isPortal, isText, Operator } from "@unis/core";
+import { getEventName, isEvent, isNullish } from "@unis/core";
+import { UNIS_ROOT } from "./const";
 
 type FiberDomEl = Element | DocumentFragment | SVGAElement | Text | ParentNode;
 

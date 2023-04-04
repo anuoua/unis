@@ -1,6 +1,6 @@
 import type { PluginOption } from "vite";
 import { reassign } from "rollup-plugin-reassign";
-import { unisFns } from "@unis/unis";
+import { unisFns } from "@unis/core";
 
 export function unisPreset(): PluginOption[] {
   return [
@@ -14,7 +14,7 @@ export function unisPreset(): PluginOption[] {
           esbuild: {
             jsxFactory: "h",
             jsxFragment: "FGMT",
-            jsxInject: `import { h, FGMT } from "@unis/unis"`,
+            jsxInject: `import { h, FGMT } from "@unis/core"`,
           },
         };
       },
@@ -22,7 +22,7 @@ export function unisPreset(): PluginOption[] {
     reassign({
       include: ["**/*.(t|j)s?(x)"],
       targetFns: {
-        "@unis/unis": unisFns,
+        "@unis/core": unisFns,
       },
     }) as PluginOption,
   ];

@@ -46,6 +46,18 @@ export const formatChildren = (children: any) => {
   return formatedChildren;
 };
 
+export const createRoot = (element: any, container: Element): Fiber => {
+  return {
+    tag: container.tagName.toLocaleLowerCase(),
+    type: ELEMENT,
+    el: container,
+    index: 0,
+    props: {
+      children: toArray(element),
+    },
+  };
+};
+
 export const createPortal = (child: JSX.Element, container: Element) =>
   createFiber({
     type: PORTAL,

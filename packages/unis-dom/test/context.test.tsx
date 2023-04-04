@@ -2,13 +2,13 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { useContext } from "../src/api/useContext";
-import { useEffect } from "../src/api/useEffect";
-import { useProps } from "../src/api/useProps";
-import { useState } from "../src/api/useState";
-import { createContext } from "../src/context";
-import { Fragment, h, memo } from "../src/h";
-import { render } from "../src/runtime/dom";
+import { useContext } from "@unis/core";
+import { useEffect } from "@unis/core";
+import { useProps } from "@unis/core";
+import { useState } from "@unis/core";
+import { createContext } from "@unis/core";
+import { Fragment, h, memo } from "@unis/core";
+import { render } from "../src";
 import { sleep } from "./util";
 
 let root: Element;

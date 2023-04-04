@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { h } from "../src/h";
-import { render } from "../src/runtime/dom";
+import { h } from "@unis/core";
+import { render } from "../src";
 import { sleep } from "./util";
 
 let root: Element;

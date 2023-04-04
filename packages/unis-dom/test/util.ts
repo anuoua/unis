@@ -3,3 +3,8 @@ export function sleep(time: number) {
     setTimeout(resolve, time);
   });
 }
+
+export const rendered = () =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });

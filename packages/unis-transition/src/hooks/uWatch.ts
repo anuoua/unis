@@ -1,4 +1,4 @@
-import { use, useLayoutEffect } from "@unis/unis";
+import { use, useLayoutEffect } from "@unis/core";
 
 export const uWatch = <T extends any>(
   handler: (currentValue: T, previousValue: T | undefined) => void,

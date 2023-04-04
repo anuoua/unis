@@ -1,4 +1,4 @@
-import { findEls, use, useLayoutEffect, useProps } from "@unis/unis";
+import { findEls, use, useLayoutEffect, useProps } from "@unis/core";
 import { uInstance } from "./hooks/uInstance";
 import {
   APPEARED,

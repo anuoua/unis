@@ -1,17 +1,17 @@
-name: "@unis/core CI/CD"
+name: "@unis/dom CI/CD"
 
 on:
   push:
     branches:
       - 'main'
     paths:
-      - 'packages/unis-core/**'
+      - 'packages/unis-dom/**'
 
 jobs:
 
   "test":
     runs-on: ubuntu-latest
-    if: ${{contains(github.event.head_commit.message, '(core):')}}
+    if: ${{contains(github.event.head_commit.message, '(dom):')}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -23,13 +23,13 @@ jobs:
           version: 7.9.0
       - run: |
           pnpm install
-          cd packages/unis-core
+          cd packages/unis-dom
           pnpm test
 
   "publish":
     needs: test
     runs-on: ubuntu-latest
-    if: ${{startsWith(github.event.head_commit.message, 'release(core):')}}
+    if: ${{startsWith(github.event.head_commit.message, 'release(dom):')}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -41,7 +41,7 @@ jobs:
           version: 7.1.2
       - run: |
           pnpm install
-          cd packages/unis-core
+          cd packages/unis-dom
           pnpm build
           pnpm publish --no-git-checks --access public
         env:

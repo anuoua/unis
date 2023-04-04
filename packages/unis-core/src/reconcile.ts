@@ -25,7 +25,7 @@ import { formatChildren } from "./h";
 import { isFun } from "./utils";
 import { attrDiff, diff } from "./diff";
 import { contextWalkHook } from "./reconcileWalkHooks/context";
-import { cutMemorizeState } from "./unis";
+import { cutMemorizeState } from "./api/useReducer";
 
 let workingFiber: Fiber | undefined;
 

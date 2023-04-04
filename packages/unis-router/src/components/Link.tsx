@@ -5,7 +5,7 @@ import {
   use,
   useContext,
   useProps,
-} from "@unis/unis";
+} from "@unis/core";
 import { RouterContext } from "../context";
 import { uTargetPath } from "../hooks/uTargetPath";
 

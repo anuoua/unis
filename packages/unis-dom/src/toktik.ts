@@ -1,7 +1,7 @@
 export type Task = Function & { isTok?: any };
 
 export const createTokTik = () => {
-  const INTERVAL = 100000;
+  const INTERVAL = 4;
 
   let lastTime: number = 0;
   let looping = false;

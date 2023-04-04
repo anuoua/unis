@@ -1,4 +1,4 @@
-import { h, useProps, useLayoutEffect, useState, useMemo } from "@unis/unis";
+import { h, useProps, useLayoutEffect, useState, useMemo } from "@unis/core";
 import { createBrowserHistory, BrowserHistory } from "history";
 import { LocationContext, RouterContext } from "../context";
 

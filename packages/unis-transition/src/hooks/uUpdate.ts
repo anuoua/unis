@@ -1,4 +1,4 @@
-import { useReducer } from "@unis/unis";
+import { useReducer } from "@unis/core";
 
 export const uUpdate = () => {
   let [, dispatch] = useReducer((a) => a + 1, 0);

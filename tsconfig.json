@@ -6,7 +6,7 @@
       "ESNext"
     ],
     "jsx": "react-jsx",
-    "jsxImportSource": "@unis/unis",
+    "jsxImportSource": "@unis/core",
     "module": "ESNext",
     "moduleResolution": "node",
     "declaration": true,

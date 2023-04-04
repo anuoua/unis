@@ -1,4 +1,4 @@
-import { FiberNode, use, useEffect, useProps, useState } from "@unis/unis";
+import { FiberNode, use, useEffect, useProps, useState } from "@unis/core";
 import { CSSTransition } from "./CSSTransition";
 
 export interface TransitionGroupProps {

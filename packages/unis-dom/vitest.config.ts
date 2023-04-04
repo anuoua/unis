@@ -1,5 +1,7 @@
 import { defineConfig } from "vitest/config";
+import { reassign } from "rollup-plugin-reassign";
 import replace from "@rollup/plugin-replace";
+import { unisFns } from "@unis/core";
 
 export default defineConfig({
   esbuild: {
@@ -7,6 +9,11 @@ export default defineConfig({
     jsxFragment: "Fragment",
   },
   plugins: [
+    reassign({
+      targetFns: {
+        "@unis/core": unisFns,
+      },
+    }),
     replace({
       "INTERVAL = 4": "INTERVAL = 100000000",
     }),

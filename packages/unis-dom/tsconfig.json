@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "outDir": "build",
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxImportSource": null,
+  },
+  "include": ["src", "test"]
+}

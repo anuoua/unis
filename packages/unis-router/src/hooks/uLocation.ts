@@ -1,4 +1,4 @@
-import { use } from "@unis/unis";
+import { use } from "@unis/core";
 import { uHistory } from "./uHistory";
 
 export const uLocation = () => {

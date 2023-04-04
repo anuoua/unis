@@ -1,4 +1,4 @@
-import { useContext } from "@unis/unis";
+import { useContext } from "@unis/core";
 import { RouteContext } from "../context";
 
 export const uParams = <T = Record<string, any>>() => {
