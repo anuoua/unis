@@ -52,7 +52,7 @@
     "esbuild": "^0.17.8",
     "jsdom": "^21.1.0",
     "rimraf": "^4.1.2",
-    "rollup": "^3.17.0",
+    "rollup": "^3.20.2",
     "rollup-plugin-esbuild": "^5.0.0",
     "rollup-plugin-reassign": "^1.0.3",
     "tslib": "^2.5.0",
