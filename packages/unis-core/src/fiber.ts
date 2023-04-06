@@ -92,7 +92,7 @@ export interface Fiber {
   child?: Fiber;
   sibling?: Fiber;
   index?: number;
-  to?: Element;
+  to?: FiberEl;
   el?: FiberEl;
   preElFiber?: Fiber;
   isSvg?: boolean;

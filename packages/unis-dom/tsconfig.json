@@ -1,9 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "emitDeclarationOnly": true,
-    "declarationMap": true,
     "outDir": "build"
   },
-  "include": ["src", "test"]
+  "include": ["src", "src/browser/__test__", "src/server"]
 }

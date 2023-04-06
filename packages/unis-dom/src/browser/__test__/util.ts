@@ -1,5 +1,5 @@
 import { readyForWork, createRoot, createTokTik } from "@unis/core";
-import { createOperator } from "../src/operator";
+import { createOperator } from "../operator";
 
 const toktik = createTokTik({
   nextTick: (cb: VoidFunction) =>

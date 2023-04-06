@@ -1,5 +1,13 @@
 import { isNum, isStr, keys, toArray } from "./utils";
-import { COMPONENT, createFiber, ELEMENT, Fiber, PORTAL, TEXT } from "./fiber";
+import {
+  COMPONENT,
+  createFiber,
+  ELEMENT,
+  Fiber,
+  FiberEl,
+  PORTAL,
+  TEXT,
+} from "./fiber";
 
 export const h = (tag: any, props: any, ...children: any[]) => {
   props = { ...props };
@@ -46,9 +54,9 @@ export const formatChildren = (children: any) => {
   return formatedChildren;
 };
 
-export const createRoot = (element: any, container: Element): Fiber => {
+export const createRoot = (element: any, container: FiberEl): Fiber => {
   return {
-    tag: container.tagName.toLocaleLowerCase(),
+    tag: (container as any).tagName.toLocaleLowerCase(),
     type: ELEMENT,
     el: container,
     index: 0,
@@ -58,7 +66,7 @@ export const createRoot = (element: any, container: Element): Fiber => {
   };
 };
 
-export const createPortal = (child: JSX.Element, container: Element) =>
+export const createPortal = (child: JSX.Element, container: FiberEl) =>
   createFiber({
     type: PORTAL,
     props: { children: child },

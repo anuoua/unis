@@ -2,22 +2,21 @@
   "name": "@unis/dom",
   "version": "1.2.0-alpha.0",
   "description": "Unis is a simpler and easier to use front-end framework than React",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
+  "main": "dist/browser.js",
+  "module": "dist/browser.mjs",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
-    }
+      "require": "./dist/browser.js",
+      "import": "./dist/browser.mjs"
+    },
+    "./server": "./server.js"
   },
   "scripts": {
-    "build": "rimraf build && rimraf dist && rollup --config && pnpm dts",
+    "build": "rimraf build && rimraf dist && tsc -p tsconfig.build.json && rollup --config",
     "build:dev": "cross-env NODE_ENV=development pnpm build",
+    "build:server": "rollup --config rollup.config.server.mjs",
     "test": "vitest run --coverage",
-    "test:watch": "vitest -w",
-    "dts": "tsc -p tsconfig.build.json && api-extractor run --local --verbose"
+    "test:watch": "vitest -w"
   },
   "repository": {
     "type": "git",
@@ -29,7 +28,9 @@
     "framwork"
   ],
   "files": [
-    "dist"
+    "dist",
+    "server.d.ts",
+    "server.js"
   ],
   "author": "anuoua",
   "license": "MIT",
@@ -41,23 +42,21 @@
     "@unis/core": "workspace:^"
   },
   "devDependencies": {
-    "@unis/vite-preset": "workspace:^",
-    "@microsoft/api-extractor": "^7.34.4",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-replace": "^5.0.2",
-    "@swc/core": "^1.3.35",
-    "@types/jsdom": "^21.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@types/jsdom": "^21.1.1",
     "@unis/core": "workspace:^",
+    "@unis/vite-preset": "workspace:^",
     "@vitest/coverage-c8": "^0.28.5",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.17.8",
-    "jsdom": "^21.1.0",
-    "rimraf": "^4.1.2",
+    "esbuild": "^0.17.15",
+    "jsdom": "^21.1.1",
+    "rimraf": "^4.4.1",
     "rollup": "^3.20.2",
+    "rollup-plugin-dts": "^5.3.0",
     "rollup-plugin-esbuild": "^5.0.0",
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
-    "vite": "^4.1.2",
+    "vite": "^4.2.1",
     "vitest": "^0.29.8"
   }
 }
