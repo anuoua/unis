@@ -4,6 +4,7 @@ export * from "./context";
 export * from "./reconcile";
 export * from "./utils";
 export * from "./diff";
+export * from "./createTokTik";
 export * from "./api/utils";
 export * from "./api/use";
 export * from "./api/useState";
