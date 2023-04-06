@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { render } from "../src";
-import { sleep } from "./util";
+import { rendered, testRender } from "./util";
+import { use, useState } from "@unis/core";
 
 let root: Element;
 
@@ -19,17 +19,29 @@ afterEach(() => {
 it("hydrate", async () => {
   root.innerHTML = "<div>App<span>hello</span></div>";
 
+  let setMsgOutter: any;
+
   const App = () => {
+    let [msg, setMsg] = useState("hello");
+
+    use(() => {
+      setMsgOutter = setMsg;
+    });
+
     return () => (
       <div>
-        App<span>hello</span>
+        App<span>{msg}</span>
       </div>
     );
   };
 
-  render(<App />, root, true);
-
-  await sleep(1);
+  testRender(<App />, root, true);
 
   expect(root.innerHTML).toBe("<div>App<span>hello</span></div>");
+
+  setMsgOutter("world");
+
+  await rendered();
+
+  expect(root.innerHTML).toBe("<div>App<span>world</span></div>");
 });

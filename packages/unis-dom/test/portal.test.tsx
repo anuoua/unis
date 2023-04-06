@@ -5,8 +5,7 @@ import { afterEach, beforeEach, expect, it } from "vitest";
 import { useEffect } from "@unis/core";
 import { useState } from "@unis/core";
 import { createPortal, Fragment } from "@unis/core";
-import { render } from "../src";
-import { sleep } from "./util";
+import { rendered, testRender } from "./util";
 
 let root: Element;
 let dialog: Element;
@@ -41,11 +40,11 @@ it("portal", async () => {
     );
   };
 
-  render(<App />, root);
+  testRender(<App />, root);
   expect(document.body.innerHTML).toBe(
     "<div><div>hello</div></div><div><main>hello dialog</main></div>"
   );
-  await sleep(1);
+  await rendered();
   expect(document.body.innerHTML).toBe(
     "<div><div>hello</div></div><div></div>"
   );

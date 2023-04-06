@@ -8,8 +8,7 @@ import { useProps } from "@unis/core";
 import { useState } from "@unis/core";
 import { createContext } from "@unis/core";
 import { Fragment, memo } from "@unis/core";
-import { render } from "../src";
-import { sleep } from "./util";
+import { rendered, testRender } from "./util";
 
 let root: Element;
 
@@ -82,13 +81,13 @@ it("context", async () => {
     );
   };
 
-  render(<App />, root);
+  testRender(<App />, root);
 
   expect(root.innerHTML).toBe(
     "<div>App</div><div>Bpp: light<div>Cpp: gray</div></div><div>Dpp: light</div><div>Epp: initial</div>"
   );
 
-  await sleep(1);
+  await rendered();
 
   expect(root.innerHTML).toBe(
     "<div>App</div><div>Bpp: dark<div>Cpp: gray</div></div><div>Dpp: dark</div><div>Epp: initial</div>"
@@ -130,11 +129,11 @@ it("context pass through", async () => {
     return () => msg;
   };
 
-  render(<App />, root);
+  testRender(<App />, root);
 
   expect(root.innerHTML).toBe("<div>hello</div>");
 
-  await sleep(1);
+  await rendered();
 
   expect(root.innerHTML).toBe("<div>world</div>");
 });

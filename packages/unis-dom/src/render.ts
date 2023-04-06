@@ -1,10 +1,13 @@
-import { readyForWork, createRoot } from "@unis/core";
-import { createTokTik } from "./toktik";
+import { readyForWork, createRoot, createTokTik } from "@unis/core";
 import { createOperator } from "./operator";
 import { UNIS_ROOT } from "./const";
+import { nextTick, now } from "./toktik";
 
 const operator = createOperator();
-const toktik = createTokTik();
+const toktik = createTokTik({
+  now,
+  nextTick,
+});
 
 export const render = (element: any, container: Element, hydrate = false) => {
   (container as any)[UNIS_ROOT] = true;

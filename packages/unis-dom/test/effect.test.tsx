@@ -4,8 +4,7 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { useEffect } from "@unis/core";
 import { useState } from "@unis/core";
-import { render } from "../src";
-import { sleep } from "./util";
+import { rendered, testRender } from "./util";
 
 let root: Element;
 
@@ -42,8 +41,8 @@ it("effect", async () => {
     return () => (visible ? <Bpp /> : null);
   };
 
-  render(<App />, root);
+  testRender(<App />, root);
   expect(root.innerHTML).toBe("bpp");
-  await sleep(1);
+  await rendered();
   expect(root.innerHTML).toBe("");
 });

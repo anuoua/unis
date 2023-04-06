@@ -4,8 +4,7 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { useEffect } from "@unis/core";
 import { useState } from "@unis/core";
-import { render } from "../src";
-import { sleep } from "./util";
+import { rendered, testRender } from "./util";
 
 let root: Element;
 
@@ -52,11 +51,11 @@ it("diff with key", async () => {
       );
   };
 
-  render(<App />, root);
+  testRender(<App />, root);
   expect(root.innerHTML).toBe(
     '<div><span>1</span><span key="2">2</span><span key="3">3</span><div>del</div><span key="4">4</span><div key="5">5</div><div>6</div></div>'
   );
-  await sleep(1);
+  await rendered();
   expect(root.innerHTML).toBe(
     '<div><span>1</span><div key="5">5</div><span key="4">4</span><span key="2">2</span><span key="3">3</span><div>6</div></div>'
   );
