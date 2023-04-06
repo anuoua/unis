@@ -17,6 +17,8 @@ export * from "./api/useLayoutEffect";
 export * from "./api/useId";
 export * from "./api/useRef";
 
+export type * from "../types/jsx";
+
 export const unisFns = {
   use: 1,
   useState: 1,

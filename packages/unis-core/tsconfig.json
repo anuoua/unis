@@ -1,9 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "emitDeclarationOnly": true,
-    "declarationMap": true,
     "outDir": "build"
   },
-  "include": ["src", "test", "jsx_runtime", "types/jsx.d.ts"]
+  "include": ["src", "test", "jsx-runtime", "jsx-dev-runtime", "types/jsx.d.ts"]
 }

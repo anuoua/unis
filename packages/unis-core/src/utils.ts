@@ -1,4 +1,4 @@
-import { CSArray, CSObject } from "../types/jsx";
+import type { CSArray, CSObject } from "../types/jsx";
 import { displayAttrs } from "./svg";
 
 export const keys = Object.keys;
