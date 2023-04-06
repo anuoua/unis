@@ -1,6 +1,6 @@
 {
   "name": "@unis/vite-preset",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Unis vite preset",
   "main": "build/index.js",
   "module": "build/index.mjs",
