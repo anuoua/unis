@@ -1,16 +1,13 @@
+import esbuild from "rollup-plugin-esbuild";
+import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
-import esbuild from "rollup-plugin-esbuild";
 import { reassign } from "rollup-plugin-reassign";
 import { unisFns } from "@unis/core";
 
-/**
- * @param {*} format
- * @returns {import('rollup').RollupOptions}
- */
 const configGen = (format) =>
   defineConfig({
-    input: "src/index.ts",
+    input: "build/index.js",
     external: [/^@unis/, "history"],
     output: [
       {
@@ -25,9 +22,6 @@ const configGen = (format) =>
       esbuild({
         sourceMap: true,
         target: "esnext",
-        tsconfig: false,
-        jsx: "automatic",
-        jsxImportSource: "@unis/core",
       }),
       reassign({
         include: ["**/*.(t|j)s?(x)"],
@@ -38,6 +32,13 @@ const configGen = (format) =>
     ],
   });
 
-const config = [configGen("cjs"), configGen("esm")];
+const dtsRollup = () =>
+  defineConfig({
+    input: "build/index.d.ts",
+    output: [{ file: "dist/index.d.ts", format: "es" }],
+    plugins: [dts()],
+  });
+
+const config = [configGen("cjs"), configGen("esm"), dtsRollup()];
 
 export default config;
