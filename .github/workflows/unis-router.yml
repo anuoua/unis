@@ -24,6 +24,8 @@ jobs:
           pnpm install
           cd packages/unis-core
           pnpm build
+          cd ../unis-vite-preset
+          pnpm build
           cd ../unis-router
           pnpm test
 
