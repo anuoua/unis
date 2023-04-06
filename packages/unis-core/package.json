@@ -11,7 +11,8 @@
       "require": "./dist/index.js",
       "import": "./dist/index.mjs"
     },
-    "./jsx-runtime": "./jsx-runtime.js"
+    "./jsx-runtime": "./jsx-runtime.js",
+    "./jsx-dev-runtime": "./jsx-dev-runtime.js"
   },
   "scripts": {
     "build": "rimraf build && rimraf dist && rollup --config && pnpm dts",
@@ -33,6 +34,8 @@
     "dist",
     "jsx-runtime.d.ts",
     "jsx-runtime.js",
+    "jsx-dev-runtime.d.ts",
+    "jsx-dev-runtime.js",
     "index.d.ts",
     "types"
   ],
@@ -50,7 +53,6 @@
   "devDependencies": {
     "@microsoft/api-extractor": "^7.34.4",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-replace": "^5.0.2",
     "@swc/core": "^1.3.35",
     "@types/jsdom": "^21.1.0",
     "@vitest/coverage-c8": "^0.28.5",

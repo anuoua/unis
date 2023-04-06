@@ -1,4 +1,4 @@
-import { h, use, useContext } from "@unis/core";
+import { use, useContext } from "@unis/core";
 import { RouteContext } from "../context";
 
 export const Outlet = () => {

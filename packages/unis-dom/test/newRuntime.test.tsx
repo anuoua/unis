@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { h, useEffect, useState } from "@unis/core";
+import { useEffect, useState } from "@unis/core";
 import { testRender } from "./testRuntime";
 import { rendered } from "./util";
 

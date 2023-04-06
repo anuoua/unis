@@ -7,7 +7,7 @@ import { useEffect } from "@unis/core";
 import { useProps } from "@unis/core";
 import { useState } from "@unis/core";
 import { createContext } from "@unis/core";
-import { Fragment, h, memo } from "@unis/core";
+import { Fragment, memo } from "@unis/core";
 import { render } from "../src";
 import { sleep } from "./util";
 

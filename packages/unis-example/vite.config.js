@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
-import { unisPreset } from '@unis/vite-preset'
+import { unisPreset } from "@unis/vite-preset";
 
 export default defineConfig({
-  plugins: [
-    unisPreset()
-  ]
+  plugins: [unisPreset()],
 });

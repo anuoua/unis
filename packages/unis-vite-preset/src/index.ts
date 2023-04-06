@@ -12,9 +12,9 @@ export function unisPreset(): PluginOption[] {
       config(config) {
         return {
           esbuild: {
-            jsxFactory: "h",
-            jsxFragment: "FGMT",
-            jsxInject: `import { h, FGMT } from "@unis/core"`,
+            jsx: "automatic",
+            jsxImportSource: "@unis/core",
+            ...config.esbuild,
           },
         };
       },

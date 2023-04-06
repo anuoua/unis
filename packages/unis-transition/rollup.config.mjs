@@ -11,7 +11,7 @@ import { unisFns } from "@unis/core";
 const configGen = (format) =>
   defineConfig({
     input: "src/index.ts",
-    external: ["@unis/core"],
+    external: [/^@unis/],
     output: [
       {
         dir: "dist",
@@ -25,6 +25,8 @@ const configGen = (format) =>
       esbuild({
         sourceMap: true,
         target: "esnext",
+        jsx: "automatic",
+        jsxImportSource: "@unis/core",
       }),
       reassign({
         include: ["**/*.(t|j)s?(x)"],

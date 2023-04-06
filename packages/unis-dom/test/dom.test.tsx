@@ -4,7 +4,6 @@
 import { afterEach, beforeEach, expect, it } from "vitest";
 import { useEffect } from "@unis/core";
 import { useState } from "@unis/core";
-import { h } from "@unis/core";
 import { render } from "../src";
 import { sleep } from "./util";
 

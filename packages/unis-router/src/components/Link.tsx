@@ -1,7 +1,6 @@
 import {
   AnchorHTMLAttributes,
   ElementAttrs,
-  h,
   use,
   useContext,
   useProps,

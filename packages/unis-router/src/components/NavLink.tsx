@@ -1,4 +1,4 @@
-import { h, HTMLAttributes, use, useContext, useProps } from "@unis/core";
+import { HTMLAttributes, use, useContext, useProps } from "@unis/core";
 import { RouteContext } from "../context";
 import { uTargetPath } from "../hooks/uTargetPath";
 import { Link, LinkProps } from "./Link";
