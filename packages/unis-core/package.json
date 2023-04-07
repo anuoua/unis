@@ -37,12 +37,8 @@
   ],
   "files": [
     "dist",
-    "jsx-runtime.d.ts",
-    "jsx-runtime.js",
-    "jsx-dev-runtime.d.ts",
-    "jsx-dev-runtime.js",
-    "index.d.ts",
-    "types"
+    "jsx-runtime",
+    "index.d.ts"
   ],
   "author": "anuoua",
   "license": "MIT",
