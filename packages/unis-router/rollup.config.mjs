@@ -7,7 +7,7 @@ import { unisFns } from "@unis/core";
 
 const configGen = (format) =>
   defineConfig({
-    input: "build/index.js",
+    input: "src/index.ts",
     external: [/^@unis/, "history"],
     output: [
       {
