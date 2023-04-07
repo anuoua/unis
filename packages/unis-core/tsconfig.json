@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "build"
   },
-  "include": ["src", "test", "jsx-runtime", "jsx-dev-runtime", "types/jsx.d.ts"]
+  "include": ["src", "test", "jsx-runtime", "types/jsx.d.ts"]
 }

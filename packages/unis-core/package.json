@@ -4,15 +4,21 @@
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
+  "types": "index.d.ts",
+  "typings": "index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.js",
       "import": "./dist/index.mjs"
     },
-    "./jsx-runtime": "./jsx-runtime.js",
-    "./jsx-dev-runtime": "./jsx-dev-runtime.js"
+    "./jsx-runtime": {
+      "require": "./jsx-runtime/jsx-runtime.js",
+      "import": "./jsx-runtime/jsx-runtime.mjs"
+    },
+    "./jsx-dev-runtime": {
+      "require": "./jsx-runtime/jsx-dev-runtime.js",
+      "import": "./jsx-runtime/jsx-dev-runtime.mjs"
+    }
   },
   "scripts": {
     "build": "rimraf build && rimraf dist && tsc -p tsconfig.build.json && rollup --config",

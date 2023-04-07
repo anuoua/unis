@@ -5,7 +5,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 const configGen = (format) =>
   defineConfig({
-    input: "build/index.js",
+    input: "src/index.ts",
     output: [
       {
         dir: "dist",
