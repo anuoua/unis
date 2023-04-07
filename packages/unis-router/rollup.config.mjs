@@ -22,6 +22,8 @@ const configGen = (format) =>
       esbuild({
         sourceMap: true,
         target: "esnext",
+        jsx: "automatic",
+        jsxImportSource: "@unis/core",
       }),
       reassign({
         include: ["**/*.(t|j)s?(x)"],
