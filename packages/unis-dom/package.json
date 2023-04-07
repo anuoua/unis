@@ -4,6 +4,8 @@
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "dist/browser.js",
   "module": "dist/browser.mjs",
+  "types": "index.d.ts",
+  "typings": "index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/browser.js",
@@ -33,7 +35,7 @@
   "files": [
     "dist",
     "server.d.ts",
-    "server.js"
+    "index.d.ts"
   ],
   "author": "anuoua",
   "license": "MIT",
