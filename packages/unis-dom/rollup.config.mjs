@@ -3,35 +3,14 @@ import dts from "rollup-plugin-dts";
 import { defineConfig } from "rollup";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 
-const configGen = (format) =>
+const configGen = (format, plateform) =>
   defineConfig({
-    input: "build/browser/index.js",
+    input: `src/${plateform}/index.ts`,
     external: [/^@unis/],
     output: [
       {
         dir: "dist",
-        entryFileNames: `browser.${format === "esm" ? "mjs" : "js"}`,
-        format,
-        sourcemap: true,
-      },
-    ],
-    plugins: [
-      nodeResolve(),
-      esbuild({
-        sourceMap: true,
-        target: "esnext",
-      }),
-    ],
-  });
-
-const serverConfigGen = (format) =>
-  defineConfig({
-    input: "build/server/index.js",
-    external: [/^@unis/],
-    output: [
-      {
-        dir: "dist",
-        entryFileNames: `server.${format === "esm" ? "mjs" : "js"}`,
+        entryFileNames: `${plateform}.${format === "esm" ? "mjs" : "js"}`,
         format,
         sourcemap: true,
       },
@@ -53,10 +32,10 @@ const dtsRollup = (which) =>
   });
 
 const config = [
-  configGen("cjs"),
-  configGen("esm"),
-  serverConfigGen("cjs"),
-  serverConfigGen("esm"),
+  configGen("cjs", "browser"),
+  configGen("esm", "browser"),
+  configGen("cjs", "server"),
+  configGen("esm", "server"),
   dtsRollup("browser"),
   dtsRollup("server"),
 ];

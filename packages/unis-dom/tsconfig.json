@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "build"
   },
-  "include": ["src", "src/browser/__test__", "src/server"]
+  "include": ["src"]
 }

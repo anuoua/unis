@@ -1,5 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "server"],
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "declarationMap": false
+  },
+  "include": ["src"],
   "exclude": ["**/*.test.*", "**/__test__"]
 }

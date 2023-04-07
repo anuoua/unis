@@ -9,7 +9,10 @@
       "require": "./dist/browser.js",
       "import": "./dist/browser.mjs"
     },
-    "./server": "./server.js"
+    "./server": {
+      "require": "./dist/server.js",
+      "import": "./dist/server.mjs"
+    }
   },
   "scripts": {
     "build": "rimraf build && rimraf dist && tsc -p tsconfig.build.json && rollup --config",
