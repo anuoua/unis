@@ -1,5 +1,5 @@
 import type { PluginOption } from "vite";
-import { reassign } from "rollup-plugin-reassign";
+import { reassign } from "@callback-reassign/rollup-plugin";
 import { unisFns } from "@unis/core";
 
 export function unisPreset(): PluginOption[] {
