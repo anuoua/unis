@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
 import { transform } from "@babel/core";
-import { unisPreset } from "../src/index";
+import unisPreset from "../src/index";
 
 const code = `
 import { useState } from "@unis/core";

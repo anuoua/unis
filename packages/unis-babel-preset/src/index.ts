@@ -1,6 +1,6 @@
 import { unisFns } from "@unis/core";
 
-export function unisPreset() {
+export default function unisPreset() {
   return {
     plugins: [
       "@babel/plugin-syntax-jsx",
