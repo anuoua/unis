@@ -1,6 +1,6 @@
 {
   "name": "@unis/core",
-  "version": "1.2.0-alpha.3",
+  "version": "1.2.0",
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
