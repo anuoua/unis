@@ -1,6 +1,6 @@
 {
   "name": "@unis/transition",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0",
   "description": "Unis transition component",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
