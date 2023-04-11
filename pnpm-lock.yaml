@@ -203,7 +203,7 @@ importers:
 
   packages/unis-vite-preset:
     specifiers:
-      '@callback-reassign/rollup-plugin': 0.0.1-alpha.1
+      '@callback-reassign/rollup-plugin': ^0.0.1
       '@rollup/plugin-node-resolve': ^13.0.6
       '@unis/core': workspace:^
       cross-env: ^7.0.3
@@ -214,7 +214,7 @@ importers:
       typescript: ^4.4.4
       vite: ^4.2.1
     dependencies:
-      '@callback-reassign/rollup-plugin': 0.0.1-alpha.1_rollup@2.72.0
+      '@callback-reassign/rollup-plugin': 0.0.1_rollup@2.72.0
     devDependencies:
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.72.0
       '@unis/core': link:../unis-core
@@ -464,16 +464,6 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@callback-reassign/babel-plugin/0.0.1-alpha.1_berkvnt6ssv6gbvgyc2cqx4sea:
-    resolution: {integrity: sha512-Sm7KEDkDdUi3Ppzh1QQtu4KtzHKXcGuF4uhIH4hICRxsL2IhxmnLMBH1syhAxfH0IITVTEyOAboY4PqwYRreAw==}
-    peerDependencies:
-      '@babel/core': ^7.21.4
-      '@types/babel__core': ^7.20.0
-    dependencies:
-      '@babel/core': 7.21.4
-      '@types/babel__core': 7.20.0
-    dev: false
-
   /@callback-reassign/babel-plugin/0.0.1-alpha.2_berkvnt6ssv6gbvgyc2cqx4sea:
     resolution: {integrity: sha512-xCDy2pWmzyVHSn2Nwu2nvAt9+6e0R7c/FdaDcLW5dclThM59/pumW60obrU05UcYLYPlreavqKp9LjS+5zqkmw==}
     peerDependencies:
@@ -484,11 +474,21 @@ packages:
       '@types/babel__core': 7.20.0
     dev: false
 
-  /@callback-reassign/rollup-plugin/0.0.1-alpha.1_rollup@2.72.0:
-    resolution: {integrity: sha512-dv+UjoRPwTgoR4JsSicVUZR+w+MZihQ+0Z2fLdwHRfbq9qm76+tjuxa4fF7ulL3dz/BV8GoVGcP+Zs6cpXsFVw==}
+  /@callback-reassign/babel-plugin/0.0.1_berkvnt6ssv6gbvgyc2cqx4sea:
+    resolution: {integrity: sha512-3FTpRvlkAtnTwD8anG0O2qtAE7tH3XrqmxgVmSPMA8u0G5HSrp2a2AhsUPhHxIhDZGJl6M5JAfU9wPOIfBgaSw==}
+    peerDependencies:
+      '@babel/core': ^7.21.4
+      '@types/babel__core': ^7.20.0
     dependencies:
       '@babel/core': 7.21.4
-      '@callback-reassign/babel-plugin': 0.0.1-alpha.1_berkvnt6ssv6gbvgyc2cqx4sea
+      '@types/babel__core': 7.20.0
+    dev: false
+
+  /@callback-reassign/rollup-plugin/0.0.1_rollup@2.72.0:
+    resolution: {integrity: sha512-XwXeSa/udgNb18vHxPYHQK9iCqQBdPYblWJUM5TR5HtrxeVVm++d9ygQMdzCveS1GoWHlBsiLAq5aZ//ig9OYQ==}
+    dependencies:
+      '@babel/core': 7.21.4
+      '@callback-reassign/babel-plugin': 0.0.1_berkvnt6ssv6gbvgyc2cqx4sea
       '@rollup/pluginutils': 5.0.2_rollup@2.72.0
       '@types/babel__core': 7.20.0
     transitivePeerDependencies:
@@ -1392,8 +1392,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001476
-      electron-to-chromium: 1.4.356
+      caniuse-lite: 1.0.30001477
+      electron-to-chromium: 1.4.357
       node-releases: 2.0.10
       update-browserslist-db: 1.0.10_browserslist@4.21.5
 
@@ -1449,8 +1449,8 @@ packages:
     resolution: {integrity: sha512-pJYArGHrPp3TUqQzFYRmP/lwJlj8RCbVe3Gd3eJQkAV8SAC6b19XS9BjMvRdvaS8RMkaTN8ZhoHP6S1y8zzwEQ==}
     dev: true
 
-  /caniuse-lite/1.0.30001476:
-    resolution: {integrity: sha512-JmpktFppVSvyUN4gsLS0bShY2L9ZUslHLE72vgemBkS43JD2fOvKTKs+GtRwuxrtRGnwJFW0ye7kWRRlLJS9vQ==}
+  /caniuse-lite/1.0.30001477:
+    resolution: {integrity: sha512-lZim4iUHhGcy5p+Ri/G7m84hJwncj+Kz7S5aD4hoQfslKZJgt0tHc/hafVbqHC5bbhHb+mrW2JOUHkI5KH7toQ==}
 
   /chai/4.3.7:
     resolution: {integrity: sha512-HLnAzZ2iupm25PlN0xFreAlBA5zaBSv3og0DdeGA4Ar6h6rJ3A0rolRUKJhSF2V10GZKDgWF/VmAEsNWjCRB+A==}
@@ -1709,8 +1709,8 @@ packages:
     resolution: {integrity: sha512-diMr4t69FigAGUk2KovP0bygEtN/9AkqEVkzjEp0cu+zFFbZMVvwACpTTfuj1mAmFR5kNoSW8wGKDFWIvmThiQ==}
     dev: true
 
-  /electron-to-chromium/1.4.356:
-    resolution: {integrity: sha512-nEftV1dRX3omlxAj42FwqRZT0i4xd2dIg39sog/CnCJeCcL1TRd2Uh0i9Oebgv8Ou0vzTPw++xc+Z20jzS2B6A==}
+  /electron-to-chromium/1.4.357:
+    resolution: {integrity: sha512-UTkCbNTAcGXABmEnQrGcW4m3cG6fcyBfD4KDF0iyEAlbrGZiY9dmslyDAGOD1Kr5biN2F743Y30aRCOtau35Vw==}
 
   /emoji-regex/8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
