@@ -10,7 +10,7 @@ importers:
       '@babel/core': ^7.21.4
       '@babel/plugin-syntax-jsx': ^7.21.4
       '@babel/plugin-transform-react-jsx': ^7.21.0
-      '@callback-reassign/babel-plugin': 0.0.1-alpha.2
+      '@callback-reassign/babel-plugin': ^0.0.1
       '@rollup/plugin-node-resolve': ^13.0.6
       '@types/babel__core': ^7.20.0
       '@unis/core': workspace:^
@@ -25,7 +25,7 @@ importers:
     dependencies:
       '@babel/plugin-syntax-jsx': 7.21.4_@babel+core@7.21.4
       '@babel/plugin-transform-react-jsx': 7.21.0_@babel+core@7.21.4
-      '@callback-reassign/babel-plugin': 0.0.1-alpha.2_berkvnt6ssv6gbvgyc2cqx4sea
+      '@callback-reassign/babel-plugin': 0.0.1_berkvnt6ssv6gbvgyc2cqx4sea
     devDependencies:
       '@babel/core': 7.21.4
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.72.0
@@ -463,16 +463,6 @@ packages:
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
-
-  /@callback-reassign/babel-plugin/0.0.1-alpha.2_berkvnt6ssv6gbvgyc2cqx4sea:
-    resolution: {integrity: sha512-xCDy2pWmzyVHSn2Nwu2nvAt9+6e0R7c/FdaDcLW5dclThM59/pumW60obrU05UcYLYPlreavqKp9LjS+5zqkmw==}
-    peerDependencies:
-      '@babel/core': ^7.21.4
-      '@types/babel__core': ^7.20.0
-    dependencies:
-      '@babel/core': 7.21.4
-      '@types/babel__core': 7.20.0
-    dev: false
 
   /@callback-reassign/babel-plugin/0.0.1_berkvnt6ssv6gbvgyc2cqx4sea:
     resolution: {integrity: sha512-3FTpRvlkAtnTwD8anG0O2qtAE7tH3XrqmxgVmSPMA8u0G5HSrp2a2AhsUPhHxIhDZGJl6M5JAfU9wPOIfBgaSw==}

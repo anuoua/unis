@@ -37,7 +37,7 @@
   "dependencies": {
     "@babel/plugin-syntax-jsx": "^7.21.4",
     "@babel/plugin-transform-react-jsx": "^7.21.0",
-    "@callback-reassign/babel-plugin": "0.0.1-alpha.2"
+    "@callback-reassign/babel-plugin": "^0.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
