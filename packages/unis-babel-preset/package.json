@@ -1,6 +1,6 @@
 {
   "name": "@unis/babel-preset",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1",
   "description": "Unis babel preset",
   "main": "build/index.js",
   "module": "build/index.mjs",
