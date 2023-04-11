@@ -2,7 +2,7 @@
   <img height="300" src="logo.svg">
 </p>
 
-# Unis
+# Unis [中文](./README-zh_CN.md)
 
 Unis is a frontend framework that is simpler and easier to use than React.
 
