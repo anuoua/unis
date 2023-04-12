@@ -2,6 +2,8 @@
   <img height="300" src="logo.svg">
 </p>
 
+[![@unis/core CI/CD](https://github.com/anuoua/unis/actions/workflows/unis-core.yml/badge.svg)](https://github.com/anuoua/unis/actions/workflows/unis-core.yml) [![@unis/dom CI/CD](https://github.com/anuoua/unis/actions/workflows/unis-dom.yml/badge.svg)](https://github.com/anuoua/unis/actions/workflows/unis-dom.yml) [![@unis/router CI/CD](https://github.com/anuoua/unis/actions/workflows/unis-router.yml/badge.svg)](https://github.com/anuoua/unis/actions/workflows/unis-router.yml) [![@unis/transition CI/CD](https://github.com/anuoua/unis/actions/workflows/unis-transition.yml/badge.svg)](https://github.com/anuoua/unis/actions/workflows/unis-transition.yml) [![@unis/vite-preset CI/CD](https://github.com/anuoua/unis/actions/workflows/unis-vite-preset.yml/badge.svg)](https://github.com/anuoua/unis/actions/workflows/unis-vite-preset.yml) [![@unis/babel-preset CI/CD](https://github.com/anuoua/unis/actions/workflows/unis-babel-preset.yml/badge.svg)](https://github.com/anuoua/unis/actions/workflows/unis-babel-preset.yml)
+
 # Unis
 
 Unis 是一款比 React 更简单易用的前端框架
