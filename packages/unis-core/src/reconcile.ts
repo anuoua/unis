@@ -15,7 +15,6 @@ import {
   createFiber,
   matchFlag,
   findRuntime,
-  isText,
   isElement,
 } from "./fiber";
 import { commit } from "./commit";
@@ -23,7 +22,7 @@ import { preElFiberWalkHook } from "./reconcileWalkHooks/preElFiber";
 import { effectWalkHook } from "./reconcileWalkHooks/effect";
 import { formatChildren } from "./h";
 import { isFun } from "./utils";
-import { attrDiff, diff } from "./diff";
+import { diff } from "./diff";
 import { contextWalkHook } from "./reconcileWalkHooks/context";
 import { cutMemorizeState } from "./api/useReducer";
 
@@ -81,10 +80,20 @@ const performWork = (rootCurrentFiber: Fiber, hydrate: boolean) => {
 const tickWork = (workingFiber: Fiber) => {
   const { toktik } = findRuntime(workingFiber);
   let indexFiber: Fiber | undefined = workingFiber;
+
+  // work loop
   while (indexFiber && !toktik.shouldYield()) {
-    indexFiber = update(indexFiber);
+    if (matchFlag(indexFiber.commitFlag, FLAG.REUSE)) {
+      indexFiber = next(indexFiber, true);
+      setWorkingFiber(indexFiber);
+      continue;
+    }
+    update(indexFiber);
+    assemble(indexFiber);
+    indexFiber = next(indexFiber);
     setWorkingFiber(indexFiber);
   }
+
   if (indexFiber) {
     toktik.addTik(() => {
       setWorkingFiber(indexFiber);
@@ -133,35 +142,14 @@ const callComponentEffects = (reconcileState: ReconcileState) => {
 };
 
 const update = (fiber: Fiber) => {
-  if (matchFlag(fiber.commitFlag, FLAG.REUSE)) return next(fiber, true);
-
   if (isComponent(fiber)) {
     updateComponent(fiber);
   } else {
     updateHost(fiber);
   }
-
-  !fiber.commitFlag && delete fiber.alternate;
-
-  return next(fiber);
 };
 
 const updateHost = (fiber: Fiber) => {
-  const { hydrate, hydrateEl } = fiber.reconcileState!;
-  const { operator } = findRuntime(fiber);
-
-  if (isElement(fiber) && hydrate && hydrateEl) {
-    if (!operator.matchElement(fiber, hydrateEl))
-      throw new Error("Hydrate failed!");
-    fiber.el = hydrateEl;
-    fiber.reconcileState!.hydrateEl = operator.nextElement(hydrateEl);
-    const diff = isText(fiber)
-      ? undefined
-      : attrDiff(fiber, { props: {} }, true);
-    fiber.attrDiff = diff;
-    if (diff?.length) operator.updateElementProperties(fiber);
-  }
-
   diff(fiber, fiber.alternate?.children, formatChildren(fiber.props.children));
 };
 
@@ -189,4 +177,23 @@ const updateComponent = (fiber: Fiber) => {
   cutMemorizeState(fiber);
 
   diff(fiber, fiber.alternate?.children, fiber.rendered);
+};
+
+const assemble = (fiber: Fiber) => {
+  if (isElement(fiber)) {
+    const { hydrate, hydrateEl } = fiber.reconcileState!;
+    const { operator } = findRuntime(fiber);
+
+    if (hydrate && hydrateEl) {
+      if (!operator.matchElement(fiber, hydrateEl))
+        throw new Error("Hydrate failed!");
+      fiber.el = hydrateEl;
+      fiber.reconcileState!.hydrateEl = operator.nextElement(hydrateEl);
+    } else if (matchFlag(fiber.commitFlag, FLAG.CREATE) && !hydrate) {
+      fiber.el = operator.createElement(fiber);
+      if (fiber.attrDiff?.length) operator.updateElementProperties(fiber);
+    }
+  }
+
+  !fiber.commitFlag && (fiber.alternate = undefined);
 };

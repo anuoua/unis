@@ -11,7 +11,6 @@ import {
   ReconcileState,
   isText,
   findToRoot,
-  findRuntime,
 } from "./fiber";
 import {
   classes,
@@ -117,17 +116,12 @@ export const create = (
     commitFlag: FLAG.CREATE,
   } as Fiber;
 
-  const { operator } = findRuntime(parentFiber);
-
   if (isElement(newFiber)) {
     retFiber.isSvg = newFiber.tag === "svg" || parentFiber.isSvg;
     if (!hydrate) {
-      retFiber.el = operator.createElement(retFiber);
-      const diff = isText(retFiber)
+      retFiber.attrDiff = isText(retFiber)
         ? undefined
         : attrDiff(retFiber, { props: {} });
-      retFiber.attrDiff = diff;
-      if (diff?.length) operator.updateElementProperties(retFiber);
     }
   }
 
@@ -190,13 +184,13 @@ const determineCommitFlag = (
     commitFlag = mergeFlag(commitFlag, FLAG.REUSE);
   }
 
-  if (isElement(newFiber)) {
-    let diff: AttrDiff = [];
-    if (matchFlag(commitFlag, FLAG.UPDATE)) {
-      diff = attrDiff(newFiber, oldFiber);
-      if (diff.length === 0) commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
+  if (isElement(newFiber) && matchFlag(commitFlag, FLAG.UPDATE)) {
+    let diff = attrDiff(newFiber, oldFiber);
+    if (diff.length) {
+      newFiber.attrDiff = diff;
+    } else {
+      commitFlag = clearFlag(commitFlag, FLAG.UPDATE);
     }
-    newFiber.attrDiff = diff;
   }
 
   flag && (commitFlag = mergeFlag(commitFlag, flag));
