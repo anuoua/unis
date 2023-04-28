@@ -2,6 +2,7 @@ import {
   clearAndRunEffects,
   clearEffects,
   Effect,
+  EFFECT_TYPE,
   effectDepsEqual,
   runEffects,
   runStateEffects,
@@ -63,8 +64,6 @@ const performWork = (rootCurrentFiber: Fiber, hydrate: boolean) => {
     rootWorkingFiber,
     dispatchEffectList: [],
     commitList: [],
-    tickEffectList: [],
-    layoutEffectList: [],
     dependencyList: [],
     workingPreElFiber: undefined,
     hydrate,
@@ -79,25 +78,25 @@ const performWork = (rootCurrentFiber: Fiber, hydrate: boolean) => {
 
 const tickWork = (workingFiber: Fiber) => {
   const { toktik } = findRuntime(workingFiber);
-  let indexFiber: Fiber | undefined = workingFiber;
+
+  let iFiber: Fiber | undefined = workingFiber;
 
   // work loop
-  while (indexFiber && !toktik.shouldYield()) {
-    if (matchFlag(indexFiber.commitFlag, FLAG.REUSE)) {
-      indexFiber = next(indexFiber, true);
-      setWorkingFiber(indexFiber);
-      continue;
+  while (iFiber && !toktik.shouldYield()) {
+    const isReuse = !!matchFlag(iFiber.commitFlag, FLAG.REUSE);
+    {
+      !isReuse && update(iFiber);
+      !isReuse && isElement(iFiber) && compose(iFiber);
+      complete(iFiber);
     }
-    update(indexFiber);
-    assemble(indexFiber);
-    indexFiber = next(indexFiber);
-    setWorkingFiber(indexFiber);
+    iFiber = next(iFiber, isReuse);
+    setWorkingFiber(iFiber);
   }
 
-  if (indexFiber) {
+  if (iFiber) {
     toktik.addTik(() => {
-      setWorkingFiber(indexFiber);
-      tickWork(indexFiber!);
+      setWorkingFiber(iFiber);
+      tickWork(iFiber!);
     });
   } else {
     const { reconcileState } = workingFiber;
@@ -119,26 +118,32 @@ const tickWork = (workingFiber: Fiber) => {
 };
 
 const callComponentEffects = (reconcileState: ReconcileState) => {
-  const { layoutEffectList, tickEffectList, rootWorkingFiber } =
-    reconcileState!;
+  const { commitList, rootWorkingFiber } = reconcileState!;
   const { toktik } = rootWorkingFiber.runtime!;
 
-  // clear and run layoutEffects
   const triggeredLayoutEffects: Effect[] = [];
+  const tickEffects: Effect[] = [];
 
-  layoutEffectList?.forEach((e) => {
-    const equal = effectDepsEqual(e);
-    if (!equal) {
-      triggeredLayoutEffects.push(e);
-      clearEffects([e]);
+  // clear and run layoutEffects
+  for (const fiber of commitList) {
+    for (const e of fiber.effects ?? []) {
+      if (e.type === EFFECT_TYPE.TICK) {
+        tickEffects.push(e);
+      } else {
+        const equal = effectDepsEqual(e);
+        if (!equal) {
+          triggeredLayoutEffects.push(e);
+          clearEffects([e]);
+        }
+      }
     }
-  });
+  }
 
   // run triggered layout effects
   runEffects(triggeredLayoutEffects);
 
   // clear and run tick effects
-  toktik.addTik(() => clearAndRunEffects(tickEffectList));
+  toktik.addTik(() => clearAndRunEffects(tickEffects));
 };
 
 const update = (fiber: Fiber) => {
@@ -179,21 +184,21 @@ const updateComponent = (fiber: Fiber) => {
   diff(fiber, fiber.alternate?.children, fiber.rendered);
 };
 
-const assemble = (fiber: Fiber) => {
-  if (isElement(fiber)) {
-    const { hydrate, hydrateEl } = fiber.reconcileState!;
-    const { operator } = findRuntime(fiber);
+const compose = (fiber: Fiber) => {
+  const { hydrate, hydrateEl } = fiber.reconcileState!;
+  const { operator } = findRuntime(fiber);
 
-    if (hydrate && hydrateEl) {
-      if (!operator.matchElement(fiber, hydrateEl))
-        throw new Error("Hydrate failed!");
-      fiber.el = hydrateEl;
-      fiber.reconcileState!.hydrateEl = operator.nextElement(hydrateEl);
-    } else if (matchFlag(fiber.commitFlag, FLAG.CREATE) && !hydrate) {
-      fiber.el = operator.createElement(fiber);
-      if (fiber.attrDiff?.length) operator.updateElementProperties(fiber);
-    }
+  if (hydrate && hydrateEl) {
+    if (!operator.matchElement(fiber, hydrateEl))
+      throw new Error("Hydrate failed!");
+    fiber.el = hydrateEl;
+    fiber.reconcileState!.hydrateEl = operator.nextElement(hydrateEl);
+  } else if (matchFlag(fiber.commitFlag, FLAG.CREATE) && !hydrate) {
+    fiber.el = operator.createElement(fiber);
+    if (fiber.attrDiff?.length) operator.updateElementProperties(fiber);
   }
+};
 
+const complete = (fiber: Fiber) => {
   !fiber.commitFlag && (fiber.alternate = undefined);
 };

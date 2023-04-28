@@ -7,8 +7,6 @@ export interface ReconcileState {
   rootWorkingFiber: Fiber;
   dispatchEffectList: Effect[];
   commitList: Fiber[];
-  tickEffectList: Effect[];
-  layoutEffectList: Effect[];
   dependencyList: Dependency[];
   workingPreElFiber?: Fiber;
   hydrate: boolean;
