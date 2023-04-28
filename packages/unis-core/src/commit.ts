@@ -16,44 +16,44 @@ import {
 } from "./fiber";
 
 export const commitDeletion = (fiber: Fiber, operator: Operator) => {
-  let indexFiber: Fiber | undefined = fiber;
+  let iFiber: Fiber | undefined = fiber;
 
-  while (indexFiber) {
-    if (isHostElement(indexFiber)) {
-      indexFiber.props.ref && (indexFiber.props.ref.current = undefined);
+  while (iFiber) {
+    if (isHostElement(iFiber)) {
+      iFiber.props.ref && (iFiber.props.ref.current = undefined);
     }
-    if (isComponent(indexFiber)) {
-      clearEffects(indexFiber.effects);
+    if (isComponent(iFiber)) {
+      clearEffects(iFiber.effects);
     }
     /**
      * remove input element may trigger blur sync event,
      * so isDestroyed must be true before remove to prevent dispatch in useReducer.
      */
-    indexFiber.isDestroyed = true;
-    if (isPortal(indexFiber)) {
-      indexFiber.child && operator.remove(indexFiber.child);
+    iFiber.isDestroyed = true;
+    if (isPortal(iFiber)) {
+      iFiber.child && operator.remove(iFiber.child);
     }
-    indexFiber.dependencies = undefined;
-    indexFiber.reconcileState = undefined;
+    iFiber.dependencies = undefined;
+    iFiber.reconcileState = undefined;
 
-    if (indexFiber.child) {
-      indexFiber = indexFiber.child;
+    if (iFiber.child) {
+      iFiber = iFiber.child;
       continue;
-    } else if (indexFiber === fiber) {
-      indexFiber = undefined;
+    } else if (iFiber === fiber) {
+      iFiber = undefined;
       continue;
     }
 
-    while (indexFiber) {
-      if (indexFiber.sibling) {
-        indexFiber = indexFiber.sibling;
+    while (iFiber) {
+      if (iFiber.sibling) {
+        iFiber = iFiber.sibling;
         break;
       }
 
-      if (indexFiber.parent !== fiber) {
-        indexFiber = indexFiber.parent;
+      if (iFiber.parent !== fiber) {
+        iFiber = iFiber.parent;
       } else {
-        indexFiber = undefined;
+        iFiber = undefined;
         break;
       }
     }

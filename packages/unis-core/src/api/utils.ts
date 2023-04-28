@@ -26,11 +26,11 @@ export const getWF = (): Fiber | never => {
 export const markFiber = (workingFiber: Fiber) => {
   workingFiber.flag = mergeFlag(workingFiber.flag, FLAG.UPDATE);
 
-  let indexFiber: Fiber | undefined = workingFiber;
+  let iFiber: Fiber | undefined = workingFiber;
 
-  while ((indexFiber = indexFiber.parent)) {
-    if (indexFiber.childFlag) break;
-    indexFiber.childFlag = mergeFlag(indexFiber.childFlag, FLAG.UPDATE);
+  while ((iFiber = iFiber.parent)) {
+    if (iFiber.childFlag) break;
+    iFiber.childFlag = mergeFlag(iFiber.childFlag, FLAG.UPDATE);
   }
 };
 

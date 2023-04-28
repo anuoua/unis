@@ -19,21 +19,19 @@ export const contextWalkHook: WalkHook = {
       !Object.is(enter.alternate.props.value, enter.props.value)
     ) {
       let alternate = enter.alternate;
-      let indexFiber: Fiber | undefined = alternate;
+      let iFiber: Fiber | undefined = alternate;
 
       const [next, addHook] = createNext();
 
       addHook({ up: (from, to) => to !== alternate });
 
       do {
-        findDependency(indexFiber, enter) && markFiber(indexFiber);
-        indexFiber = next(
-          indexFiber,
-          indexFiber !== alternate &&
-            isProvider(indexFiber) &&
-            indexFiber.tag === enter.tag
+        findDependency(iFiber, enter) && markFiber(iFiber);
+        iFiber = next(
+          iFiber,
+          iFiber !== alternate && isProvider(iFiber) && iFiber.tag === enter.tag
         );
-      } while (indexFiber);
+      } while (iFiber);
     }
   },
 };
