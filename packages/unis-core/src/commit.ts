@@ -89,7 +89,7 @@ export const commitInsert = (fiber: Fiber, operator: Operator) => {
 
 export const commit = (reconcileState: ReconcileState) => {
   const { operator } = reconcileState.rootWorkingFiber.runtime!;
-  for (let fiber of reconcileState.commitList) {
+  for (const fiber of reconcileState.commitList) {
     if (matchFlag(fiber.commitFlag, FLAG.DELETE)) {
       commitDeletion(fiber.alternate!, operator);
       continue;

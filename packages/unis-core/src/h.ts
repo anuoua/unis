@@ -34,7 +34,7 @@ export const h2 = (tag: any, props: any, key?: string | number) => {
 export const formatChildren = (children: any) => {
   const formatedChildren: Fiber[] = [];
 
-  for (let child of toArray(children)) {
+  for (const child of toArray(children)) {
     if ([null, false, true, undefined].includes(child)) {
       continue;
     } else {

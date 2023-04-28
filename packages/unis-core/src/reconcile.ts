@@ -126,14 +126,14 @@ const callComponentEffects = (reconcileState: ReconcileState) => {
 
   // clear and run layoutEffects
   for (const fiber of commitList) {
-    for (const e of fiber.effects ?? []) {
-      if (e.type === EFFECT_TYPE.TICK) {
-        tickEffects.push(e);
+    for (const effect of fiber.effects ?? []) {
+      if (effect.type === EFFECT_TYPE.TICK) {
+        tickEffects.push(effect);
       } else {
-        const equal = effectDepsEqual(e);
+        const equal = effectDepsEqual(effect);
         if (!equal) {
-          triggeredLayoutEffects.push(e);
-          clearEffects([e]);
+          triggeredLayoutEffects.push(effect);
+          clearEffects([effect]);
         }
       }
     }

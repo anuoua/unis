@@ -45,7 +45,7 @@ export const styleStr = (style: Partial<CSSStyleDeclaration>) =>
     .join("; ") + ";";
 
 export const svgKey = (key: string) => {
-  for (let str of ["xmlns", "xml", "xlink"]) {
+  for (const str of ["xmlns", "xml", "xlink"]) {
     if (key.startsWith(str)) return key.toLowerCase().replace(str, `${str}:`);
   }
   return displayAttrs.includes(key) ? camel2kebab(key) : key;

@@ -35,7 +35,7 @@ export const markFiber = (workingFiber: Fiber) => {
 };
 
 export const runStateEffects = (fiber: Fiber) => {
-  for (let effect of fiber.stateEffects ?? []) {
+  for (const effect of fiber.stateEffects ?? []) {
     effect();
   }
 };

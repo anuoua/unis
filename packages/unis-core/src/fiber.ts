@@ -266,8 +266,7 @@ export const findLastElFiber = (fiber: Fiber): Fiber | undefined => {
     return undefined;
   } else {
     for (let i = 0; i < (fiber.children?.length ?? 0); i++) {
-      const result = findLastElFiber(fiber.children!.at(-(i + 1))!);
-      if (result) return result;
+      return findLastElFiber(fiber.children!.at(-(i + 1))!);
     }
   }
 };
