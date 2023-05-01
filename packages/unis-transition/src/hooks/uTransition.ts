@@ -60,16 +60,22 @@ export const uTransition = (optsFn: () => uTransitionProps) => {
     !realMountOnEnter ? true : inProp
   );
 
-  let initialStatus = UNMOUNTED;
+  let [initialStatus] = useState(
+    childrenState && appear && inProp
+      ? enter
+        ? APPEARING
+        : ENTERED
+      : UNMOUNTED
+  );
 
-  {
-    if (childrenState) {
-      if (appear && inProp) initialStatus = enter ? APPEARING : ENTERED;
-      if (initialStatus === APPEARING) {
+  useEffect(
+    () => {
+      if (childrenState && initialStatus === APPEARING) {
         setTimer(timeoutObject.appear!);
       }
-    }
-  }
+    },
+    () => []
+  );
 
   let [status, setStatus] = useState(initialStatus);
 
@@ -97,7 +103,6 @@ export const uTransition = (optsFn: () => uTransitionProps) => {
         if (!enter) return setStatus(ENTERED);
         setStatus(ENTERING);
         setChildrenState(true);
-        childrenState = true;
         setTimer(timeoutObject.enter!);
       } else {
         setStatus(EXITING);
