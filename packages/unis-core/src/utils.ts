@@ -78,3 +78,14 @@ export const classes = (cs: CSArray | CSObject): string => {
 
   return isArray(cs) ? arrayClasses(cs) : objectClasses(cs);
 };
+
+let overflow = "";
+let count = 0;
+
+export const generateId = () => {
+  if (count === Number.MAX_SAFE_INTEGER) {
+    overflow += count.toString(32);
+    count = 0;
+  }
+  return `${overflow}${(count++).toString(32)}`;
+};

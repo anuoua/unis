@@ -1,18 +1,12 @@
-import { getWF } from "./utils";
 import { Fiber } from "../fiber";
+import { getWF } from "./utils";
 import { use } from "./use";
-
-let id = 0;
-let preId = "";
+import { generateId } from "../utils";
 
 export const idHof = () => {
   let workingFiber = getWF();
   if (!workingFiber.id) {
-    if (id === Number.MAX_SAFE_INTEGER) {
-      preId += id.toString(32);
-      id = 0;
-    }
-    workingFiber.id = `u:${preId}${(id++).toString(32)}`;
+    workingFiber.id = generateId();
   }
   return (WF: Fiber) => WF.id;
 };
