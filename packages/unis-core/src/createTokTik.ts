@@ -7,6 +7,8 @@ export const createTokTik = (options: {
 }) => {
   const { nextTick, now, interval = 4 } = options;
 
+  const timeSlicing = !!interval;
+
   let lastTime: number = 0;
   let looping = false;
 
@@ -32,10 +34,12 @@ export const createTokTik = (options: {
     looping = false;
   };
 
-  const runTask = (task: Task) => {
-    lastTime = now();
-    return task();
-  };
+  const runTask = timeSlicing
+    ? (task: Task) => {
+        lastTime = now();
+        return task();
+      }
+    : (task: Task) => task();
 
   const addTok = (task: Task, pending = false) => {
     task.isTok = true;
@@ -52,7 +56,9 @@ export const createTokTik = (options: {
 
   const clearTikTaskQueue = () => (tikQueue.length = 0);
 
-  const shouldYield = () => now() - lastTime > interval;
+  const shouldYield = timeSlicing
+    ? () => now() - lastTime > interval
+    : () => false;
 
   return {
     addTok,
