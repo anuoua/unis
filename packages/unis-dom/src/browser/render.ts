@@ -7,6 +7,7 @@ const operator = createOperator();
 const toktik = createTokTik({
   now,
   nextTick,
+  interval: (window as any).UNIS_INTERVAL,
 });
 
 export const render = (element: any, container: Element, hydrate = false) => {
