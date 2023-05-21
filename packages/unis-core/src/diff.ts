@@ -140,7 +140,7 @@ export const keyIndexMapGen = (
   const map: any = {};
   for (let i = start; i <= end; i++) {
     const key = children[i].props?.key;
-    if (key) map[key] = i;
+    if (key !== undefined) map[key] = i;
   }
   return map;
 };
@@ -266,13 +266,21 @@ export const diff = (
     newEndFiber = newChildren[--newEndIndex];
   };
 
+  const oldForward = () => {
+    oldStartFiber = oldChildren[++oldStartIndex];
+  };
+
+  const oldForwardEnd = () => {
+    oldEndFiber = oldChildren[--oldEndIndex];
+  };
+
   let keyIndexMap: any;
 
   while (newStartIndex <= newEndIndex && oldStartIndex <= oldEndIndex) {
     if (oldStartFiber === undefined) {
-      oldStartFiber = oldChildren[++oldStartIndex];
+      oldForward();
     } else if (oldEndFiber === undefined) {
-      oldStartFiber = oldChildren[--oldEndIndex];
+      oldForwardEnd();
     } else if (isSame(newStartFiber, oldStartFiber)) {
       newStartFiber = getSameNewFiber(
         parentFiber,
@@ -280,11 +288,11 @@ export const diff = (
         oldStartFiber
       );
       forward();
-      oldStartFiber = oldChildren[++oldStartIndex];
+      oldForward();
     } else if (isSame(newEndFiber, oldEndFiber)) {
       newEndFiber = getSameNewFiber(parentFiber, newEndFiber, oldEndFiber);
       forwardEnd();
-      oldEndFiber = oldChildren[--oldEndIndex];
+      oldForwardEnd();
     } else if (isSame(newStartFiber, oldEndFiber)) {
       newStartFiber = getSameNewFiber(
         parentFiber,
@@ -293,7 +301,7 @@ export const diff = (
         FLAG.INSERT
       );
       forward();
-      oldEndFiber = oldChildren[--oldEndIndex];
+      oldForwardEnd();
     } else if (isSame(newEndFiber, oldStartFiber)) {
       newEndFiber = getSameNewFiber(
         parentFiber,
@@ -302,7 +310,7 @@ export const diff = (
         FLAG.INSERT
       );
       forwardEnd();
-      oldStartFiber = oldChildren[++oldStartIndex];
+      oldForward();
     } else {
       if (!keyIndexMap) {
         keyIndexMap = keyIndexMapGen(oldChildren, oldStartIndex, oldEndIndex);
@@ -312,17 +320,17 @@ export const diff = (
         newStartFiber = create(newStartFiber, parentFiber);
       } else {
         const targetFiber = oldChildren[index];
-        const same = isSame(newStartFiber, targetFiber);
-        newStartFiber = same
-          ? getSameNewFiber(
-              parentFiber,
-              newStartFiber,
-              targetFiber,
-              FLAG.INSERT
-            )
-          : create(newStartFiber, parentFiber);
-        !same && deletion(targetFiber);
-        oldChildren[index] = undefined as unknown as Fiber;
+        if (isSame(newStartFiber, targetFiber)) {
+          newStartFiber = getSameNewFiber(
+            parentFiber,
+            newStartFiber,
+            targetFiber,
+            FLAG.INSERT
+          );
+          oldChildren[index] = undefined as unknown as Fiber;
+        } else {
+          newStartFiber = create(newStartFiber, parentFiber);
+        }
       }
       forward();
     }
