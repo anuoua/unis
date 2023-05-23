@@ -17,7 +17,6 @@ import {
   matchFlag,
   findRuntime,
   isElement,
-  clearFlag,
 } from "./fiber";
 import { commit } from "./commit";
 import { preElFiberWalkHook } from "./reconcileWalkHooks/preElFiber";
@@ -127,6 +126,7 @@ const callComponentEffects = (reconcileState: ReconcileState) => {
 
   // clear and run layoutEffects
   for (const fiber of commitList) {
+    if (!isComponent(fiber)) continue;
     for (const effect of fiber.effects ?? []) {
       if (effect.type === EFFECT_TYPE.TICK) {
         tickEffects.push(effect);
@@ -204,8 +204,6 @@ const compose = (fiber: Fiber) => {
       if (!matchFlag(iFiber.commitFlag, FLAG.CREATE)) break;
       if (isElement(iFiber)) {
         operator.insertBefore(iFiber, fiber.el, null);
-        // el has been inserted to parent, don't need commit.
-        fiber.commitFlag = clearFlag(fiber.commitFlag, FLAG.CREATE);
         break;
       }
     }

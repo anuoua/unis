@@ -45,7 +45,7 @@ export const preElFiberWalkHook: WalkHook = {
   },
 
   return: (retn?: Fiber) => {
-    if (retn && matchFlag(retn.commitFlag, FLAG.INSERT | FLAG.CREATE))
+    if (retn && matchFlag(retn.commitFlag, FLAG.INSERT))
       retn.preElFiber = retn.reconcileState!.workingPreElFiber;
   },
 };

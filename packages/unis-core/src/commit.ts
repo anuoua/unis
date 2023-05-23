@@ -97,9 +97,6 @@ export const commit = (reconcileState: ReconcileState) => {
     if (matchFlag(fiber.commitFlag, FLAG.UPDATE)) {
       commitUpdate(fiber, operator);
     }
-    if (matchFlag(fiber.commitFlag, FLAG.CREATE) && isElement(fiber)) {
-      commitInsert(fiber, operator);
-    }
     if (matchFlag(fiber.commitFlag, FLAG.INSERT)) {
       commitInsert(fiber, operator);
     }

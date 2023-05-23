@@ -113,7 +113,9 @@ export const create = (
 ) => {
   const retFiber = {
     ...newFiber,
-    commitFlag: FLAG.CREATE,
+    commitFlag: matchFlag(parentFiber.commitFlag, FLAG.CREATE)
+      ? FLAG.CREATE
+      : FLAG.CREATE | FLAG.INSERT,
   } as Fiber;
 
   if (isElement(newFiber)) {
