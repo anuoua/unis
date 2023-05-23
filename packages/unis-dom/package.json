@@ -1,6 +1,6 @@
 {
   "name": "@unis/dom",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Unis is a simpler and easier to use front-end framework than React",
   "main": "dist/browser.js",
   "module": "dist/browser.mjs",
