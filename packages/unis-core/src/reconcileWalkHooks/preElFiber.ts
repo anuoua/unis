@@ -29,6 +29,9 @@ export const preElFiberWalkHook: WalkHook = {
   },
 
   up: (from: Fiber, to?: Fiber) => {
+    if (from && !from.child) {
+      isElement(from) && setWorkingPreElFiber(from, from);
+    }
     if (to) {
       isElement(to) && setWorkingPreElFiber(from, to);
       isPortal(to) && setWorkingPreElFiber(from, to.preElFiber);
